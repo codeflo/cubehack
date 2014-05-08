@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+    Copyright (c) 2014 the CubeHack authors. All rights reserved.
+    Licensed under a BSD 2-clause license, see LICENSE.txt for details.
+-->
+
+<Mod xmlns="http://cubehack.net/gamedata">
+    <Mod.Name>CubeHack Core</Mod.Name>
+    <Mod.Version>0.0</Mod.Version>
+    <Mod.Author>The CubeHack authors</Mod.Author>
+    <Mod.Description>This is a description.</Mod.Description>
+</Mod>
