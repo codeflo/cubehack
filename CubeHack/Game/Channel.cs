@@ -12,14 +12,36 @@ namespace CubeHack.Game
     sealed class Channel : IChannel
     {
         readonly object _mutex = new object();
+        readonly Universe _universe;
         readonly Entity _player;
 
-        public Channel(Entity player)
+        public Channel(Universe universe, Entity player)
         {
+            _universe = universe;
             _player = player;
+
+            Task.Run(() => RunChannel());
         }
 
-        public event Action<GameEvent> GameEvent;
+        Func<GameEvent, Task> _onGameEventAsync;
+        public Func<GameEvent, Task> OnGameEventAsync
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _onGameEventAsync;
+                }
+            }
+
+            set
+            {
+                lock (_mutex)
+                {
+                    _onGameEventAsync = value;
+                }
+            }
+        }
 
         public Entity Player
         {
@@ -33,15 +55,29 @@ namespace CubeHack.Game
                 _player.X = playerEvent.X;
                 _player.Y = playerEvent.Y;
                 _player.Z = playerEvent.Z;
+                _player.VX = playerEvent.VX;
+                _player.VY = playerEvent.VY;
+                _player.VZ = playerEvent.VZ;
             }
         }
 
-        public void RaiseGameEvent(GameEvent gameEvent)
+        private async Task RunChannel()
         {
-            var gameEventHandler = GameEvent;
-            if (gameEventHandler != null)
+            while (true)
             {
-                Task.Run(() => gameEventHandler(gameEvent));
+                await Task.Delay(10);
+
+                Func<GameEvent, Task> onGameEventAsync;
+                lock (_mutex)
+                {
+                    onGameEventAsync = _onGameEventAsync;
+                }
+
+                if (onGameEventAsync != null)
+                {
+                    var gameEvent = _universe.GetCurrentGameEvent(_player);
+                    await onGameEventAsync(gameEvent);
+                }
             }
         }
     }

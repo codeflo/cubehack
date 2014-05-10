@@ -12,7 +12,7 @@ namespace CubeHack.Game
 {
     interface IChannel
     {
-        event Action<GameEvent> GameEvent;
+        Func<GameEvent, Task> OnGameEventAsync { get; set; }
 
         void SendPlayerEvent(PlayerEvent playerEvent);
     }

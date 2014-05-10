@@ -23,6 +23,7 @@ namespace CubeHack.Client
         readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
         long _lastFrameTicks = 0;
+        long _gameEventTicks = 0;
 
         public float PlayerX, PlayerY, PlayerZ;
 
@@ -31,7 +32,15 @@ namespace CubeHack.Client
         public GameConnection(IChannel channel)
         {
             _channel = channel;
-            channel.GameEvent += HandleGameEvent;
+            channel.OnGameEventAsync = HandleGameEventAsync;
+        }
+
+        public float TimeSinceGameEvent
+        {
+            get
+            {
+                return (_stopwatch.ElapsedTicks - _gameEventTicks) / (float)Stopwatch.Frequency;
+            }
         }
 
         public IDisposable TakeRenderLock(bool hasFocus)
@@ -43,12 +52,17 @@ namespace CubeHack.Client
             return unlocker;
         }
 
-        public void HandleGameEvent(GameEvent gameEvent)
+        Task HandleGameEventAsync(GameEvent gameEvent)
         {
             using (_mutex.TakeLock())
             {
+                // We extrapolate from this, so using server time would be more accurate perhaps?
+                _gameEventTicks = _stopwatch.ElapsedTicks;
+
                 Entities = gameEvent.Entities ?? new List<GameEvent.EntityData>();
             }
+
+            return Task.FromResult(0);
         }
 
         void UpdateState(bool hasFocus)
@@ -59,30 +73,35 @@ namespace CubeHack.Client
 
             var keyboardState = Keyboard.GetState();
 
+            float vx = 0, vy = 0, vz = 0;
+
             if (hasFocus)
             {
                 if (keyboardState.IsKeyDown(Key.W))
                 {
-                    PlayerZ -= elapsedTime * MovementSpeed;
+                    vz = -elapsedTime * MovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.A))
                 {
-                    PlayerX -= elapsedTime * MovementSpeed;
+                    vx = -elapsedTime * MovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.S))
                 {
-                    PlayerZ += elapsedTime * MovementSpeed;
+                    vz = elapsedTime * MovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.D))
                 {
-                    PlayerX += elapsedTime * MovementSpeed;
+                    vx = elapsedTime * MovementSpeed;
                 }
             }
 
-            Task.Run(() => _channel.SendPlayerEvent(new PlayerEvent { X = PlayerX, Y = PlayerY, Z = PlayerZ })).Forget();
+            PlayerX += vx;
+            PlayerY += vy;
+            PlayerZ += vz;
+            _channel.SendPlayerEvent(new PlayerEvent { X = PlayerX, Y = PlayerY, Z = PlayerZ, VX = vx, VY = vy, VZ = vz });
         }
     }
 }

@@ -27,14 +27,16 @@ namespace CubeHack.Client
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Translate(-gameConnection.PlayerX, -gameConnection.PlayerY, -gameConnection.PlayerZ);
+            GL.Translate(-gameConnection.PlayerX, -gameConnection.PlayerY - 0.9, -gameConnection.PlayerZ);
 
             DrawEntity(0, 0, -5);
             if (gameConnection.Entities != null)
             {
+                float dt = gameConnection.TimeSinceGameEvent;
+
                 foreach (var e in gameConnection.Entities)
                 {
-                    DrawEntity(e.X, e.Y, e.Z);
+                    DrawEntity(e.X + e.VX * dt, e.Y + e.VY * dt, e.Z + e.VZ * dt);
                 }
             }
         }

@@ -47,7 +47,7 @@ namespace CubeHack.Tcp
                 await ReadCookie(stream);
 
                 var internalChannel = _universe.ConnectPlayer();
-                internalChannel.GameEvent += e => SendGameEvent(stream, e);
+                internalChannel.OnGameEventAsync += e => SendGameEventAsync(stream, e);
 
                 while (true)
                 {
@@ -65,9 +65,9 @@ namespace CubeHack.Tcp
             }
         }
 
-        void SendGameEvent(Stream stream, GameEvent e)
+        Task SendGameEventAsync(Stream stream, GameEvent e)
         {
-            stream.WriteObjectAsync(e).Forget();
+            return stream.WriteObjectAsync(e);
         }
 
         async Task ReadCookie(Stream stream)

@@ -36,11 +36,31 @@ namespace CubeHack.Game
                 var entity = new Entity();
                 _entities.Add(entity);
 
-                var channel = new Channel(entity);
+                var channel = new Channel(this, entity);
                 _channels.Add(channel);
 
                 return channel;
             }
+        }
+
+        public GameEvent GetCurrentGameEvent(Entity player)
+        {
+            var gameEvent = new GameEvent() { Entities = new List<GameEvent.EntityData>() };
+            lock (_mutex)
+            {
+                foreach (var entity in _entities)
+                {
+                    if (entity != player)
+                    {
+                        lock (entity.Mutex)
+                        {
+                            gameEvent.Entities.Add(new GameEvent.EntityData { X = entity.X, Y = entity.Y, Z = entity.Z });
+                        }
+                    }
+                }
+            }
+
+            return gameEvent;
         }
 
         private async Task RunUniverse()
@@ -48,26 +68,6 @@ namespace CubeHack.Game
             while (true)
             {
                 await Task.Delay(100);
-
-                lock (_mutex)
-                {
-                    foreach (var channel in _channels)
-                    {
-                        var gameEvent = new GameEvent() { Entities = new List<GameEvent.EntityData>() };
-                        foreach (var entity in _entities)
-                        {
-                            if (entity != channel.Player)
-                            {
-                                lock (entity.Mutex)
-                                {
-                                    gameEvent.Entities.Add(new GameEvent.EntityData { X = entity.X, Y = entity.Y, Z = entity.Z });
-                                }
-                            }
-                        }
-
-                        channel.RaiseGameEvent(gameEvent);
-                    }
-                }
             }
         }
     }

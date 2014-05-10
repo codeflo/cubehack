@@ -26,7 +26,25 @@ namespace CubeHack.Tcp
             Task.Run(() => RunChannel(host, port));
         }
 
-        public event Action<GameEvent> GameEvent;
+        Func<GameEvent, Task> _onGameEventAsync;
+        public Func<GameEvent, Task> OnGameEventAsync
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _onGameEventAsync;
+                }
+            }
+
+            set
+            {
+                lock (_mutex)
+                {
+                    _onGameEventAsync = value;
+                }
+            }
+        }
 
         public void SendPlayerEvent(PlayerEvent playerEvent)
         {
@@ -60,10 +78,15 @@ namespace CubeHack.Tcp
             {
                 var gameEvent = await stream.ReadObjectAsync<GameEvent>();
 
-                var raiseGameEvent = GameEvent;
-                if (raiseGameEvent != null)
+                Func<GameEvent, Task> onGameEventAsync;
+                lock (_mutex)
                 {
-                    raiseGameEvent(gameEvent);
+                    onGameEventAsync = _onGameEventAsync;
+                }
+
+                if (onGameEventAsync != null)
+                {
+                    await onGameEventAsync(gameEvent);
                 }
             }
         }
