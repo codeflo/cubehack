@@ -57,6 +57,7 @@
     <Compile Include="Client\GameConnection.cs" />
     <Compile Include="Client\Renderer.cs" />
     <Compile Include="GameData\Mod.cs" />
+    <Compile Include="GameData\PhysicsValues.cs" />
     <Compile Include="Game\IChannel.cs" />
     <Compile Include="Client\MainWindow.cs" />
     <Compile Include="Game\Entity.cs" />
@@ -80,7 +81,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Mods\Core\_mod.xaml">
+    <Content Include="Mods\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

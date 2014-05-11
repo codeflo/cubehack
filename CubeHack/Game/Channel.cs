@@ -15,6 +15,8 @@ namespace CubeHack.Game
         readonly Universe _universe;
         readonly Entity _player;
 
+        bool hasSentInitialValues = false;
+
         public Channel(Universe universe, Entity player)
         {
             _universe = universe;
@@ -65,8 +67,6 @@ namespace CubeHack.Game
         {
             while (true)
             {
-                await Task.Delay(10);
-
                 Func<GameEvent, Task> onGameEventAsync;
                 lock (_mutex)
                 {
@@ -76,8 +76,17 @@ namespace CubeHack.Game
                 if (onGameEventAsync != null)
                 {
                     var gameEvent = _universe.GetCurrentGameEvent(_player);
+
+                    if (!hasSentInitialValues)
+                    {
+                        hasSentInitialValues = true;
+                        gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
+                    }
+
                     await onGameEventAsync(gameEvent);
                 }
+
+                await Task.Delay(10);
             }
         }
     }

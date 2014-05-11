@@ -22,5 +22,7 @@ namespace CubeHack.GameData
         public string Author { get; set; }
 
         public string Description { get; set; }
+
+        public PhysicsValues PhysicsValues { get; set; }
     }
 }

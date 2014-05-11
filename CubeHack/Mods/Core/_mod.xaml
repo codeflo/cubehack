@@ -10,4 +10,9 @@
     <Mod.Version>0.0</Mod.Version>
     <Mod.Author>The CubeHack authors</Mod.Author>
     <Mod.Description>This is a description.</Mod.Description>
+    
+    <Mod.PhysicsValues>
+        <PhysicsValues Gravity="9.81"
+                       PlayerMovementSpeed="5.0" />
+    </Mod.PhysicsValues>
 </Mod>

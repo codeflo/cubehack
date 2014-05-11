@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Game;
+using CubeHack.GameData;
 using CubeHack.Util;
 using OpenTK.Input;
 using System;
@@ -15,8 +16,6 @@ namespace CubeHack.Client
 {
     sealed class GameConnection
     {
-        const float MovementSpeed = 5f;
-
         readonly PriorityMutex _mutex = new PriorityMutex();
         readonly IChannel _channel;
 
@@ -26,6 +25,8 @@ namespace CubeHack.Client
         long _gameEventTicks = 0;
 
         public float PlayerX, PlayerY, PlayerZ;
+
+        public PhysicsValues PhysicsValues = new PhysicsValues();
 
         public List<GameEvent.EntityData> Entities = new List<GameEvent.EntityData>();
 
@@ -60,6 +61,11 @@ namespace CubeHack.Client
                 _gameEventTicks = _stopwatch.ElapsedTicks;
 
                 Entities = gameEvent.Entities ?? new List<GameEvent.EntityData>();
+
+                if (gameEvent.PhysicsValues != null)
+                {
+                    PhysicsValues = gameEvent.PhysicsValues;
+                }
             }
 
             return Task.FromResult(0);
@@ -79,22 +85,22 @@ namespace CubeHack.Client
             {
                 if (keyboardState.IsKeyDown(Key.W))
                 {
-                    vz = -elapsedTime * MovementSpeed;
+                    vz = -elapsedTime * PhysicsValues.PlayerMovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.A))
                 {
-                    vx = -elapsedTime * MovementSpeed;
+                    vx = -elapsedTime * PhysicsValues.PlayerMovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.S))
                 {
-                    vz = elapsedTime * MovementSpeed;
+                    vz = elapsedTime * PhysicsValues.PlayerMovementSpeed;
                 }
 
                 if (keyboardState.IsKeyDown(Key.D))
                 {
-                    vx = elapsedTime * MovementSpeed;
+                    vx = elapsedTime * PhysicsValues.PlayerMovementSpeed;
                 }
             }
 

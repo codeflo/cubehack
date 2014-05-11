@@ -25,6 +25,14 @@ namespace CubeHack.Game
             Task.Run(() => RunUniverse());
         }
 
+        public Mod Mod
+        {
+            get
+            {
+                return _mod;
+            }
+        }
+
         public void Dispose()
         {
         }
