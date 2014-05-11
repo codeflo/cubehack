@@ -74,6 +74,7 @@
     <Compile Include="Util\DelegateDiposable.cs" />
     <Compile Include="Util\Extensions\StreamExtensions.cs" />
     <Compile Include="Util\Extensions\TaskExtensions.cs" />
+    <Compile Include="Util\PrecisionTimer.cs" />
     <Compile Include="Util\PriorityMutex.cs" />
   </ItemGroup>
   <ItemGroup>

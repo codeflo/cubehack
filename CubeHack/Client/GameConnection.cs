@@ -19,10 +19,8 @@ namespace CubeHack.Client
         readonly PriorityMutex _mutex = new PriorityMutex();
         readonly IChannel _channel;
 
-        readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-
-        long _lastFrameTicks = 0;
-        long _gameEventTicks = 0;
+        readonly PrecisionTimer _frameTimer = new PrecisionTimer();
+        readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
         public float PlayerX, PlayerY, PlayerZ;
 
@@ -40,7 +38,7 @@ namespace CubeHack.Client
         {
             get
             {
-                return (_stopwatch.ElapsedTicks - _gameEventTicks) / (float)Stopwatch.Frequency;
+                return _gameEventTimer.ElapsedTime;
             }
         }
 
@@ -58,7 +56,7 @@ namespace CubeHack.Client
             using (_mutex.TakeLock())
             {
                 // We extrapolate from this, so using server time would be more accurate perhaps?
-                _gameEventTicks = _stopwatch.ElapsedTicks;
+                _gameEventTimer.SetZero();
 
                 Entities = gameEvent.Entities ?? new List<GameEvent.EntityData>();
 
@@ -73,9 +71,7 @@ namespace CubeHack.Client
 
         void UpdateState(bool hasFocus)
         {
-            long currentTicks = _stopwatch.ElapsedTicks;
-            float elapsedTime = (currentTicks - _lastFrameTicks) / (float)Stopwatch.Frequency;
-            _lastFrameTicks = currentTicks;
+            float elapsedTime = _gameEventTimer.SetZero();
 
             var keyboardState = Keyboard.GetState();
 
