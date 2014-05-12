@@ -96,6 +96,7 @@ namespace CubeHack.Client
                 using (_gameConnection.TakeRenderLock(_gameWindow.Focused))
                 {
                     Renderer.Render(_gameConnection, _gameWindow.Width, _gameWindow.Height);
+                    UiRenderer.Render(_gameWindow.Width, _gameWindow.Height);
                 }
             }
         }

@@ -48,14 +48,17 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\FontRenderer.cs" />
     <Compile Include="Client\GameConnection.cs" />
     <Compile Include="Client\Renderer.cs" />
+    <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="GameData\Mod.cs" />
     <Compile Include="GameData\PhysicsValues.cs" />
     <Compile Include="Game\IChannel.cs" />
