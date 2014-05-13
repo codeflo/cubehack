@@ -92,7 +92,7 @@ namespace CubeHack.Client
 
         public void UpdateState(bool hasFocus, bool mouseLookActive)
         {
-            float elapsedTime = _gameEventTimer.SetZero();
+            float elapsedTime = _frameTimer.SetZero();
 
             var keyboardState = Keyboard.GetState();
 
