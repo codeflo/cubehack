@@ -71,6 +71,15 @@ namespace CubeHack.Game
             return gameEvent;
         }
 
+        public void DeregisterChannel(Channel channel)
+        {
+            lock (_mutex)
+            {
+                _entities.Remove(channel.Player);
+                _channels.Remove(channel);
+            }
+        }
+
         private async Task RunUniverse()
         {
             while (true)

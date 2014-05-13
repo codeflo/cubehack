@@ -65,28 +65,38 @@ namespace CubeHack.Game
 
         private async Task RunChannel()
         {
-            while (true)
+            try
             {
-                Func<GameEvent, Task> onGameEventAsync;
-                lock (_mutex)
+                while (true)
                 {
-                    onGameEventAsync = _onGameEventAsync;
-                }
-
-                if (onGameEventAsync != null)
-                {
-                    var gameEvent = _universe.GetCurrentGameEvent(_player);
-
-                    if (!hasSentInitialValues)
+                    Func<GameEvent, Task> onGameEventAsync;
+                    lock (_mutex)
                     {
-                        hasSentInitialValues = true;
-                        gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
+                        onGameEventAsync = _onGameEventAsync;
                     }
 
-                    await onGameEventAsync(gameEvent);
-                }
+                    if (onGameEventAsync != null)
+                    {
+                        var gameEvent = _universe.GetCurrentGameEvent(_player);
 
-                await Task.Delay(10);
+                        if (!hasSentInitialValues)
+                        {
+                            hasSentInitialValues = true;
+                            gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
+                        }
+
+                        await onGameEventAsync(gameEvent);
+                    }
+
+                    await Task.Delay(10);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                _universe.DeregisterChannel(this);
             }
         }
     }

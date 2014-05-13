@@ -61,33 +61,41 @@ namespace CubeHack.Tcp
 
         private async Task RunChannel(string host, int port)
         {
-            _tcpClient.NoDelay = true;
-            await _tcpClient.ConnectAsync(host, port);
-
-            var stream = _tcpClient.GetStream();
-            await stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
-            await stream.FlushAsync();
-
-            lock (_mutex)
+            try
             {
-                _isConnected = true;
-                _stream = stream;
-            }
+                _tcpClient.NoDelay = true;
+                await _tcpClient.ConnectAsync(host, port);
 
-            while (true)
-            {
-                var gameEvent = await stream.ReadObjectAsync<GameEvent>();
+                var stream = _tcpClient.GetStream();
+                await stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
+                await stream.FlushAsync();
 
-                Func<GameEvent, Task> onGameEventAsync;
                 lock (_mutex)
                 {
-                    onGameEventAsync = _onGameEventAsync;
+                    _isConnected = true;
+                    _stream = stream;
                 }
 
-                if (onGameEventAsync != null)
+                while (true)
                 {
-                    await onGameEventAsync(gameEvent);
+                    var gameEvent = await stream.ReadObjectAsync<GameEvent>();
+
+                    Func<GameEvent, Task> onGameEventAsync;
+                    lock (_mutex)
+                    {
+                        onGameEventAsync = _onGameEventAsync;
+                    }
+
+                    if (onGameEventAsync != null)
+                    {
+                        await onGameEventAsync(gameEvent);
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                // TODO: Drop to the main menu or something. For now, any disconnect terminates the application.
+                Environment.Exit(0);
             }
         }
     }
