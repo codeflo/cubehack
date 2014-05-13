@@ -19,6 +19,7 @@ namespace CubeHack.Client
         GameConnection _gameConnection;
 
         volatile bool _willQuit = false;
+        bool _mouseLookActive = false;
 
         public void Run()
         {
@@ -30,12 +31,13 @@ namespace CubeHack.Client
 
             try
             {
-                _gameWindow.Title = "CubeHack -- Press F10 to quit";
+                _gameWindow.Title = "CubeHack";
                 _gameWindow.VSync = VSyncMode.Adaptive;
 
                 _gameWindow.Visible = true;
 
                 _gameWindow.KeyDown += OnKeyDown;
+                _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
 
                 if (string.IsNullOrEmpty(host))
                 {
@@ -81,11 +83,59 @@ namespace CubeHack.Client
             return _gameWindow == null || _gameWindow.IsExiting;
         }
 
-        private void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             if (e.Key == OpenTK.Input.Key.F10)
             {
                 _willQuit = true;
+            }
+
+            if (e.Key == OpenTK.Input.Key.Escape)
+            {
+                _mouseLookActive = !_mouseLookActive;
+            }
+        }
+
+        void OnMouseButtonDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        {
+            if (e.Button == OpenTK.Input.MouseButton.Left)
+            {
+                if (!_mouseLookActive)
+                {
+                    _mouseLookActive = true;
+                }
+            }
+        }
+
+        void UpdateMouse()
+        {
+            if (_mouseLookActive && _gameWindow.Focused)
+            {
+                var center = _gameWindow.PointToScreen(new System.Drawing.Point(_gameWindow.Width / 2, _gameWindow.Height / 2));
+
+                // Use Win32 GetCursorPos/SetCursorPos to "grab" the mouse cursor and get "infinite" mouse movement.
+                // This feels a bit jaggy; there must be a better way to implement this.
+
+                if (_gameWindow.CursorVisible)
+                {
+                    _gameWindow.CursorVisible = false;
+                }
+                else
+                {
+                    System.Drawing.Point point;
+                    if (GetCursorPos(out point))
+                    {
+                        var x = point.X - center.X;
+                        var y = point.Y - center.Y;
+                        _gameConnection.MouseLook(x, y);
+                    }
+                }
+
+                SetCursorPos(center.X, center.Y);
+            }
+            else
+            {
+                _gameWindow.CursorVisible = true;
             }
         }
 
@@ -93,12 +143,22 @@ namespace CubeHack.Client
         {
             if (_gameConnection != null)
             {
-                using (_gameConnection.TakeRenderLock(_gameWindow.Focused))
+                using (_gameConnection.TakeRenderLock())
                 {
+                    UpdateMouse();
+                    _gameConnection.UpdateState(_gameWindow.Focused, _mouseLookActive);
+
                     Renderer.Render(_gameConnection, _gameWindow.Width, _gameWindow.Height);
-                    UiRenderer.Render(_gameWindow.Width, _gameWindow.Height);
+                    UiRenderer.Render(_gameWindow.Width, _gameWindow.Height, _mouseLookActive);
                 }
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        static extern bool GetCursorPos(out System.Drawing.Point point);
     }
 }

@@ -23,6 +23,7 @@ namespace CubeHack.Client
         readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
         public float PlayerX, PlayerY, PlayerZ;
+        public float PlayerAngleH = 0, PlayerAngleV = 0;
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
 
@@ -42,13 +43,33 @@ namespace CubeHack.Client
             }
         }
 
-        public IDisposable TakeRenderLock(bool hasFocus)
+        public IDisposable TakeRenderLock()
         {
             var unlocker = _mutex.TakePriorityLock();
-
-            UpdateState(hasFocus);
-
             return unlocker;
+        }
+
+        public void MouseLook(float dx, float dy)
+        {
+            PlayerAngleH -= 0.1f * dx;
+            if (PlayerAngleH > 180)
+            {
+                PlayerAngleH -= 360;
+            }
+            if (PlayerAngleH < -180)
+            {
+                PlayerAngleH += 360;
+            }
+
+            PlayerAngleV += 0.1f * dy;
+            if (PlayerAngleV > 90)
+            {
+                PlayerAngleV = 90;
+            }
+            if (PlayerAngleV < -90)
+            {
+                PlayerAngleV = -90;
+            }
         }
 
         Task HandleGameEventAsync(GameEvent gameEvent)
@@ -69,7 +90,7 @@ namespace CubeHack.Client
             return Task.FromResult(0);
         }
 
-        void UpdateState(bool hasFocus)
+        public void UpdateState(bool hasFocus, bool mouseLookActive)
         {
             float elapsedTime = _gameEventTimer.SetZero();
 
@@ -79,24 +100,32 @@ namespace CubeHack.Client
 
             if (hasFocus)
             {
+                float f = (float)Math.PI / 180.0f;
+                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(PlayerAngleH * f);
+                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(PlayerAngleH * f);
+
                 if (keyboardState.IsKeyDown(Key.W))
                 {
-                    vz = -elapsedTime * PhysicsValues.PlayerMovementSpeed;
+                    vx += lookX;
+                    vz += lookZ;
                 }
 
                 if (keyboardState.IsKeyDown(Key.A))
                 {
-                    vx = -elapsedTime * PhysicsValues.PlayerMovementSpeed;
+                    vx += lookZ;
+                    vz -= lookX;
                 }
 
                 if (keyboardState.IsKeyDown(Key.S))
                 {
-                    vz = elapsedTime * PhysicsValues.PlayerMovementSpeed;
+                    vx -= lookX;
+                    vz -= lookZ;
                 }
 
                 if (keyboardState.IsKeyDown(Key.D))
                 {
-                    vx = elapsedTime * PhysicsValues.PlayerMovementSpeed;
+                    vx -= lookZ;
+                    vz += lookX;
                 }
             }
 

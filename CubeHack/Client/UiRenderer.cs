@@ -17,7 +17,7 @@ namespace CubeHack.Client
         static readonly PrecisionTimer _frameTimer = new PrecisionTimer();
         static readonly Queue<float> _timeMeasurements = new Queue<float>();
 
-        public static void Render(float width, float height)
+        public static void Render(float width, float height, bool mouseLookActive)
         {
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -27,6 +27,22 @@ namespace CubeHack.Client
 
             GL.Disable(EnableCap.DepthTest);
             GL.Disable(EnableCap.CullFace);
+
+            if (!mouseLookActive)
+            {
+                GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                GL.Color4(0, 0, 0, 0.5f);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Vertex2(-1f, -1f);
+                GL.Vertex2(1f, -1f);
+                GL.Vertex2(1f, 1f);
+                GL.Vertex2(-1f, 1f);
+                GL.End();
+                GL.Disable(EnableCap.Blend);
+
+                FontRenderer.Draw(-0.15f, 0, 0.06f, 0.06f * width / height, "Click to play");
+            }
 
             DrawFps(width, height);
         }

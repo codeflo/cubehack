@@ -27,6 +27,8 @@ namespace CubeHack.Client
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
+            GL.Rotate(gameConnection.PlayerAngleV, 1, 0, 0);
+            GL.Rotate(gameConnection.PlayerAngleH, 0, -1, 0);
             GL.Translate(-gameConnection.PlayerX, -gameConnection.PlayerY - 0.9, -gameConnection.PlayerZ);
 
             DrawEntity(0, 0, -5);
