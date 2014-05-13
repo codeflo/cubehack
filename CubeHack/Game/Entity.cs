@@ -13,8 +13,6 @@ namespace CubeHack.Game
     {
         public readonly object Mutex = new object();
 
-        public float X, Y, Z;
-
-        public float VX, VY, VZ;
+        public PositionData Position { get; set; }
     }
 }

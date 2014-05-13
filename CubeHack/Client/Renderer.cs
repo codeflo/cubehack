@@ -21,24 +21,28 @@ namespace CubeHack.Client
             GL.ClearColor(0.5f, 0.6f, 0.9f, 1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-            //GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.CullFace);
 
             SetProjectionMatrix(width, height);
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Rotate(gameConnection.PlayerAngleV, 1, 0, 0);
-            GL.Rotate(gameConnection.PlayerAngleH, 0, -1, 0);
-            GL.Translate(-gameConnection.PlayerX, -gameConnection.PlayerY - 0.9, -gameConnection.PlayerZ);
+            GL.Rotate(gameConnection.Position.VAngle, 1, 0, 0);
+            GL.Rotate(gameConnection.Position.HAngle, 0, -1, 0);
+            GL.Translate(-gameConnection.Position.X, -gameConnection.Position.Y - 0.9, -gameConnection.Position.Z);
 
             DrawEntity(0, 0, -5);
-            if (gameConnection.Entities != null)
+            if (gameConnection.EntityPositions != null)
             {
                 float dt = gameConnection.TimeSinceGameEvent;
 
-                foreach (var e in gameConnection.Entities)
+                foreach (var position in gameConnection.EntityPositions)
                 {
-                    DrawEntity(e.X + e.VX * dt, e.Y + e.VY * dt, e.Z + e.VZ * dt);
+                    GL.PushMatrix();
+                    GL.Translate(position.X, position.Y, position.Z);
+                    GL.Rotate(position.HAngle + 180, 0, 1, 0);
+                    DrawEntity(position.VX * dt, position.VY * dt, position.VZ * dt);
+                    GL.PopMatrix();
                 }
             }
         }
@@ -71,12 +75,32 @@ namespace CubeHack.Client
 
         static void DrawEntity(float x, float y, float z)
         {
-            GL.Color3(0.9f, 0.9f, 0.9f);
+
             GL.Begin(PrimitiveType.Quads);
-            GL.Vertex3(x - 0.5f, y, z + 0.5f);
-            GL.Vertex3(x + 0.5f, y, z + 0.5f);
-            GL.Vertex3(x + 0.5f, y + 1.8f, z + 0.5f);
-            GL.Vertex3(x - 0.5f, y + 1.8f, z + 0.5f);
+
+            GL.Color3(0.9f, 0.9f, 0.9f);
+            GL.Vertex3(x - 0.4f, y, z + 0.4f);
+            GL.Vertex3(x + 0.4f, y, z + 0.4f);
+            GL.Vertex3(x + 0.4f, y + 1.75f, z + 0.4f);
+            GL.Vertex3(x - 0.4f, y + 1.75f, z + 0.4f);
+
+            GL.Color3(0.7f, 0.8f, 0.9f);
+
+            GL.Vertex3(x + 0.4f, y, z + 0.4f);
+            GL.Vertex3(x + 0.4f, y, z - 0.4f);
+            GL.Vertex3(x + 0.4f, y + 1.75f, z - 0.4f);
+            GL.Vertex3(x + 0.4f, y + 1.75f, z + 0.4f);
+
+            GL.Vertex3(x + 0.4f, y, z - 0.4f);
+            GL.Vertex3(x - 0.4f, y, z - 0.4f);
+            GL.Vertex3(x - 0.4f, y + 1.75f, z - 0.4f);
+            GL.Vertex3(x + 0.4f, y + 1.75f, z - 0.4f);
+
+            GL.Vertex3(x - 0.4f, y, z - 0.4f);
+            GL.Vertex3(x - 0.4f, y, z + 0.4f);
+            GL.Vertex3(x - 0.4f, y + 1.75f, z + 0.4f);
+            GL.Vertex3(x - 0.4f, y + 1.75f, z - 0.4f);
+
             GL.End();
         }
     }

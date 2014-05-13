@@ -54,12 +54,7 @@ namespace CubeHack.Game
         {
             lock (_player)
             {
-                _player.X = playerEvent.X;
-                _player.Y = playerEvent.Y;
-                _player.Z = playerEvent.Z;
-                _player.VX = playerEvent.VX;
-                _player.VY = playerEvent.VY;
-                _player.VZ = playerEvent.VZ;
+                _player.Position = playerEvent.Position;
             }
         }
 

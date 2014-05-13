@@ -61,6 +61,7 @@
     <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="GameData\Mod.cs" />
     <Compile Include="GameData\PhysicsValues.cs" />
+    <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\IChannel.cs" />
     <Compile Include="Client\MainWindow.cs" />
     <Compile Include="Game\Entity.cs" />

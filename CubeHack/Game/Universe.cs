@@ -53,7 +53,7 @@ namespace CubeHack.Game
 
         public GameEvent GetCurrentGameEvent(Entity player)
         {
-            var gameEvent = new GameEvent() { Entities = new List<GameEvent.EntityData>() };
+            var gameEvent = new GameEvent() { EntityPositions = new List<PositionData>() };
             lock (_mutex)
             {
                 foreach (var entity in _entities)
@@ -62,7 +62,7 @@ namespace CubeHack.Game
                     {
                         lock (entity.Mutex)
                         {
-                            gameEvent.Entities.Add(new GameEvent.EntityData { X = entity.X, Y = entity.Y, Z = entity.Z });
+                            gameEvent.EntityPositions.Add(entity.Position);
                         }
                     }
                 }

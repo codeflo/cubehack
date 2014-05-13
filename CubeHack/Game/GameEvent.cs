@@ -15,31 +15,9 @@ namespace CubeHack.Game
     class GameEvent
     {
         [ProtoMember(1)]
-        public List<EntityData> Entities { get; set; }
+        public List<PositionData> EntityPositions { get; set; }
 
         [ProtoMember(2)]
         public PhysicsValues PhysicsValues { get; set; }
-
-        [ProtoContract]
-        public class EntityData
-        {
-            [ProtoMember(1)]
-            public float X { get; set; }
-
-            [ProtoMember(2)]
-            public float Y { get; set; }
-
-            [ProtoMember(3)]
-            public float Z { get; set; }
-
-            [ProtoMember(4)]
-            public float VX { get; set; }
-
-            [ProtoMember(5)]
-            public float VY { get; set; }
-
-            [ProtoMember(6)]
-            public float VZ { get; set; }
-        }
     }
 }

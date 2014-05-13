@@ -14,21 +14,6 @@ namespace CubeHack.Game
     class PlayerEvent
     {
         [ProtoMember(1)]
-        public float X { get; set; }
-
-        [ProtoMember(2)]
-        public float Y { get; set; }
-
-        [ProtoMember(3)]
-        public float Z { get; set; }
-
-        [ProtoMember(4)]
-        public float VX { get; set; }
-
-        [ProtoMember(5)]
-        public float VY { get; set; }
-
-        [ProtoMember(6)]
-        public float VZ { get; set; }
+        public PositionData Position { get; set; }
     }
 }

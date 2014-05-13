@@ -22,12 +22,11 @@ namespace CubeHack.Client
         readonly PrecisionTimer _frameTimer = new PrecisionTimer();
         readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
-        public float PlayerX, PlayerY, PlayerZ;
-        public float PlayerAngleH = 0, PlayerAngleV = 0;
+        public PositionData Position = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
 
-        public List<GameEvent.EntityData> Entities = new List<GameEvent.EntityData>();
+        public List<PositionData> EntityPositions = new List<PositionData>();
 
         public GameConnection(IChannel channel)
         {
@@ -51,24 +50,24 @@ namespace CubeHack.Client
 
         public void MouseLook(float dx, float dy)
         {
-            PlayerAngleH -= 0.1f * dx;
-            if (PlayerAngleH > 180)
+            Position.HAngle -= 0.1f * dx;
+            if (Position.HAngle > 180)
             {
-                PlayerAngleH -= 360;
+                Position.HAngle -= 360;
             }
-            if (PlayerAngleH < -180)
+            if (Position.HAngle < -180)
             {
-                PlayerAngleH += 360;
+                Position.HAngle += 360;
             }
 
-            PlayerAngleV += 0.1f * dy;
-            if (PlayerAngleV > 90)
+            Position.VAngle += 0.1f * dy;
+            if (Position.VAngle > 90)
             {
-                PlayerAngleV = 90;
+                Position.VAngle = 90;
             }
-            if (PlayerAngleV < -90)
+            if (Position.VAngle < -90)
             {
-                PlayerAngleV = -90;
+                Position.VAngle = -90;
             }
         }
 
@@ -79,7 +78,7 @@ namespace CubeHack.Client
                 // We extrapolate from this, so using server time would be more accurate perhaps?
                 _gameEventTimer.SetZero();
 
-                Entities = gameEvent.Entities ?? new List<GameEvent.EntityData>();
+                EntityPositions = gameEvent.EntityPositions ?? new List<PositionData>();
 
                 if (gameEvent.PhysicsValues != null)
                 {
@@ -101,8 +100,8 @@ namespace CubeHack.Client
             if (hasFocus)
             {
                 float f = (float)Math.PI / 180.0f;
-                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(PlayerAngleH * f);
-                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(PlayerAngleH * f);
+                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(Position.HAngle * f);
+                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(Position.HAngle * f);
 
                 if (keyboardState.IsKeyDown(Key.W))
                 {
@@ -129,10 +128,10 @@ namespace CubeHack.Client
                 }
             }
 
-            PlayerX += vx;
-            PlayerY += vy;
-            PlayerZ += vz;
-            _channel.SendPlayerEvent(new PlayerEvent { X = PlayerX, Y = PlayerY, Z = PlayerZ, VX = vx, VY = vy, VZ = vz });
+            Position.X += vx;
+            Position.Y += vy;
+            Position.Z += vz;
+            _channel.SendPlayerEvent(new PlayerEvent { Position = Position });
         }
     }
 }
