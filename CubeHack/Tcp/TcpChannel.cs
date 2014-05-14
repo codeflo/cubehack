@@ -26,6 +26,8 @@ namespace CubeHack.Tcp
             Task.Run(() => RunChannel(host, port));
         }
 
+        public ModData ModData { get; private set; }
+
         Func<GameEvent, Task> _onGameEventAsync;
         public Func<GameEvent, Task> OnGameEventAsync
         {
@@ -69,6 +71,8 @@ namespace CubeHack.Tcp
                 var stream = _tcpClient.GetStream();
                 await stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
                 await stream.FlushAsync();
+
+                ModData = await stream.ReadObjectAsync<ModData>();
 
                 lock (_mutex)
                 {

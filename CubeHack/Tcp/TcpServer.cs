@@ -46,6 +46,8 @@ namespace CubeHack.Tcp
                 var stream = client.GetStream();
                 await ReadCookie(stream);
 
+                await stream.WriteObjectAsync(_universe.ModData);
+
                 var internalChannel = _universe.ConnectPlayer();
                 internalChannel.OnGameEventAsync += e => SendGameEventAsync(stream, e);
 

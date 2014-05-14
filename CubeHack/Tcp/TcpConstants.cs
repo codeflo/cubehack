@@ -15,7 +15,7 @@ namespace CubeHack.Tcp
 
         public static readonly byte[] MAGIC_COOKIE = new byte[] {
             (byte)'C', (byte)'u', (byte)'b', (byte)'e', (byte)'H', (byte)'a', (byte)'c', (byte)'k',
-            0, 0, 0, 3, /* increment these to change the protocol version */
+            0, 0, 0, 4, /* increment these to change the protocol version */
         };
     }
 }

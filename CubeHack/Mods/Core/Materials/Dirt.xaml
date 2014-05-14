@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+    Copyright (c) 2014 the CubeHack authors. All rights reserved.
+    Licensed under a BSD 2-clause license, see LICENSE.txt for details.
+-->
+
+<Material xmlns="http://cubehack.net/gamedata">
+    <Material.Name>Dirt</Material.Name>
+
+    <Material.Texture>
+        <Texture>
+            <SolidColorLayer>#fff</SolidColorLayer>
+        </Texture>
+    </Material.Texture>
+</Material>

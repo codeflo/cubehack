@@ -1,7 +1,8 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
-using CubeHack.Game;
+using CubeHack.GameData;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,10 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
-    interface IChannel
+    [ProtoContract]
+    class ModData
     {
-        Func<GameEvent, Task> OnGameEventAsync { get; set; }
-
-        void SendPlayerEvent(PlayerEvent playerEvent);
-
-        ModData ModData { get; }
+        [ProtoMember(1)]
+        public List<Texture> Textures { get; set; }
     }
 }

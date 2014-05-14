@@ -15,6 +15,7 @@ namespace CubeHack.Game
         readonly object _mutex = new object();
 
         readonly Mod _mod;
+        readonly ModData _modData;
 
         readonly List<Entity> _entities = new List<Entity>();
         readonly HashSet<Channel> _channels = new HashSet<Channel>();
@@ -22,6 +23,11 @@ namespace CubeHack.Game
         public Universe(Mod mod)
         {
             _mod = mod;
+            _modData = new ModData
+            {
+                Textures = new List<Texture> { _mod.DefaultMaterial.Texture },
+            };
+
             Task.Run(() => RunUniverse());
         }
 
@@ -30,6 +36,14 @@ namespace CubeHack.Game
             get
             {
                 return _mod;
+            }
+        }
+
+        public ModData ModData
+        {
+            get
+            {
+                return _modData;
             }
         }
 

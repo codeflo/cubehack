@@ -8,11 +8,15 @@
 <Mod xmlns="http://cubehack.net/gamedata">
     <Mod.Name>CubeHack Core</Mod.Name>
     <Mod.Version>0.0</Mod.Version>
-    <Mod.Author>The CubeHack authors</Mod.Author>
-    <Mod.Description>This is a description.</Mod.Description>
-    
+    <Mod.Description>This is description.</Mod.Description>
+
     <Mod.PhysicsValues>
-        <PhysicsValues Gravity="9.81"
-                       PlayerMovementSpeed="5.0" />
+        <PhysicsValues>
+            <PhysicsValues.Gravity>9.81</PhysicsValues.Gravity>
+            <PhysicsValues.PlayerMovementSpeed>5.0</PhysicsValues.PlayerMovementSpeed>
+        </PhysicsValues>
     </Mod.PhysicsValues>
+
+    <!-- The "DefaultMaterial" is basically just a temporary hack until we get more of the level generation going. -->
+    <Mod.DefaultMaterial>Materials/Dirt.xaml</Mod.DefaultMaterial>
 </Mod>

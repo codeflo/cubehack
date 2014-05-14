@@ -50,6 +50,14 @@ namespace CubeHack.Game
             get { return _player; }
         }
 
+        public ModData ModData
+        {
+            get
+            {
+                return _universe.ModData;
+            }
+        }
+
         public void SendPlayerEvent(PlayerEvent playerEvent)
         {
             lock (_player)

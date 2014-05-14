@@ -1,21 +1,21 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
-using CubeHack.Game;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
-namespace CubeHack.Game
+namespace CubeHack.GameData
 {
-    interface IChannel
+    [ProtoContract]
+    [ContentProperty("Color")]
+    public class SolidColorLayer : TextureLayer
     {
-        Func<GameEvent, Task> OnGameEventAsync { get; set; }
-
-        void SendPlayerEvent(PlayerEvent playerEvent);
-
-        ModData ModData { get; }
+        [ProtoMember(1)]
+        public Color Color { get; set; }
     }
 }

@@ -24,5 +24,7 @@ namespace CubeHack.GameData
         public string Description { get; set; }
 
         public PhysicsValues PhysicsValues { get; set; }
+
+        public Material DefaultMaterial { get; set; }
     }
 }

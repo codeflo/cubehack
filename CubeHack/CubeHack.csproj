@@ -59,8 +59,16 @@
     <Compile Include="Client\GameConnection.cs" />
     <Compile Include="Client\Renderer.cs" />
     <Compile Include="Client\UiRenderer.cs" />
+    <Compile Include="GameData\Color.cs" />
+    <Compile Include="GameData\ColorTypeConverter.cs" />
+    <Compile Include="GameData\IncludeTypeConverter.cs" />
+    <Compile Include="GameData\Material.cs" />
     <Compile Include="GameData\Mod.cs" />
     <Compile Include="GameData\PhysicsValues.cs" />
+    <Compile Include="GameData\SolidColorLayer.cs" />
+    <Compile Include="GameData\Texture.cs" />
+    <Compile Include="GameData\TextureLayer.cs" />
+    <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\IChannel.cs" />
     <Compile Include="Client\MainWindow.cs" />
