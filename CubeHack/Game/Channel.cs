@@ -60,7 +60,7 @@ namespace CubeHack.Game
 
         public void SendPlayerEvent(PlayerEvent playerEvent)
         {
-            lock (_player)
+            lock (_player.Mutex)
             {
                 _player.Position = playerEvent.Position;
             }
