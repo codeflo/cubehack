@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CubeHack
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             new Client.MainWindow().Run();
         }

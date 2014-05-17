@@ -1,4 +1,7 @@
+*.ipch
+*.opensdf
+*.sdf
 *.suo
+*.vcxproj.user
 /packages/
-/**/bin/
-/**/obj/
+/**/x64/
