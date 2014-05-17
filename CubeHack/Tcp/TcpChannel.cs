@@ -16,14 +16,17 @@ namespace CubeHack.Tcp
     {
         readonly object _mutex = new object();
         readonly TcpClient _tcpClient;
+        readonly string _host;
+        readonly int _port;
 
         Stream _stream;
         bool _isConnected;
 
         public TcpChannel(string host, int port)
         {
+            _host = host;
+            _port = port;
             _tcpClient = new TcpClient();
-            Task.Run(() => RunChannel(host, port));
         }
 
         public ModData ModData { get; private set; }
@@ -48,6 +51,29 @@ namespace CubeHack.Tcp
             }
         }
 
+        public async Task ConnectAsync()
+        {
+            try
+            {
+                _tcpClient.NoDelay = true;
+                await _tcpClient.ConnectAsync(_host, _port);
+
+                _stream = _tcpClient.GetStream();
+                await _stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
+                await _stream.FlushAsync();
+
+                ModData = await _stream.ReadObjectAsync<ModData>();
+
+                _isConnected = true;
+                Task.Run(() => RunChannel()).Forget();
+            }
+            catch (Exception)
+            {
+                // TODO: Drop to the main menu or something. For now, any disconnect terminates the application.
+                Environment.Exit(0);
+            }
+        }
+
         public void SendPlayerEvent(PlayerEvent playerEvent)
         {
             lock (_mutex)
@@ -61,28 +87,13 @@ namespace CubeHack.Tcp
             }
         }
 
-        private async Task RunChannel(string host, int port)
+        private async Task RunChannel()
         {
             try
             {
-                _tcpClient.NoDelay = true;
-                await _tcpClient.ConnectAsync(host, port);
-
-                var stream = _tcpClient.GetStream();
-                await stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
-                await stream.FlushAsync();
-
-                ModData = await stream.ReadObjectAsync<ModData>();
-
-                lock (_mutex)
-                {
-                    _isConnected = true;
-                    _stream = stream;
-                }
-
                 while (true)
                 {
-                    var gameEvent = await stream.ReadObjectAsync<GameEvent>();
+                    var gameEvent = await _stream.ReadObjectAsync<GameEvent>();
 
                     Func<GameEvent, Task> onGameEventAsync;
                     lock (_mutex)

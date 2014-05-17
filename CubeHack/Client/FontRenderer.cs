@@ -78,6 +78,9 @@ namespace CubeHack.Client
             if (_isInitialized) return;
             _isInitialized = true;
 
+            _fontTextureId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, _fontTextureId);
+
             const int fontSize = 32;
             var font = new Font("Arial Black", fontSize);
 
@@ -86,9 +89,10 @@ namespace CubeHack.Client
             float currentX = 0;
             float currentY = 0;
 
-            using (var bitmap = new Bitmap(bitmapWidth, bitmapHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
-            {
-                using (var graphics = Graphics.FromImage(bitmap))
+            TextureHelper.DrawTexture(
+                bitmapWidth,
+                bitmapHeight,
+                graphics =>
                 {
                     float height = -1;
 
@@ -135,32 +139,7 @@ namespace CubeHack.Client
                         _charEntries[c] = new CharEntry { X = (currentX - 1) / bitmapWidth, Y = currentY / bitmapHeight, Width = width / bitmapWidth, Height = height / bitmapHeight };
                         currentX += width + 2;
                     }
-                }
-
-                _fontTextureId = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture2D, _fontTextureId);
-
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                try
-                {
-                    GL.TexImage2D(
-                        TextureTarget.Texture2D,
-                        0,
-                        PixelInternalFormat.Rgba,
-                        bitmapData.Width,
-                        bitmapData.Height,
-                        0,
-                        OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-                        PixelType.UnsignedByte,
-                        bitmapData.Scan0);
-                }
-                finally
-                {
-                    bitmap.UnlockBits(bitmapData);
-                }
-
-                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-            }
+                });
         }
 
         static IEnumerable<char> GetPrintableChars()

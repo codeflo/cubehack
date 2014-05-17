@@ -46,9 +46,12 @@ namespace CubeHack.Client
                 }
 
                 new TcpServer(universe);
-                var channel = new TcpChannel("localhost", TcpConstants.Port);
+                var channel = new TcpChannel(host, TcpConstants.Port);
+                channel.ConnectAsync().Wait();
 
                 _gameConnection = new GameConnection(channel);
+
+                TextureAtlas.Build(channel.ModData.Textures);
 
                 while (true)
                 {

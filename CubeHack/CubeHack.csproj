@@ -58,6 +58,8 @@
     <Compile Include="Client\FontRenderer.cs" />
     <Compile Include="Client\GameConnection.cs" />
     <Compile Include="Client\Renderer.cs" />
+    <Compile Include="Client\TextureAtlas.cs" />
+    <Compile Include="Client\TextureHelper.cs" />
     <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="GameData\Color.cs" />
     <Compile Include="GameData\ColorTypeConverter.cs" />

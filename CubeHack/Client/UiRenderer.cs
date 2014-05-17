@@ -26,7 +26,6 @@ namespace CubeHack.Client
             GL.LoadIdentity();
 
             GL.Disable(EnableCap.DepthTest);
-            GL.Disable(EnableCap.CullFace);
 
             if (!mouseLookActive)
             {
