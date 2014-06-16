@@ -34,6 +34,8 @@ namespace CubeHack.Client
             channel.OnGameEventAsync = HandleGameEventAsync;
         }
 
+        public ChunkData ChunkData { get; set; }
+
         public float TimeSinceGameEvent
         {
             get
@@ -83,6 +85,11 @@ namespace CubeHack.Client
                 if (gameEvent.PhysicsValues != null)
                 {
                     PhysicsValues = gameEvent.PhysicsValues;
+                }
+
+                if (gameEvent.ChunkData != null)
+                {
+                    ChunkData = gameEvent.ChunkData;
                 }
             }
 

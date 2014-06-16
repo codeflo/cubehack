@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 static class StreamExtensions
 {
-    const int _maxSize = 10 * 1024;
+    const int _maxSize = 20 * 1024;
 
     public static async Task WriteObjectAsync<T>(this Stream stream, T instance)
     {

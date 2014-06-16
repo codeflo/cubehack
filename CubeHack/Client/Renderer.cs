@@ -29,10 +29,10 @@ namespace CubeHack.Client
             GL.LoadIdentity();
             GL.Rotate(gameConnection.Position.VAngle, 1, 0, 0);
             GL.Rotate(gameConnection.Position.HAngle, 0, -1, 0);
-            GL.Translate(-gameConnection.Position.X, -gameConnection.Position.Y - 0.9, -gameConnection.Position.Z);
+            GL.Translate(-gameConnection.Position.X, -gameConnection.Position.Y - 1.25f, -gameConnection.Position.Z);
 
             GL.Disable(EnableCap.Texture2D);
-            DrawEntity(0, 0, -5);
+            DrawEntity(1, 0, -4.5f);
             if (gameConnection.EntityPositions != null)
             {
                 float dt = gameConnection.TimeSinceGameEvent;
@@ -49,7 +49,24 @@ namespace CubeHack.Client
 
             GL.Enable(EnableCap.Texture2D);
             TextureAtlas.Bind();
-            DrawCube(5, 0, -5);
+
+            var chunkData = gameConnection.ChunkData;
+            if (chunkData != null)
+            {
+                for (int x = chunkData.X0; x < chunkData.X1; ++x)
+                {
+                    for (int y = chunkData.Y0; y < chunkData.Y1; ++y)
+                    {
+                        for (int z = chunkData.Z0; z < chunkData.Z1; ++z)
+                        {
+                            if (chunkData[x, y, z] != 0)
+                            {
+                                DrawCube(x * 0.5f, y * 0.5f, z * 0.5f);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         static void SetProjectionMatrix(float width, float height)
@@ -115,6 +132,10 @@ namespace CubeHack.Client
             GL.Begin(PrimitiveType.Quads);
 
             GL.Color3(0.67f, 0.67f, 0.67f);
+
+            x += 0.25f;
+            y += 0.25f;
+            z += 0.25f;
 
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z + 0.25f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z + 0.25f);

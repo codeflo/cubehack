@@ -19,5 +19,8 @@ namespace CubeHack.Game
 
         [ProtoMember(2)]
         public PhysicsValues PhysicsValues { get; set; }
+
+        [ProtoMember(3)]
+        public ChunkData ChunkData { get; set; }
     }
 }

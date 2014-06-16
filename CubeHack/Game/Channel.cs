@@ -86,6 +86,7 @@ namespace CubeHack.Game
                         {
                             hasSentInitialValues = true;
                             gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
+                            gameEvent.ChunkData = _universe.ExampleChunkData;
                         }
 
                         await onGameEventAsync(gameEvent);

@@ -67,6 +67,7 @@
     <Compile Include="GameData\SolidColorLayer.cs" />
     <Compile Include="GameData\Texture.cs" />
     <Compile Include="GameData\TextureLayer.cs" />
+    <Compile Include="Game\ChunkData.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\IChannel.cs" />

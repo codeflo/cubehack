@@ -20,15 +20,26 @@ namespace CubeHack.Game
         readonly List<Entity> _entities = new List<Entity>();
         readonly HashSet<Channel> _channels = new HashSet<Channel>();
 
+        readonly ChunkData _exampleChunkData;
+
         public Universe(Mod mod)
         {
             _mod = mod;
+            _exampleChunkData = CreateExampleChunkData();
             _modData = new ModData
             {
                 Textures = new List<Texture> { _mod.DefaultMaterial.Texture },
             };
 
             Task.Run(() => RunUniverse());
+        }
+
+        public ChunkData ExampleChunkData
+        {
+            get
+            {
+                return _exampleChunkData;
+            }
         }
 
         public Mod Mod
@@ -100,6 +111,29 @@ namespace CubeHack.Game
             {
                 await Task.Delay(100);
             }
+        }
+
+        private ChunkData CreateExampleChunkData()
+        {
+            var ret = new ChunkData();
+            ret.X0 = -10;
+            ret.X1 = 10;
+            ret.Y0 = -10;
+            ret.Y1 = 10;
+            ret.Z0 = -10;
+            ret.Z1 = 10;
+
+            for (int x = -10; x < 10; ++x)
+            {
+                for (int z = -10; z < 10; ++z)
+                {
+                    ret[x, -1, z] = 1;
+                }
+            }
+
+            ret[0, 0, -5] = 1;
+
+            return ret;
         }
     }
 }
