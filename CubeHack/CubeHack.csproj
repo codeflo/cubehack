@@ -55,6 +55,7 @@
     <Compile Include="Client\FontRenderer.cs" />
     <Compile Include="Client\GameConnection.cs" />
     <Compile Include="Client\Renderer.cs" />
+    <Compile Include="Client\Shader.cs" />
     <Compile Include="Client\TextureAtlas.cs" />
     <Compile Include="Client\TextureHelper.cs" />
     <Compile Include="Client\UiRenderer.cs" />
@@ -91,6 +92,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="Client\Shaders\PostProcess.fs.glsl" />
+    <EmbeddedResource Include="Client\Shaders\PostProcess.vs.glsl" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

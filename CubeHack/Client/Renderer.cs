@@ -11,9 +11,14 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    class Renderer
+    static class Renderer
     {
         const float _viewingAngle = 100f;
+
+        static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
+        static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
+        static int _depthBufferWidth;
+        static int _depthBufferHeight;
 
         public static void Render(GameConnection gameConnection, int width, int height)
         {
@@ -67,6 +72,44 @@ namespace CubeHack.Client
                     }
                 }
             }
+
+            RenderOutlines(width, height);
+        }
+
+        private static void RenderOutlines(int width, int height)
+        {
+            GL.Flush();
+            GL.UseProgram(_postProcessShader.Value.Id);
+
+            GL.BindTexture(TextureTarget.Texture2D, _depthBufferTexture.Value);
+
+            if (width != _depthBufferWidth || height != _depthBufferHeight)
+            {
+                _depthBufferWidth = width;
+                _depthBufferHeight = height;
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            }
+
+            GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, width, height);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            GL.Disable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(-1, -1, 0);
+            GL.TexCoord2(1, 0);
+            GL.Vertex3(1, -1, 0);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(1, 1, 0);
+            GL.TexCoord2(0, 1);
+            GL.Vertex3(-1, 1, 0);
+            GL.End();
+
+            GL.UseProgram(0);
         }
 
         static void SetProjectionMatrix(float width, float height)
