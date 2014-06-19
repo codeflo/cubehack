@@ -14,6 +14,6 @@ namespace CubeHack.Game
     class PlayerEvent
     {
         [ProtoMember(1)]
-        public PositionData Position { get; set; }
+        public PositionData PositionData { get; set; }
     }
 }

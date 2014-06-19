@@ -70,6 +70,8 @@
     <Compile Include="GameData\TextureLayer.cs" />
     <Compile Include="Game\ChunkData.cs" />
     <Compile Include="Game\ModData.cs" />
+    <Compile Include="Game\Offset.cs" />
+    <Compile Include="Game\Position.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\IChannel.cs" />
     <Compile Include="Client\MainWindow.cs" />

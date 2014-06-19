@@ -22,7 +22,7 @@ namespace CubeHack.Client
         readonly PrecisionTimer _frameTimer = new PrecisionTimer();
         readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
-        public PositionData Position = new PositionData();
+        public PositionData PositionData = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
 
@@ -52,24 +52,24 @@ namespace CubeHack.Client
 
         public void MouseLook(float dx, float dy)
         {
-            Position.HAngle -= 0.1f * dx;
-            if (Position.HAngle > 180)
+            PositionData.HAngle -= 0.1f * dx;
+            if (PositionData.HAngle > 180)
             {
-                Position.HAngle -= 360;
+                PositionData.HAngle -= 360;
             }
-            if (Position.HAngle < -180)
+            if (PositionData.HAngle < -180)
             {
-                Position.HAngle += 360;
+                PositionData.HAngle += 360;
             }
 
-            Position.VAngle += 0.1f * dy;
-            if (Position.VAngle > 90)
+            PositionData.VAngle += 0.1f * dy;
+            if (PositionData.VAngle > 90)
             {
-                Position.VAngle = 90;
+                PositionData.VAngle = 90;
             }
-            if (Position.VAngle < -90)
+            if (PositionData.VAngle < -90)
             {
-                Position.VAngle = -90;
+                PositionData.VAngle = -90;
             }
         }
 
@@ -107,8 +107,8 @@ namespace CubeHack.Client
             if (hasFocus)
             {
                 float f = (float)Math.PI / 180.0f;
-                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(Position.HAngle * f);
-                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(Position.HAngle * f);
+                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(PositionData.HAngle * f);
+                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(PositionData.HAngle * f);
 
                 if (keyboardState.IsKeyDown(Key.W))
                 {
@@ -135,10 +135,9 @@ namespace CubeHack.Client
                 }
             }
 
-            Position.X += vx;
-            Position.Y += vy;
-            Position.Z += vz;
-            _channel.SendPlayerEvent(new PlayerEvent { Position = Position });
+            PositionData.Position += new Offset(vx, vy, vz);
+
+            _channel.SendPlayerEvent(new PlayerEvent { PositionData = PositionData });
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
+using CubeHack.Game;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -32,9 +33,11 @@ namespace CubeHack.Client
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Rotate(gameConnection.Position.VAngle, 1, 0, 0);
-            GL.Rotate(gameConnection.Position.HAngle, 0, -1, 0);
-            GL.Translate(-gameConnection.Position.X, -gameConnection.Position.Y - 1.25f, -gameConnection.Position.Z);
+            GL.Rotate(gameConnection.PositionData.VAngle, 1, 0, 0);
+            GL.Rotate(gameConnection.PositionData.HAngle, 0, -1, 0);
+
+            var offset = gameConnection.PositionData.Position - new Position();
+            GL.Translate(-offset.X, -offset.Y - 1.25f, -offset.Z);
 
             GL.Disable(EnableCap.Texture2D);
             DrawEntity(1, 0, -4.5f);
@@ -45,9 +48,10 @@ namespace CubeHack.Client
                 foreach (var position in gameConnection.EntityPositions)
                 {
                     GL.PushMatrix();
-                    GL.Translate(position.X, position.Y, position.Z);
+                    var offset2 = position.Position + dt * position.Velocity - new Position();
+                    GL.Translate(offset2.X, offset2.Y, offset2.Z);
                     GL.Rotate(position.HAngle + 180, 0, 1, 0);
-                    DrawEntity(position.VX * dt, position.VY * dt, position.VZ * dt);
+                    DrawEntity(0, 0, 0);
                     GL.PopMatrix();
                 }
             }

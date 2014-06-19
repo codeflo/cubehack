@@ -87,7 +87,7 @@ namespace CubeHack.Game
                     {
                         lock (entity.Mutex)
                         {
-                            gameEvent.EntityPositions.Add(entity.Position);
+                            gameEvent.EntityPositions.Add(entity.PositionData);
                         }
                     }
                 }
