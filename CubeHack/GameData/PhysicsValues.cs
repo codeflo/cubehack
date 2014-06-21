@@ -24,5 +24,14 @@ namespace CubeHack.GameData
         /// </summary>
         [ProtoMember(2)]
         public float PlayerMovementSpeed { get; set; }
+
+        [ProtoMember(3)]
+        public float PlayerWidth { get; set; }
+
+        [ProtoMember(4)]
+        public float PlayerHeight { get; set; }
+
+        [ProtoMember(5)]
+        public float PlayerEyeHeight { get; set; }
     }
 }

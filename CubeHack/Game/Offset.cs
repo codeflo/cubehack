@@ -30,8 +30,27 @@ namespace CubeHack.Game
         [ProtoMember(3)]
         public double Z { get; set; }
 
+        public double Length
+        {
+            get
+            {
+                return Math.Sqrt(X * X + Y * Y + Z * Z);
+            }
+        }
+
         public static Offset operator *(double f, Offset o)
         {
+            return new Offset(f * o.X, f * o.Y, f * o.Z);
+        }
+
+        public static Offset operator *(Offset o, double f)
+        {
+            return new Offset(f * o.X, f * o.Y, f * o.Z);
+        }
+
+        public static Offset operator /(Offset o, double d)
+        {
+            double f = 1.0 / d;
             return new Offset(f * o.X, f * o.Y, f * o.Z);
         }
     }

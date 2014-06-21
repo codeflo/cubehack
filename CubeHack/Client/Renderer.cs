@@ -37,10 +37,10 @@ namespace CubeHack.Client
             GL.Rotate(gameConnection.PositionData.HAngle, 0, -1, 0);
 
             var offset = gameConnection.PositionData.Position - new Position();
-            GL.Translate(-offset.X, -offset.Y - 1.25f, -offset.Z);
+            GL.Translate(-offset.X, -offset.Y - gameConnection.PhysicsValues.PlayerEyeHeight, -offset.Z);
 
             GL.Disable(EnableCap.Texture2D);
-            DrawEntity(1, 0, -4.5f);
+            DrawEntity(2, 0, -9, 0.5f * gameConnection.PhysicsValues.PlayerWidth, gameConnection.PhysicsValues.PlayerHeight);
             if (gameConnection.EntityPositions != null)
             {
                 float dt = gameConnection.TimeSinceGameEvent;
@@ -51,7 +51,7 @@ namespace CubeHack.Client
                     var offset2 = position.Position + dt * position.Velocity - new Position();
                     GL.Translate(offset2.X, offset2.Y, offset2.Z);
                     GL.Rotate(position.HAngle + 180, 0, 1, 0);
-                    DrawEntity(0, 0, 0);
+                    DrawEntity(0, 0, 0, 0.5f * gameConnection.PhysicsValues.PlayerWidth, gameConnection.PhysicsValues.PlayerHeight);
                     GL.PopMatrix();
                 }
             }
@@ -70,7 +70,7 @@ namespace CubeHack.Client
                         {
                             if (chunkData[x, y, z] != 0)
                             {
-                                DrawCube(x * 0.5f, y * 0.5f, z * 0.5f);
+                                DrawCube(x, y, z);
                             }
                         }
                     }
@@ -142,32 +142,32 @@ namespace CubeHack.Client
             GL.LoadMatrix(ref projectionMatrix);
         }
 
-        static void DrawEntity(float x, float y, float z)
+        static void DrawEntity(float x, float y, float z, float xRadius, float height)
         {
             GL.Begin(PrimitiveType.Quads);
 
             GL.Color3(0.9f, 0.9f, 0.9f);
-            GL.Vertex3(x - 0.4f, y, z + 0.4f);
-            GL.Vertex3(x + 0.4f, y, z + 0.4f);
-            GL.Vertex3(x + 0.4f, y + 1.75f, z + 0.4f);
-            GL.Vertex3(x - 0.4f, y + 1.75f, z + 0.4f);
+            GL.Vertex3(x - xRadius, y, z + xRadius);
+            GL.Vertex3(x + xRadius, y, z + xRadius);
+            GL.Vertex3(x + xRadius, y + height, z + xRadius);
+            GL.Vertex3(x - xRadius, y + height, z + xRadius);
 
             GL.Color3(0.7f, 0.8f, 0.9f);
 
-            GL.Vertex3(x + 0.4f, y, z + 0.4f);
-            GL.Vertex3(x + 0.4f, y, z - 0.4f);
-            GL.Vertex3(x + 0.4f, y + 1.75f, z - 0.4f);
-            GL.Vertex3(x + 0.4f, y + 1.75f, z + 0.4f);
+            GL.Vertex3(x + xRadius, y, z + xRadius);
+            GL.Vertex3(x + xRadius, y, z - xRadius);
+            GL.Vertex3(x + xRadius, y + height, z - xRadius);
+            GL.Vertex3(x + xRadius, y + height, z + xRadius);
 
-            GL.Vertex3(x + 0.4f, y, z - 0.4f);
-            GL.Vertex3(x - 0.4f, y, z - 0.4f);
-            GL.Vertex3(x - 0.4f, y + 1.75f, z - 0.4f);
-            GL.Vertex3(x + 0.4f, y + 1.75f, z - 0.4f);
+            GL.Vertex3(x + xRadius, y, z - xRadius);
+            GL.Vertex3(x - xRadius, y, z - xRadius);
+            GL.Vertex3(x - xRadius, y + height, z - xRadius);
+            GL.Vertex3(x + xRadius, y + height, z - xRadius);
 
-            GL.Vertex3(x - 0.4f, y, z - 0.4f);
-            GL.Vertex3(x - 0.4f, y, z + 0.4f);
-            GL.Vertex3(x - 0.4f, y + 1.75f, z + 0.4f);
-            GL.Vertex3(x - 0.4f, y + 1.75f, z - 0.4f);
+            GL.Vertex3(x - xRadius, y, z - xRadius);
+            GL.Vertex3(x - xRadius, y, z + xRadius);
+            GL.Vertex3(x - xRadius, y + height, z + xRadius);
+            GL.Vertex3(x - xRadius, y + height, z - xRadius);
 
             GL.End();
         }
@@ -180,43 +180,43 @@ namespace CubeHack.Client
 
             GL.Color3(0.67f, 0.67f, 0.67f);
 
-            x += 0.25f;
-            y += 0.25f;
-            z += 0.25f;
+            x += 0.5f;
+            y += 0.5f;
+            z += 0.5f;
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.25f, y + 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.25f, y + 0.25f, z + 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.25f, y + 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.25f, y + 0.25f, z + 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.25f, y + 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.25f, y + 0.25f, z - 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.25f, y + 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.25f, y + 0.25f, z - 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
 
             GL.Color3(1f, 1f, 1f);
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.25f, y + 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.25f, y + 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.25f, y + 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.25f, y + 0.25f, z - 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
 
             GL.Color3(0.33f, 0.33f, 0.33f);
 
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.25f, y - 0.25f, z + 0.25f);
-            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.25f, y - 0.25f, z - 0.25f);
-            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.25f, y - 0.25f, z + 0.25f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
+            GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
+            GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
 
             GL.End();
         }

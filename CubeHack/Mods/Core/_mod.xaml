@@ -12,8 +12,11 @@
 
     <Mod.PhysicsValues>
         <PhysicsValues>
-            <PhysicsValues.Gravity>9.81</PhysicsValues.Gravity>
-            <PhysicsValues.PlayerMovementSpeed>5.0</PhysicsValues.PlayerMovementSpeed>
+            <PhysicsValues.Gravity>19.62</PhysicsValues.Gravity>
+            <PhysicsValues.PlayerMovementSpeed>10.0</PhysicsValues.PlayerMovementSpeed>
+            <PhysicsValues.PlayerWidth>1.6</PhysicsValues.PlayerWidth>
+            <PhysicsValues.PlayerHeight>3.5</PhysicsValues.PlayerHeight>
+            <PhysicsValues.PlayerEyeHeight>2.5</PhysicsValues.PlayerEyeHeight>
         </PhysicsValues>
     </Mod.PhysicsValues>
 
