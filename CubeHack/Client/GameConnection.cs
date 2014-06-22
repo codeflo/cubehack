@@ -158,8 +158,9 @@ namespace CubeHack.Client
             long p = position.X;
 
             int cy = position.CubeY;
-            int cz = position.CubeZ;
-            bool hasCollided = MoveInternal(p, distance, cx => World[cx, cy, cz], out p);
+            int cz0 = Position.GetCubeCoordinate(position.Z - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cz1 = Position.GetCubeCoordinate(position.Z + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(cx, cx, cy, cy, cz0, cz1), out p);
             position.X = p;
 
             PositionData.Position = position;
@@ -171,9 +172,11 @@ namespace CubeHack.Client
             Position position = PositionData.Position;
             long p = position.Y;
 
-            int cx = position.CubeX;
-            int cz = position.CubeZ;
-            bool hasCollided = MoveInternal(p, distance, cy => World[cx, cy, cz], out p);
+            int cx0 = Position.GetCubeCoordinate(position.X - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cx1 = Position.GetCubeCoordinate(position.X + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
+            int cz0 = Position.GetCubeCoordinate(position.Z - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cz1 = Position.GetCubeCoordinate(position.Z + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, 0, distance, cy => AllPassable(cx0, cx1, cy, cy, cz0, cz1), out p);
             position.Y = p;
 
             PositionData.Position = position;
@@ -185,20 +188,23 @@ namespace CubeHack.Client
             Position position = PositionData.Position;
             long p = position.Z;
 
-            int cx = position.CubeX;
+            int cx0 = Position.GetCubeCoordinate(position.X - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cx1 = Position.GetCubeCoordinate(position.X + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
             int cy = position.CubeY;
-            bool hasCollided = MoveInternal(p, distance, cz => World[cx, cy, cz], out p);
+            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(cx0, cx1, cy, cy, cz, cz), out p);
             position.Z = p;
 
             PositionData.Position = position;
             return hasCollided;
         }
 
-        bool MoveInternal(long startPosition, double distance, Func<int, ushort> getCube, out long position)
+        bool MoveInternal(long startPosition, double radius, double distance, Func<int, bool> isPassable, out long position)
         {
             int sign;
 
             long d = (long)(distance * (1L << 32));
+            long r = (long)(radius * (1L << 32));
+
             if (d == 0)
             {
                 position = startPosition;
@@ -214,17 +220,23 @@ namespace CubeHack.Client
                 d = -d;
             }
 
+            startPosition += sign * r;
+
             int start = Position.GetCubeCoordinate(startPosition + (1L << 31) * sign);
             int end = Position.GetCubeCoordinate(startPosition + d * sign);
 
             for (int i = start; (i - end) * sign <= 0; i += sign)
             {
-                if (getCube(i) != 0)
+                if (!isPassable(i))
                 {
                     long edge = (long)i << 32;
                     if (sign < 0)
                     {
-                        edge += (1L << 32) - 1;
+                        edge += (1L << 32);
+                    }
+                    else
+                    {
+                        edge -= 1;
                     }
 
                     long edgeDistance = (edge - startPosition) * sign;
@@ -232,13 +244,13 @@ namespace CubeHack.Client
                     if (edgeDistance < 0)
                     {
                         // Attempt to move further inside the cube.
-                        position = startPosition;
+                        position = startPosition - sign * r;
                         return true;
                     }
                     else if (edgeDistance < d)
                     {
                         // Collision!
-                        position = edge;
+                        position = edge - sign * r;
                         return true;
                     }
                     else
@@ -249,13 +261,32 @@ namespace CubeHack.Client
                 }
             }
 
-            position = startPosition + d * sign;
+            position = startPosition + d * sign - sign * r;
             return false;
         }
 
         private int GetCurrentCubeCoordinate(long position, long direction)
         {
             return Position.GetCubeCoordinate(position + (1L << 31) * direction);
+        }
+
+        bool AllPassable(int cx0, int cx1, int cy0, int cy1, int cz0, int cz1)
+        {
+            for (int x = cx0; x <= cx1; ++x)
+            {
+                for (int y = cy0; y <= cy1; ++y)
+                {
+                    for (int z = cz0; z <= cz1; ++z)
+                    {
+                        if (World[x, y, z] != 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }
