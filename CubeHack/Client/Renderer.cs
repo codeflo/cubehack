@@ -40,7 +40,7 @@ namespace CubeHack.Client
             GL.Translate(-offset.X, -offset.Y - gameConnection.PhysicsValues.PlayerEyeHeight, -offset.Z);
 
             GL.Disable(EnableCap.Texture2D);
-            DrawEntity(2, 0, -9, 0.5f * gameConnection.PhysicsValues.PlayerWidth, gameConnection.PhysicsValues.PlayerHeight);
+
             if (gameConnection.EntityPositions != null)
             {
                 float dt = gameConnection.TimeSinceGameEvent;

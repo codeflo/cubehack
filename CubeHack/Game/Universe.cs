@@ -131,7 +131,16 @@ namespace CubeHack.Game
                 }
             }
 
-            ret[0, 0, -5] = 1;
+            for (int x = -3; x <= -2; ++x)
+            {
+                for (int y = 0; y <= 1; ++y)
+                {
+                    for (int z = -7; z <= -6; ++z)
+                    {
+                        ret[x, y, z] = 1;
+                    }
+                }
+            }
 
             return ret;
         }
