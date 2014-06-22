@@ -23,7 +23,11 @@ namespace CubeHack.Client
 
         public void Run()
         {
-            string host = Microsoft.VisualBasic.Interaction.InputBox("Enter server address:\n\n(Leave blank for single player.)", "CubeHack");
+            string host = Microsoft.VisualBasic.Interaction.InputBox("Enter server address:\n\n(Leave blank for single player.)", "CubeHack", " ");
+            if (host.Length == 0)
+            {
+                return;
+            }
 
             Universe universe = null;
 
@@ -39,7 +43,7 @@ namespace CubeHack.Client
                 _gameWindow.KeyDown += OnKeyDown;
                 _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
 
-                if (string.IsNullOrEmpty(host))
+                if (string.IsNullOrWhiteSpace(host))
                 {
                     universe = new Universe(DataLoader.LoadMod("Core"));
                     host = "localhost";
