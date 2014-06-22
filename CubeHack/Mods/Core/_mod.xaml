@@ -12,7 +12,8 @@
 
     <Mod.PhysicsValues>
         <PhysicsValues>
-            <PhysicsValues.Gravity>19.62</PhysicsValues.Gravity>
+            <PhysicsValues.Gravity>40</PhysicsValues.Gravity>
+            <PhysicsValues.PlayerJumpHeight>2.5</PhysicsValues.PlayerJumpHeight>
             <PhysicsValues.PlayerMovementSpeed>10.0</PhysicsValues.PlayerMovementSpeed>
             <PhysicsValues.PlayerWidth>1.6</PhysicsValues.PlayerWidth>
             <PhysicsValues.PlayerHeight>3.5</PhysicsValues.PlayerHeight>

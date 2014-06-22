@@ -24,5 +24,8 @@ namespace CubeHack.Game
 
         [ProtoMember(4)]
         public float VAngle { get; set; }
+
+        [ProtoMember(5)]
+        public bool IsFalling { get; set; }
     }
 }

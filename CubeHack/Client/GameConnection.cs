@@ -100,17 +100,17 @@ namespace CubeHack.Client
 
         public void UpdateState(bool hasFocus, bool mouseLookActive)
         {
-            float elapsedTime = _frameTimer.SetZero();
+            double elapsedTime = _frameTimer.SetZero();
 
             var keyboardState = Keyboard.GetState();
 
-            float vx = 0, vy = 0, vz = 0;
+            double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
 
             if (hasFocus)
             {
-                float f = (float)Math.PI / 180.0f;
-                float lookZ = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Cos(PositionData.HAngle * f);
-                float lookX = -elapsedTime * PhysicsValues.PlayerMovementSpeed * (float)Math.Sin(PositionData.HAngle * f);
+                double f = Math.PI / 180.0;
+                double lookZ = -PhysicsValues.PlayerMovementSpeed * Math.Cos(PositionData.HAngle * f);
+                double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
 
                 if (keyboardState.IsKeyDown(Key.W))
                 {
@@ -135,21 +135,42 @@ namespace CubeHack.Client
                     vx -= lookZ;
                     vz += lookX;
                 }
+
+                if (!PositionData.IsFalling && keyboardState.IsKeyDown(Key.Space))
+                {
+                    vy += GetJumpingSpeed();
+                }
             }
 
             if (vx > vz)
             {
-                if (MoveX(vx)) vx = 0;
-                if (MoveZ(vz)) vz = 0;
+                if (MoveX(vx * elapsedTime)) vx = 0;
+                if (MoveZ(vz * elapsedTime)) vz = 0;
             }
             else
             {
-                if (MoveZ(vz)) vz = 0;
-                if (MoveX(vx)) vx = 0;
+                if (MoveZ(vz * elapsedTime)) vz = 0;
+                if (MoveX(vx * elapsedTime)) vx = 0;
+            }
+
+            vy -= elapsedTime * PhysicsValues.Gravity;
+            if (MoveY(vy * elapsedTime))
+            {
+                PositionData.IsFalling = false;
+                vy = 0;
+            }
+            else
+            {
+                PositionData.IsFalling = true;
             }
 
             PositionData.Velocity = new Offset(vx, vy, vz);
             _channel.SendPlayerEvent(new PlayerEvent { PositionData = PositionData });
+        }
+
+        private double GetJumpingSpeed()
+        {
+            return Math.Sqrt(2 * PhysicsValues.Gravity * PhysicsValues.PlayerJumpHeight);
         }
 
         bool MoveX(double distance)

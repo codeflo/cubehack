@@ -33,5 +33,8 @@ namespace CubeHack.GameData
 
         [ProtoMember(5)]
         public float PlayerEyeHeight { get; set; }
+
+        [ProtoMember(6)]
+        public float PlayerJumpHeight { get; set; }
     }
 }
