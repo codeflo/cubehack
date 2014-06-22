@@ -31,6 +31,8 @@ namespace CubeHack.Game
 
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
+
+            Task.Run(() => RunSendPlayerEvents());
         }
 
         public World World { get; private set; }
@@ -157,7 +159,36 @@ namespace CubeHack.Game
             }
 
             PositionData.Velocity = new Offset(vx, vy, vz);
-            _channel.SendPlayerEvent(new PlayerEvent { PositionData = PositionData });
+
+        }
+
+        private async Task RunSendPlayerEvents()
+        {
+            while (true)
+            {
+                try
+                {
+                    var playerEvent = new PlayerEvent();
+                    using (_mutex.TakeLock())
+                    {
+                        playerEvent.PositionData = new PositionData
+                        {
+                            Position = PositionData.Position,
+                            Velocity = PositionData.Velocity,
+                            HAngle = PositionData.HAngle,
+                            VAngle = PositionData.VAngle,
+                            IsFalling = PositionData.IsFalling,
+                        };
+                    }
+
+                    await _channel.SendPlayerEventAsync(playerEvent);
+                }
+                catch (Exception)
+                {
+                }
+
+                await Task.Delay(10);
+            }
         }
 
         private double GetJumpingSpeed()

@@ -14,7 +14,7 @@ namespace CubeHack.Game
     {
         Func<GameEvent, Task> OnGameEventAsync { get; set; }
 
-        void SendPlayerEvent(PlayerEvent playerEvent);
+        Task SendPlayerEventAsync(PlayerEvent playerEvent);
 
         ModData ModData { get; }
     }

@@ -58,12 +58,14 @@ namespace CubeHack.Game
             }
         }
 
-        public void SendPlayerEvent(PlayerEvent playerEvent)
+        public Task SendPlayerEventAsync(PlayerEvent playerEvent)
         {
             lock (_player.Mutex)
             {
                 _player.PositionData = playerEvent.PositionData;
             }
+
+            return Task.FromResult(true);
         }
 
         private async Task RunChannel()

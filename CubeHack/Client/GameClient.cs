@@ -21,7 +21,7 @@ namespace CubeHack.Client
         {
         }
 
-        public void UpdateState(bool hasFocus, bool mouseLookActive)
+        public void UpdateState(bool hasFocus)
         {
             var keyboardState = Keyboard.GetState();
             UpdateState(gameKey =>

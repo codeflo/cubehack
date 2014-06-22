@@ -54,7 +54,7 @@ namespace CubeHack.Tcp
                 while (true)
                 {
                     var playerEvent = await stream.ReadObjectAsync<PlayerEvent>();
-                    internalChannel.SendPlayerEvent(playerEvent);
+                    await internalChannel.SendPlayerEventAsync(playerEvent);
                 }
             }
             catch (Exception)

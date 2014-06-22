@@ -74,17 +74,14 @@ namespace CubeHack.Tcp
             }
         }
 
-        public void SendPlayerEvent(PlayerEvent playerEvent)
+        public async Task SendPlayerEventAsync(PlayerEvent playerEvent)
         {
-            lock (_mutex)
+            if (!_isConnected)
             {
-                if (!_isConnected)
-                {
-                    return;
-                }
-
-                _stream.WriteObjectAsync(playerEvent).Wait();
+                return;
             }
+
+            await _stream.WriteObjectAsync(playerEvent);
         }
 
         private async Task RunChannel()

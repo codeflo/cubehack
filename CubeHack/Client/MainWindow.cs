@@ -153,7 +153,7 @@ namespace CubeHack.Client
                 using (_gameClient.TakeRenderLock())
                 {
                     UpdateMouse();
-                    _gameClient.UpdateState(_gameWindow.Focused, _mouseLookActive);
+                    _gameClient.UpdateState(_gameWindow.Focused);
 
                     Renderer.Render(_gameClient, _gameWindow.Width, _gameWindow.Height);
                     UiRenderer.Render(_gameWindow.Width, _gameWindow.Height, _mouseLookActive);
