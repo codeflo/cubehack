@@ -1,20 +1,17 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
-using CubeHack.Game;
 using CubeHack.GameData;
 using CubeHack.Util;
-using OpenTK.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CubeHack.Client
+namespace CubeHack.Game
 {
-    sealed class GameConnection
+    abstract class AbstractGameClient
     {
         readonly PriorityMutex _mutex = new PriorityMutex();
         readonly IChannel _channel;
@@ -28,7 +25,7 @@ namespace CubeHack.Client
 
         public List<PositionData> EntityPositions = new List<PositionData>();
 
-        public GameConnection(IChannel channel)
+        public AbstractGameClient(IChannel channel)
         {
             World = new World();
 
@@ -98,48 +95,43 @@ namespace CubeHack.Client
             return Task.FromResult(0);
         }
 
-        public void UpdateState(bool hasFocus, bool mouseLookActive)
+        protected void UpdateState(Func<GameKey, bool> isKeyPressed)
         {
             double elapsedTime = _frameTimer.SetZero();
 
-            var keyboardState = Keyboard.GetState();
-
             double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
 
-            if (hasFocus)
+            double f = Math.PI / 180.0;
+            double lookZ = -PhysicsValues.PlayerMovementSpeed * Math.Cos(PositionData.HAngle * f);
+            double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
+
+            if (isKeyPressed(GameKey.Forwards))
             {
-                double f = Math.PI / 180.0;
-                double lookZ = -PhysicsValues.PlayerMovementSpeed * Math.Cos(PositionData.HAngle * f);
-                double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
+                vx += lookX;
+                vz += lookZ;
+            }
 
-                if (keyboardState.IsKeyDown(Key.W))
-                {
-                    vx += lookX;
-                    vz += lookZ;
-                }
+            if (isKeyPressed(GameKey.Left))
+            {
+                vx += lookZ;
+                vz -= lookX;
+            }
 
-                if (keyboardState.IsKeyDown(Key.A))
-                {
-                    vx += lookZ;
-                    vz -= lookX;
-                }
+            if (isKeyPressed(GameKey.Backwards))
+            {
+                vx -= lookX;
+                vz -= lookZ;
+            }
 
-                if (keyboardState.IsKeyDown(Key.S))
-                {
-                    vx -= lookX;
-                    vz -= lookZ;
-                }
+            if (isKeyPressed(GameKey.Right))
+            {
+                vx -= lookZ;
+                vz += lookX;
+            }
 
-                if (keyboardState.IsKeyDown(Key.D))
-                {
-                    vx -= lookZ;
-                    vz += lookX;
-                }
-
-                if (!PositionData.IsFalling && keyboardState.IsKeyDown(Key.Space))
-                {
-                    vy += GetJumpingSpeed();
-                }
+            if (!PositionData.IsFalling && isKeyPressed(GameKey.Jump))
+            {
+                vy += GetJumpingSpeed();
             }
 
             if (vx > vz)

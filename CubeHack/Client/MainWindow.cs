@@ -16,7 +16,7 @@ namespace CubeHack.Client
     sealed class MainWindow
     {
         GameWindow _gameWindow;
-        GameConnection _gameConnection;
+        GameClient _gameClient;
 
         volatile bool _willQuit = false;
         bool _mouseLookActive = false;
@@ -53,7 +53,7 @@ namespace CubeHack.Client
                 var channel = new TcpChannel(host, TcpConstants.Port);
                 channel.ConnectAsync().Wait();
 
-                _gameConnection = new GameConnection(channel);
+                _gameClient = new GameClient(channel);
 
                 TextureAtlas.Build(channel.ModData.Textures);
 
@@ -134,7 +134,7 @@ namespace CubeHack.Client
                     {
                         var x = point.X - center.X;
                         var y = point.Y - center.Y;
-                        _gameConnection.MouseLook(x, y);
+                        _gameClient.MouseLook(x, y);
                     }
                 }
 
@@ -148,14 +148,14 @@ namespace CubeHack.Client
 
         void Render()
         {
-            if (_gameConnection != null)
+            if (_gameClient != null)
             {
-                using (_gameConnection.TakeRenderLock())
+                using (_gameClient.TakeRenderLock())
                 {
                     UpdateMouse();
-                    _gameConnection.UpdateState(_gameWindow.Focused, _mouseLookActive);
+                    _gameClient.UpdateState(_gameWindow.Focused, _mouseLookActive);
 
-                    Renderer.Render(_gameConnection, _gameWindow.Width, _gameWindow.Height);
+                    Renderer.Render(_gameClient, _gameWindow.Width, _gameWindow.Height);
                     UiRenderer.Render(_gameWindow.Width, _gameWindow.Height, _mouseLookActive);
                 }
             }

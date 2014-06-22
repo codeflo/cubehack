@@ -21,7 +21,7 @@ namespace CubeHack.Client
         static int _depthBufferWidth;
         static int _depthBufferHeight;
 
-        public static void Render(GameConnection gameConnection, int width, int height)
+        public static void Render(GameClient gameClient, int width, int height)
         {
             GL.Viewport(0, 0, width, height);
             GL.ClearColor(0.5f, 0.6f, 0.9f, 1f);
@@ -33,25 +33,25 @@ namespace CubeHack.Client
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Rotate(gameConnection.PositionData.VAngle, 1, 0, 0);
-            GL.Rotate(gameConnection.PositionData.HAngle, 0, -1, 0);
+            GL.Rotate(gameClient.PositionData.VAngle, 1, 0, 0);
+            GL.Rotate(gameClient.PositionData.HAngle, 0, -1, 0);
 
-            var offset = gameConnection.PositionData.Position - new Position();
-            GL.Translate(-offset.X, -offset.Y - gameConnection.PhysicsValues.PlayerEyeHeight, -offset.Z);
+            var offset = gameClient.PositionData.Position - new Position();
+            GL.Translate(-offset.X, -offset.Y - gameClient.PhysicsValues.PlayerEyeHeight, -offset.Z);
 
             GL.Disable(EnableCap.Texture2D);
 
-            if (gameConnection.EntityPositions != null)
+            if (gameClient.EntityPositions != null)
             {
-                float dt = gameConnection.TimeSinceGameEvent;
+                float dt = gameClient.TimeSinceGameEvent;
 
-                foreach (var position in gameConnection.EntityPositions)
+                foreach (var position in gameClient.EntityPositions)
                 {
                     GL.PushMatrix();
                     var offset2 = position.Position + dt * position.Velocity - new Position();
                     GL.Translate(offset2.X, offset2.Y, offset2.Z);
                     GL.Rotate(position.HAngle + 180, 0, 1, 0);
-                    DrawEntity(0, 0, 0, 0.5f * gameConnection.PhysicsValues.PlayerWidth, gameConnection.PhysicsValues.PlayerHeight);
+                    DrawEntity(0, 0, 0, 0.5f * gameClient.PhysicsValues.PlayerWidth, gameClient.PhysicsValues.PlayerHeight);
                     GL.PopMatrix();
                 }
             }
@@ -59,7 +59,7 @@ namespace CubeHack.Client
             GL.Enable(EnableCap.Texture2D);
             TextureAtlas.Bind();
 
-            var chunkData = gameConnection.World.ChunkData;
+            var chunkData = gameClient.World.ChunkData;
             if (chunkData != null)
             {
                 for (int x = chunkData.X0; x < chunkData.X1; ++x)

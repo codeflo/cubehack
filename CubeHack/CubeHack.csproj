@@ -53,14 +53,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\FontRenderer.cs" />
-    <Compile Include="Client\GameConnection.cs" />
+    <Compile Include="Client\GameClient.cs" />
     <Compile Include="Client\Renderer.cs" />
     <Compile Include="Client\Shader.cs" />
     <Compile Include="Client\TextureAtlas.cs" />
     <Compile Include="Client\TextureHelper.cs" />
     <Compile Include="Client\UiRenderer.cs" />
+    <Compile Include="Game\AbstractGameClient.cs" />
     <Compile Include="Game\ChunkData.cs" />
     <Compile Include="Game\DataLoader.cs" />
+    <Compile Include="Game\GameKey.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\Offset.cs" />
     <Compile Include="Game\Position.cs" />
