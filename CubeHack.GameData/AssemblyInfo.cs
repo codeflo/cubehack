@@ -6,7 +6,7 @@ using System.Windows.Markup;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CubeHackLib")]
+[assembly: AssemblyTitle("CubeHack.GameData")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
@@ -21,7 +21,7 @@ using System.Windows.Markup;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8ceea24d-e47c-4776-b6ff-e78fcdeadb1a")]
+[assembly: Guid("ef7f5202-f6eb-4ff3-baf6-40b278570d8a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,3 +35,5 @@ using System.Windows.Markup;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: XmlnsDefinition("http://cubehack.net/gamedata", "CubeHack.GameData")]

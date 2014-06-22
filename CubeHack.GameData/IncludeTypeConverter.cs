@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
-using CubeHack.Game;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +12,8 @@ namespace CubeHack.GameData
 {
     public class IncludeTypeConverter : TypeConverter
     {
+        public static Func<string, object> Resolver { get; set; }
+
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             return sourceType == typeof(string);
@@ -20,9 +21,9 @@ namespace CubeHack.GameData
 
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
         {
-            if (value is string)
+            if (Resolver != null && value is string)
             {
-                var r = DataLoader.Resolve(((string)value).Trim());
+                var r = Resolver(((string)value).Trim());
                 return r;
             }
 

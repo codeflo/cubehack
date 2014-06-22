@@ -14,13 +14,18 @@ using System.Xaml;
 
 namespace CubeHack.Game
 {
-    class DataLoader
+    static class DataLoader
     {
         static readonly string modDir = Path.Combine(
             Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
             "mods");
 
         static readonly ThreadLocal<string> _dir = new ThreadLocal<string>();
+
+        static DataLoader()
+        {
+            IncludeTypeConverter.Resolver = Resolve;
+        }
 
         public static Mod LoadMod(string name)
         {
@@ -29,7 +34,7 @@ namespace CubeHack.Game
             // * handle IO errors
             // * handle XAML errors
             // * whitelist the XAML namespace
-            
+
             _dir.Value = Path.Combine(modDir, name);
             try
             {
