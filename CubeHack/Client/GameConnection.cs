@@ -30,11 +30,13 @@ namespace CubeHack.Client
 
         public GameConnection(IChannel channel)
         {
+            World = new World();
+
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
         }
 
-        public ChunkData ChunkData { get; set; }
+        public World World { get; private set; }
 
         public float TimeSinceGameEvent
         {
@@ -89,7 +91,7 @@ namespace CubeHack.Client
 
                 if (gameEvent.ChunkData != null)
                 {
-                    ChunkData = gameEvent.ChunkData;
+                    World.AddChunk(gameEvent.ChunkData);
                 }
             }
 
@@ -135,9 +137,125 @@ namespace CubeHack.Client
                 }
             }
 
-            PositionData.Position += new Offset(vx, vy, vz);
+            if (vx > vz)
+            {
+                if (MoveX(vx)) vx = 0;
+                if (MoveZ(vz)) vz = 0;
+            }
+            else
+            {
+                if (MoveZ(vz)) vz = 0;
+                if (MoveX(vx)) vx = 0;
+            }
 
+            PositionData.Velocity = new Offset(vx, vy, vz);
             _channel.SendPlayerEvent(new PlayerEvent { PositionData = PositionData });
+        }
+
+        bool MoveX(double distance)
+        {
+            Position position = PositionData.Position;
+            long p = position.X;
+
+            int cy = position.CubeY;
+            int cz = position.CubeZ;
+            bool hasCollided = MoveInternal(p, distance, cx => World[cx, cy, cz], out p);
+            position.X = p;
+
+            PositionData.Position = position;
+            return hasCollided;
+        }
+
+        bool MoveY(double distance)
+        {
+            Position position = PositionData.Position;
+            long p = position.Y;
+
+            int cx = position.CubeX;
+            int cz = position.CubeZ;
+            bool hasCollided = MoveInternal(p, distance, cy => World[cx, cy, cz], out p);
+            position.Y = p;
+
+            PositionData.Position = position;
+            return hasCollided;
+        }
+
+        bool MoveZ(double distance)
+        {
+            Position position = PositionData.Position;
+            long p = position.Z;
+
+            int cx = position.CubeX;
+            int cy = position.CubeY;
+            bool hasCollided = MoveInternal(p, distance, cz => World[cx, cy, cz], out p);
+            position.Z = p;
+
+            PositionData.Position = position;
+            return hasCollided;
+        }
+
+        bool MoveInternal(long startPosition, double distance, Func<int, ushort> getCube, out long position)
+        {
+            int sign;
+
+            long d = (long)(distance * (1L << 32));
+            if (d == 0)
+            {
+                position = startPosition;
+                return false;
+            }
+            else if (d > 0)
+            {
+                sign = 1;
+            }
+            else
+            {
+                sign = -1;
+                d = -d;
+            }
+
+            int start = Position.GetCubeCoordinate(startPosition + (1L << 31) * sign);
+            int end = Position.GetCubeCoordinate(startPosition + d * sign);
+
+            for (int i = start; (i - end) * sign <= 0; i += sign)
+            {
+                if (getCube(i) != 0)
+                {
+                    long edge = (long)i << 32;
+                    if (sign < 0)
+                    {
+                        edge += (1L << 32) - 1;
+                    }
+
+                    long edgeDistance = (edge - startPosition) * sign;
+
+                    if (edgeDistance < 0)
+                    {
+                        // Attempt to move further inside the cube.
+                        position = startPosition;
+                        return true;
+                    }
+                    else if (edgeDistance < d)
+                    {
+                        // Collision!
+                        position = edge;
+                        return true;
+                    }
+                    else
+                    {
+                        // Can this even happen?
+                        throw new Exception();
+                    }
+                }
+            }
+
+            position = startPosition + d * sign;
+            return false;
+        }
+
+        private int GetCurrentCubeCoordinate(long position, long direction)
+        {
+            return Position.GetCubeCoordinate(position + (1L << 31) * direction);
         }
     }
 }

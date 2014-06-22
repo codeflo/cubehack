@@ -38,7 +38,7 @@ namespace CubeHack.Game
         {
             get
             {
-                if (InternalData == null)
+                if (InternalData == null || x < X0 || x >= X1 || y < Y0 || y >= Y1 || z < Z0 || z >= Z1)
                 {
                     return 0;
                 }

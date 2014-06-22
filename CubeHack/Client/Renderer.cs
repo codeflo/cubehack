@@ -59,7 +59,7 @@ namespace CubeHack.Client
             GL.Enable(EnableCap.Texture2D);
             TextureAtlas.Bind();
 
-            var chunkData = gameConnection.ChunkData;
+            var chunkData = gameConnection.World.ChunkData;
             if (chunkData != null)
             {
                 for (int x = chunkData.X0; x < chunkData.X1; ++x)

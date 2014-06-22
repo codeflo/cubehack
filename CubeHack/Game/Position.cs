@@ -33,6 +33,30 @@ namespace CubeHack.Game
         [ProtoMember(3)]
         public long Z { get; set; }
 
+        public int CubeX
+        {
+            get
+            {
+                return GetCubeCoordinate(X);
+            }
+        }
+
+        public int CubeY
+        {
+            get
+            {
+                return GetCubeCoordinate(Y);
+            }
+        }
+
+        public int CubeZ
+        {
+            get
+            {
+                return GetCubeCoordinate(Z);
+            }
+        }
+
         public static Offset operator -(Position a, Position b)
         {
             return new Offset((a.X - b.X) * _inverseScaleFactor, (a.Y - b.Y) * _inverseScaleFactor, (a.Z - b.Z) * _inverseScaleFactor);
@@ -41,6 +65,16 @@ namespace CubeHack.Game
         public static Position operator +(Position a, Offset b)
         {
             return new Position(a.X + (long)(_scaleFactor * b.X), a.Y + (long)(_scaleFactor * b.Y), a.Z + (long)(_scaleFactor * b.Z));
+        }
+
+        public static Position operator -(Position a, Offset b)
+        {
+            return new Position(a.X - (long)(_scaleFactor * b.X), a.Y - (long)(_scaleFactor * b.Y), a.Z - (long)(_scaleFactor * b.Z));
+        }
+
+        public static int GetCubeCoordinate(long coordinate)
+        {
+            return (int)(coordinate >> 32);
         }
     }
 }

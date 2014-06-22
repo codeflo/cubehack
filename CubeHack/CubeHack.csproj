@@ -80,7 +80,9 @@
     <Compile Include="Game\Channel.cs" />
     <Compile Include="Game\GameEvent.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
+    <Compile Include="Game\RayCastResult.cs" />
     <Compile Include="Game\Universe.cs" />
+    <Compile Include="Game\World.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Tcp\TcpChannel.cs" />
