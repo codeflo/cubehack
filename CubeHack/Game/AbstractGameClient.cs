@@ -255,10 +255,11 @@ namespace CubeHack.Game
             Position position = PositionData.Position;
             long p = position.X;
 
-            int cy = position.CubeY;
+            int cy0 = Position.GetCubeCoordinate(position.Y + 1);
+            int cy1 = Position.GetCubeCoordinate(position.Y + (long)(PhysicsValues.PlayerHeight * (1L << 32)) - 1);
             int cz0 = Position.GetCubeCoordinate(position.Z - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
             int cz1 = Position.GetCubeCoordinate(position.Z + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
-            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(cx, cx, cy, cy, cz0, cz1), out p);
+            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(cx, cx, cy0, cy1, cz0, cz1), out p);
             position.X = p;
 
             PositionData.Position = position;
@@ -274,7 +275,7 @@ namespace CubeHack.Game
             int cx1 = Position.GetCubeCoordinate(position.X + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
             int cz0 = Position.GetCubeCoordinate(position.Z - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
             int cz1 = Position.GetCubeCoordinate(position.Z + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
-            bool hasCollided = MoveInternal(p, 0, distance, cy => AllPassable(cx0, cx1, cy, cy, cz0, cz1), out p);
+            bool hasCollided = MoveInternal(p, distance > 0 ? PhysicsValues.PlayerHeight : 0, distance, cy => AllPassable(cx0, cx1, cy, cy, cz0, cz1), out p);
             position.Y = p;
 
             PositionData.Position = position;
@@ -288,8 +289,9 @@ namespace CubeHack.Game
 
             int cx0 = Position.GetCubeCoordinate(position.X - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
             int cx1 = Position.GetCubeCoordinate(position.X + (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) - 1);
-            int cy = position.CubeY;
-            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(cx0, cx1, cy, cy, cz, cz), out p);
+            int cy0 = Position.GetCubeCoordinate(position.Y + 1);
+            int cy1 = Position.GetCubeCoordinate(position.Y + (long)(PhysicsValues.PlayerHeight * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(cx0, cx1, cy0, cy1, cz, cz), out p);
             position.Z = p;
 
             PositionData.Position = position;

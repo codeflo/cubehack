@@ -16,8 +16,8 @@
             <PhysicsValues.PlayerJumpHeight>2.5</PhysicsValues.PlayerJumpHeight>
             <PhysicsValues.PlayerMovementSpeed>10.0</PhysicsValues.PlayerMovementSpeed>
             <PhysicsValues.PlayerWidth>1.6</PhysicsValues.PlayerWidth>
-            <PhysicsValues.PlayerHeight>3.5</PhysicsValues.PlayerHeight>
-            <PhysicsValues.PlayerEyeHeight>2.5</PhysicsValues.PlayerEyeHeight>
+            <PhysicsValues.PlayerHeight>2.8</PhysicsValues.PlayerHeight>
+            <PhysicsValues.PlayerEyeHeight>2.4</PhysicsValues.PlayerEyeHeight>
 
             <PhysicsValues.PlacementCooldown>0.5</PhysicsValues.PlacementCooldown>
             <PhysicsValues.MiningDistance>4.0</PhysicsValues.MiningDistance>
