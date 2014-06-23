@@ -44,6 +44,35 @@ namespace CubeHack.Client
             }
 
             DrawFps(width, height);
+
+            if (mouseLookActive)
+            {
+                DrawCrossHair(width, height);
+            }
+        }
+
+        static void DrawCrossHair(float width, float height)
+        {
+            float d = (float)Math.Sqrt(width * width + height * height);
+            float w = (float)height / d;
+            float h = (float)width / d;
+            float dwh = d / (width * height);
+
+            float n = 4 * dwh;
+            float m = 24 * dwh;
+
+            GL.Color3(1f, 1f, 1f);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Vertex2(-m * w, -n * h);
+            GL.Vertex2(m * w, -n * h);
+            GL.Vertex2(m * w, n * h);
+            GL.Vertex2(-m * w, n * h);
+
+            GL.Vertex2(-n * w, -m * h);
+            GL.Vertex2(n * w, -m * h);
+            GL.Vertex2(n * w, m * h);
+            GL.Vertex2(-n * w, m * h);
+            GL.End();
         }
 
         static void DrawFps(float width, float height)

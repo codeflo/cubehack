@@ -20,7 +20,7 @@
             <PhysicsValues.PlayerEyeHeight>2.4</PhysicsValues.PlayerEyeHeight>
 
             <PhysicsValues.PlacementCooldown>0.5</PhysicsValues.PlacementCooldown>
-            <PhysicsValues.MiningDistance>4.0</PhysicsValues.MiningDistance>
+            <PhysicsValues.MiningDistance>6.0</PhysicsValues.MiningDistance>
 
             <!-- This should be material specific. -->
             <PhysicsValues.MiningTime>0.5</PhysicsValues.MiningTime>
