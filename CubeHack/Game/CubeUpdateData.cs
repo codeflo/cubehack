@@ -11,12 +11,18 @@ using System.Threading.Tasks;
 namespace CubeHack.Game
 {
     [ProtoContract]
-    class PlayerEvent
+    class CubeUpdateData
     {
         [ProtoMember(1)]
-        public PositionData PositionData { get; set; }
+        public int X { get; set; }
 
         [ProtoMember(2)]
-        public List<CubeUpdateData> CubeUpdates { get; set; }
+        public int Y { get; set; }
+
+        [ProtoMember(3)]
+        public int Z { get; set; }
+
+        [ProtoMember(4)]
+        public ushort Material { get; set; }
     }
 }

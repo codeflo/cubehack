@@ -22,5 +22,8 @@ namespace CubeHack.Game
 
         [ProtoMember(3)]
         public ChunkData ChunkData { get; set; }
+
+        [ProtoMember(4)]
+        public List<CubeUpdateData> CubeUpdates { get; set; }
     }
 }

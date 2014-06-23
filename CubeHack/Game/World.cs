@@ -24,6 +24,14 @@ namespace CubeHack.Game
 
                 return ChunkData[x, y, z];
             }
+
+            set
+            {
+                if (ChunkData != null)
+                {
+                    ChunkData[x, y, z] = value;
+                }
+            }
         }
 
         public ChunkData ChunkData { get; private set; }

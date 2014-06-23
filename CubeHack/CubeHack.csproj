@@ -61,6 +61,7 @@
     <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="Game\AbstractGameClient.cs" />
     <Compile Include="Game\ChunkData.cs" />
+    <Compile Include="Game\CubeUpdateData.cs" />
     <Compile Include="Game\DataLoader.cs" />
     <Compile Include="Game\GameKey.cs" />
     <Compile Include="Game\ModData.cs" />

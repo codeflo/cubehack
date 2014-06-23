@@ -22,6 +22,8 @@ namespace CubeHack.Game
         double _miningTime = 0;
         double _placementCooldown = 0;
 
+        List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+
         public PositionData PositionData = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
@@ -97,6 +99,14 @@ namespace CubeHack.Game
                 {
                     World.AddChunk(gameEvent.ChunkData);
                 }
+
+                if (gameEvent.CubeUpdates != null)
+                {
+                    foreach (var chunkUpdate in gameEvent.CubeUpdates)
+                    {
+                        World[chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z] = chunkUpdate.Material;
+                    }
+                }
             }
 
             return Task.FromResult(0);
@@ -136,7 +146,13 @@ namespace CubeHack.Game
 
                     if (_miningTime >= PhysicsValues.MiningTime)
                     {
-                        World.ChunkData[result.CubeX, result.CubeY, result.CubeZ] = 0;
+                        _cubeUpdates.Add(new CubeUpdateData
+                            {
+                                X = result.CubeX,
+                                Y = result.CubeY,
+                                Z = result.CubeZ,
+                                Material = 0,
+                            });
                     }
                 }
                 else
@@ -146,7 +162,13 @@ namespace CubeHack.Game
                     if (_placementCooldown <= 0 && isKeyPressed(GameKey.Secondary))
                     {
                         _placementCooldown = PhysicsValues.PlacementCooldown;
-                        World.ChunkData[result.CubeX + result.NormalX, result.CubeY + result.NormalY, result.CubeZ + result.NormalZ] = 1;
+                        _cubeUpdates.Add(new CubeUpdateData
+                            {
+                                X = result.CubeX + result.NormalX,
+                                Y = result.CubeY + result.NormalY,
+                                Z = result.CubeZ + result.NormalZ,
+                                Material = 1,
+                            });
                     }
                 }
 
@@ -233,6 +255,12 @@ namespace CubeHack.Game
                             VAngle = PositionData.VAngle,
                             IsFalling = PositionData.IsFalling,
                         };
+
+                        if (_cubeUpdates.Count > 0)
+                        {
+                            playerEvent.CubeUpdates = _cubeUpdates;
+                            _cubeUpdates = new List<CubeUpdateData>();
+                        }
                     }
 
                     await _channel.SendPlayerEventAsync(playerEvent);

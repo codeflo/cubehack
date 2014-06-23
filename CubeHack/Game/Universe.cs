@@ -22,6 +22,8 @@ namespace CubeHack.Game
 
         readonly ChunkData _exampleChunkData;
 
+        readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+
         public Universe(Mod mod)
         {
             _mod = mod;
@@ -76,8 +78,18 @@ namespace CubeHack.Game
             }
         }
 
-        public GameEvent GetCurrentGameEvent(Entity player)
+        public void AddCubeUpdates(List<CubeUpdateData> cubeUpdates)
         {
+            lock (_mutex)
+            {
+                _cubeUpdates.AddRange(cubeUpdates);
+            }
+        }
+
+        public GameEvent GetCurrentGameEvent(Channel channel)
+        {
+            var player = channel.Player;
+
             var gameEvent = new GameEvent() { EntityPositions = new List<PositionData>() };
             lock (_mutex)
             {
@@ -90,6 +102,12 @@ namespace CubeHack.Game
                             gameEvent.EntityPositions.Add(entity.PositionData);
                         }
                     }
+                }
+
+                if (channel.SentCubeUpdates != _cubeUpdates.Count)
+                {
+                    gameEvent.CubeUpdates = _cubeUpdates.GetRange(channel.SentCubeUpdates, _cubeUpdates.Count - channel.SentCubeUpdates);
+                    channel.SentCubeUpdates = _cubeUpdates.Count;
                 }
             }
 

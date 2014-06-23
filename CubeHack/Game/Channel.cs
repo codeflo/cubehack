@@ -25,6 +25,8 @@ namespace CubeHack.Game
             Task.Run(() => RunChannel());
         }
 
+        public int SentCubeUpdates { get; set; }
+
         Func<GameEvent, Task> _onGameEventAsync;
         public Func<GameEvent, Task> OnGameEventAsync
         {
@@ -60,9 +62,17 @@ namespace CubeHack.Game
 
         public Task SendPlayerEventAsync(PlayerEvent playerEvent)
         {
-            lock (_player.Mutex)
+            if (playerEvent.PositionData != null)
             {
-                _player.PositionData = playerEvent.PositionData;
+                lock (_player.Mutex)
+                {
+                    _player.PositionData = playerEvent.PositionData;
+                }
+            }
+
+            if (playerEvent.CubeUpdates != null)
+            {
+                _universe.AddCubeUpdates(playerEvent.CubeUpdates);
             }
 
             return Task.FromResult(true);
@@ -82,7 +92,7 @@ namespace CubeHack.Game
 
                     if (onGameEventAsync != null)
                     {
-                        var gameEvent = _universe.GetCurrentGameEvent(_player);
+                        var gameEvent = _universe.GetCurrentGameEvent(this);
 
                         if (!hasSentInitialValues)
                         {
