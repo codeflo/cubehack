@@ -24,6 +24,8 @@ namespace CubeHack.Client
         public void UpdateState(bool hasFocus)
         {
             var keyboardState = Keyboard.GetState();
+            var mouseState = Mouse.GetState();
+
             UpdateState(gameKey =>
                 {
                     if (!hasFocus)
@@ -43,6 +45,10 @@ namespace CubeHack.Client
                             return keyboardState.IsKeyDown(Key.S);
                         case GameKey.Right:
                             return keyboardState.IsKeyDown(Key.D);
+                        case GameKey.Primary:
+                            return mouseState.LeftButton == ButtonState.Pressed;
+                        case GameKey.Secondary:
+                            return mouseState.RightButton == ButtonState.Pressed;
                         default:
                             return false;
                     }

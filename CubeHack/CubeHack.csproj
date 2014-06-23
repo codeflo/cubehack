@@ -91,6 +91,8 @@
     <None Include="App.config" />
     <EmbeddedResource Include="Client\Shaders\PostProcess.fs.glsl" />
     <EmbeddedResource Include="Client\Shaders\PostProcess.vs.glsl" />
+    <EmbeddedResource Include="Client\Shaders\Cube.fs.glsl" />
+    <EmbeddedResource Include="Client\Shaders\Cube.vs.glsl" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

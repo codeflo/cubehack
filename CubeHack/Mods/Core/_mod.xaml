@@ -18,6 +18,12 @@
             <PhysicsValues.PlayerWidth>1.6</PhysicsValues.PlayerWidth>
             <PhysicsValues.PlayerHeight>3.5</PhysicsValues.PlayerHeight>
             <PhysicsValues.PlayerEyeHeight>2.5</PhysicsValues.PlayerEyeHeight>
+
+            <PhysicsValues.PlacementCooldown>0.5</PhysicsValues.PlacementCooldown>
+            <PhysicsValues.MiningDistance>4.0</PhysicsValues.MiningDistance>
+
+            <!-- This should be material specific. -->
+            <PhysicsValues.MiningTime>0.5</PhysicsValues.MiningTime>
         </PhysicsValues>
     </Mod.PhysicsValues>
 

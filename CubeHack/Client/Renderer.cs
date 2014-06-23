@@ -16,6 +16,7 @@ namespace CubeHack.Client
     {
         const float _viewingAngle = 100f;
 
+        static readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
         static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
         static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
         static int _depthBufferWidth;
@@ -59,6 +60,8 @@ namespace CubeHack.Client
             GL.Enable(EnableCap.Texture2D);
             TextureAtlas.Bind();
 
+            GL.UseProgram(_cubeShader.Value.Id);
+
             var chunkData = gameClient.World.ChunkData;
             if (chunkData != null)
             {
@@ -70,12 +73,25 @@ namespace CubeHack.Client
                         {
                             if (chunkData[x, y, z] != 0)
                             {
-                                DrawCube(x, y, z);
+                                RayCastResult highlightedCube = gameClient.HighlightedCube;
+                                if (highlightedCube != null)
+                                {
+                                    if (x != highlightedCube.CubeX
+                                        || y != highlightedCube.CubeY
+                                        || z != highlightedCube.CubeZ)
+                                    {
+                                        highlightedCube = null;
+                                    }
+                                }
+
+                                DrawCube(x, y, z, highlightedCube);
                             }
                         }
                     }
                 }
             }
+
+            GL.UseProgram(0);
 
             RenderOutlines(width, height);
         }
@@ -172,7 +188,7 @@ namespace CubeHack.Client
             GL.End();
         }
 
-        static void DrawCube(float x, float y, float z)
+        static void DrawCube(float x, float y, float z, RayCastResult highlightedCube)
         {
             var textureEntry = TextureAtlas.GetTextureEntry(0);
 
@@ -184,21 +200,25 @@ namespace CubeHack.Client
             y += 0.5f;
             z += 0.5f;
 
+            SetHighlightColor(highlightedCube, 0, 0, 1);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
 
+            SetHighlightColor(highlightedCube, 1, 0, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
 
+            SetHighlightColor(highlightedCube, 0, 0, -1);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
 
+            SetHighlightColor(highlightedCube, -1, 0, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
@@ -206,6 +226,7 @@ namespace CubeHack.Client
 
             GL.Color3(1f, 1f, 1f);
 
+            SetHighlightColor(highlightedCube, 0, 1, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
@@ -213,12 +234,28 @@ namespace CubeHack.Client
 
             GL.Color3(0.33f, 0.33f, 0.33f);
 
+            SetHighlightColor(highlightedCube, 0, -1, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
 
             GL.End();
+        }
+
+        static void SetHighlightColor(RayCastResult highlightedCube, int normalX, int normalY, int normalZ)
+        {
+            if (highlightedCube != null
+                && highlightedCube.NormalX == normalX
+                && highlightedCube.NormalY == normalY
+                && highlightedCube.NormalZ == normalZ)
+            {
+                GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
+            }
+            else
+            {
+                GL.SecondaryColor3(0f, 0f, 0f);
+            }
         }
     }
 }

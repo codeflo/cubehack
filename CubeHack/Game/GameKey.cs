@@ -17,5 +17,7 @@ namespace CubeHack.Game
         Left = 3,
         Backwards = 4,
         Right = 5,
+        Primary = 6,
+        Secondary = 7,
     }
 }

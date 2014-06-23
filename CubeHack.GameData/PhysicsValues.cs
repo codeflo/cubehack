@@ -36,5 +36,14 @@ namespace CubeHack.GameData
 
         [ProtoMember(6)]
         public float PlayerJumpHeight { get; set; }
+
+        [ProtoMember(7)]
+        public float MiningDistance { get; set; }
+
+        [ProtoMember(8)]
+        public float MiningTime { get; set; }
+
+        [ProtoMember(9)]
+        public float PlacementCooldown { get; set; }
     }
 }

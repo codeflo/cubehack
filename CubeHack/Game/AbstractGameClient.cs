@@ -19,6 +19,9 @@ namespace CubeHack.Game
         readonly PrecisionTimer _frameTimer = new PrecisionTimer();
         readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
+        double _miningTime = 0;
+        double _placementCooldown = 0;
+
         public PositionData PositionData = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
@@ -36,6 +39,8 @@ namespace CubeHack.Game
         }
 
         public World World { get; private set; }
+
+        public RayCastResult HighlightedCube { get; private set; }
 
         public float TimeSinceGameEvent
         {
@@ -100,7 +105,57 @@ namespace CubeHack.Game
         protected void UpdateState(Func<GameKey, bool> isKeyPressed)
         {
             double elapsedTime = _frameTimer.SetZero();
+            MovePlayer(elapsedTime, isKeyPressed);
+            UpdateBuildAction(elapsedTime, isKeyPressed);
+        }
 
+        private void UpdateBuildAction(double elapsedTime, Func<GameKey, bool> isKeyPressed)
+        {
+            if (_placementCooldown > 0)
+            {
+                _placementCooldown -= elapsedTime;
+            }
+
+            double f = Math.PI / 180.0;
+            double lookZ = -Math.Cos(PositionData.HAngle * f) * Math.Cos(-PositionData.VAngle * f);
+            double lookX = -Math.Sin(PositionData.HAngle * f) * Math.Cos(-PositionData.VAngle * f);
+            double lookY = Math.Sin(-PositionData.VAngle * f);
+
+            var result = World.CastRay(PositionData.Position + new Offset(0, PhysicsValues.PlayerEyeHeight, 0), new Offset(lookX, lookY, lookZ), PhysicsValues.MiningDistance);
+            if (result == null)
+            {
+                HighlightedCube = null;
+                _miningTime = 0;
+            }
+            else
+            {
+                if (RayCastResult.FaceEquals(HighlightedCube, result)
+                    && isKeyPressed(GameKey.Primary))
+                {
+                    _miningTime += elapsedTime;
+
+                    if (_miningTime >= PhysicsValues.MiningTime)
+                    {
+                        World.ChunkData[result.CubeX, result.CubeY, result.CubeZ] = 0;
+                    }
+                }
+                else
+                {
+                    _miningTime = 0;
+
+                    if (_placementCooldown <= 0 && isKeyPressed(GameKey.Secondary))
+                    {
+                        _placementCooldown = PhysicsValues.PlacementCooldown;
+                        World.ChunkData[result.CubeX + result.NormalX, result.CubeY + result.NormalY, result.CubeZ + result.NormalZ] = 1;
+                    }
+                }
+
+                HighlightedCube = result;
+            }
+        }
+
+        private void MovePlayer(double elapsedTime, Func<GameKey, bool> isKeyPressed)
+        {
             double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
 
             double f = Math.PI / 180.0;
@@ -159,7 +214,6 @@ namespace CubeHack.Game
             }
 
             PositionData.Velocity = new Offset(vx, vy, vz);
-
         }
 
         private async Task RunSendPlayerEvents()

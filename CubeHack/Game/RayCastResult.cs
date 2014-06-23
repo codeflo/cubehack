@@ -20,5 +20,25 @@ namespace CubeHack.Game
         public int NormalX { get; set; }
         public int NormalY { get; set; }
         public int NormalZ { get; set; }
+
+        public static bool FaceEquals(RayCastResult a, RayCastResult b)
+        {
+            if (a == null)
+            {
+                return b == null;
+            }
+
+            if (b == null)
+            {
+                return false;
+            }
+
+            return a.CubeX == b.CubeX
+                && a.CubeY == b.CubeY
+                && a.CubeZ == b.CubeZ
+                && a.NormalX == b.NormalX
+                && a.NormalY == b.NormalY
+                && a.NormalZ == b.NormalZ;
+        }
     }
 }
