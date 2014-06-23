@@ -228,6 +228,14 @@ namespace CubeHack.Game
             if (MoveY(vy * elapsedTime))
             {
                 PositionData.IsFalling = false;
+
+                if (Math.Abs(vy) > Math.Sqrt(2 * PhysicsValues.Gravity * PhysicsValues.TerminalHeight))
+                {
+                    PositionData = new PositionData();
+                    vx = 0;
+                    vz = 0;
+                }
+
                 vy = 0;
             }
             else

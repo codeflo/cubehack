@@ -45,5 +45,8 @@ namespace CubeHack.GameData
 
         [ProtoMember(9)]
         public float PlacementCooldown { get; set; }
+
+        [ProtoMember(10)]
+        public float TerminalHeight { get; set; }
     }
 }

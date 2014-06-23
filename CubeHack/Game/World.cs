@@ -17,6 +17,11 @@ namespace CubeHack.Game
         {
             get
             {
+                if (y < -200)
+                {
+                    return 1;
+                }
+
                 if (ChunkData == null)
                 {
                     return 0;
