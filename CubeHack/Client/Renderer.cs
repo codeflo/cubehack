@@ -19,6 +19,9 @@ namespace CubeHack.Client
         static readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
         static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
         static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
+
+        static readonly Dictionary3D<Tuple<ulong, int>> _displayLists = new Dictionary3D<Tuple<ulong, int>>();
+
         static int _depthBufferWidth;
         static int _depthBufferHeight;
 
@@ -60,31 +63,47 @@ namespace CubeHack.Client
             GL.Enable(EnableCap.Texture2D);
             TextureAtlas.Bind();
 
+            RenderCubes(gameClient);
+
+            RenderOutlines(width, height);
+        }
+
+        private static void RenderCubes(GameClient gameClient)
+        {
             GL.UseProgram(_cubeShader.Value.Id);
 
-            var chunkData = gameClient.World.ChunkData;
-            if (chunkData != null)
+            int chunkX = gameClient.PositionData.Position.CubeX >> Chunk.Bits;
+            int chunkY = gameClient.PositionData.Position.CubeY >> Chunk.Bits;
+            int chunkZ = gameClient.PositionData.Position.CubeZ >> Chunk.Bits;
+
+            for (int x = chunkX - 2; x <= chunkX + 2; ++x)
             {
-                for (int x = chunkData.X0; x < chunkData.X1; ++x)
+                for (int y = chunkY - 2; y <= chunkY + 2; ++y)
                 {
-                    for (int y = chunkData.Y0; y < chunkData.Y1; ++y)
+                    for (int z = chunkZ - 2; z <= chunkZ + 2; ++z)
                     {
-                        for (int z = chunkData.Z0; z < chunkData.Z1; ++z)
+                        var chunk = gameClient.World.PeekChunk(x, y, z);
+                        if (chunk != null)
                         {
-                            if (chunkData[x, y, z] != 0)
+                            var entry = _displayLists[x, y, z];
+                            int displayList = entry == null ? 0 : entry.Item2;
+
+                            if (displayList == 0 || entry.Item1 != chunk.ContentHash)
                             {
-                                RayCastResult highlightedCube = gameClient.HighlightedCube;
-                                if (highlightedCube != null)
+                                if (displayList == 0)
                                 {
-                                    if (x != highlightedCube.CubeX
-                                        || y != highlightedCube.CubeY
-                                        || z != highlightedCube.CubeZ)
-                                    {
-                                        highlightedCube = null;
-                                    }
+                                    displayList = GL.GenLists(1);
                                 }
 
-                                DrawCube(x, y, z, highlightedCube);
+                                GL.NewList(displayList, ListMode.CompileAndExecute);
+                                RenderChunk(chunk, x, y, z);
+                                GL.EndList();
+
+                                _displayLists[x, y, z] = Tuple.Create(chunk.ContentHash, displayList);
+                            }
+                            else
+                            {
+                                GL.CallList(displayList);
                             }
                         }
                     }
@@ -92,8 +111,38 @@ namespace CubeHack.Client
             }
 
             GL.UseProgram(0);
+        }
 
-            RenderOutlines(width, height);
+        private static void RenderChunk(Chunk chunk, int chunkX, int chunkY, int chunkZ)
+        {
+            float xOffset = (chunkX << Chunk.Bits) + 0.5f;
+            float yOffset = (chunkY << Chunk.Bits) + 0.5f;
+            float zOffset = (chunkZ << Chunk.Bits) + 0.5f;
+
+            var textureEntry = TextureAtlas.GetTextureEntry(0);
+
+            GL.Begin(PrimitiveType.Quads);
+            for (int x = 0; x < Chunk.Size; ++x)
+            {
+                for (int y = 0; y < Chunk.Size; ++y)
+                {
+                    for (int z = 0; z < Chunk.Size; ++z)
+                    {
+                        if (chunk[x, y, z] != 0)
+                        {
+                            float x1 = x + xOffset, y1 = y + yOffset, z1 = z + zOffset;
+
+                            if (x == 0 || chunk[x - 1, y, z] == 0) DrawCubeLeft(textureEntry, x1, y1, z1);
+                            if (x == Chunk.Size - 1 || chunk[x + 1, y, z] == 0) DrawCubeRight(textureEntry, x1, y1, z1);
+                            if (y == 0 || chunk[x, y - 1, z] == 0) DrawCubeBottom(textureEntry, x1, y1, z1);
+                            if (y == Chunk.Size - 1 || chunk[x, y + 1, z] == 0) DrawCubeTop(textureEntry, x1, y1, z1);
+                            if (z == 0 || chunk[x, y, z - 1] == 0) DrawCubeBack(textureEntry, x1, y1, z1);
+                            if (z == Chunk.Size - 1 || chunk[x, y, z + 1] == 0) DrawCubeFront(textureEntry, x1, y1, z1);
+                        }
+                    }
+                }
+            }
+            GL.End();
         }
 
         private static void RenderOutlines(int width, int height)
@@ -188,59 +237,58 @@ namespace CubeHack.Client
             GL.End();
         }
 
-        static void DrawCube(float x, float y, float z, RayCastResult highlightedCube)
+        static void DrawCubeFront(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
-            var textureEntry = TextureAtlas.GetTextureEntry(0);
-
-            GL.Begin(PrimitiveType.Quads);
-
             GL.Color3(0.67f, 0.67f, 0.67f);
-
-            x += 0.5f;
-            y += 0.5f;
-            z += 0.5f;
-
-            SetHighlightColor(highlightedCube, 0, 0, 1);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
+        }
 
-            SetHighlightColor(highlightedCube, 1, 0, 0);
+        static void DrawCubeRight(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        {
+            GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
+        }
 
-            SetHighlightColor(highlightedCube, 0, 0, -1);
+        static void DrawCubeBack(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        {
+            GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
+        }
 
-            SetHighlightColor(highlightedCube, -1, 0, 0);
+        static void DrawCubeLeft(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        {
+            GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
+        }
 
+        static void DrawCubeTop(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        {
             GL.Color3(1f, 1f, 1f);
-
-            SetHighlightColor(highlightedCube, 0, 1, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
+        }
 
+        static void DrawCubeBottom(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        {
             GL.Color3(0.33f, 0.33f, 0.33f);
-
-            SetHighlightColor(highlightedCube, 0, -1, 0);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y1); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
-
-            GL.End();
         }
 
         static void SetHighlightColor(RayCastResult highlightedCube, int normalX, int normalY, int normalZ)

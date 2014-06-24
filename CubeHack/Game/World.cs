@@ -11,7 +11,11 @@ namespace CubeHack.Game
 {
     class World
     {
+        const int _chunkMask = Chunk.Size - 1;
+
         const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
+
+        private readonly Dictionary3D<Chunk> _chunkMap = new Dictionary3D<Chunk>();
 
         public ushort this[int x, int y, int z]
         {
@@ -22,37 +26,55 @@ namespace CubeHack.Game
                     return 1;
                 }
 
-                if (ChunkData == null)
+                var chunk = PeekChunk(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                if (chunk == null)
                 {
                     return 0;
                 }
 
-                return ChunkData[x, y, z];
+                return chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask];
             }
 
             set
             {
-                if (ChunkData != null)
+                var chunk = GetChunk(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask] = value;
+            }
+        }
+
+        public Chunk GetChunk(int x, int y, int z)
+        {
+            var chunk = _chunkMap[x, y, z];
+            if (chunk == null)
+            {
+                chunk = new Chunk();
+                _chunkMap[x, y, z] = chunk;
+            }
+
+            return chunk;
+        }
+
+        public Chunk PeekChunk(int x, int y, int z)
+        {
+            return _chunkMap[x, y, z];
+        }
+
+        public void AddChunk(ChunkData chunkData)
+        {
+            for (int x = chunkData.X0; x < chunkData.X1; ++x)
+            {
+                for (int y = chunkData.Y0; y < chunkData.Y1; ++y)
                 {
-                    ChunkData[x, y, z] = value;
+                    for (int z = chunkData.Z0; z < chunkData.Z1; ++z)
+                    {
+                        this[x, y, z] = chunkData[x, y, z];
+                    }
                 }
             }
         }
 
-        public ChunkData ChunkData { get; private set; }
-
-        public void AddChunk(ChunkData chunkData)
-        {
-            ChunkData = chunkData;
-        }
-
         public RayCastResult CastRay(Position position, Offset direction, double max)
         {
-            if (ChunkData == null)
-            {
-                return null;
-            }
-
             long x = position.X, y = position.Y, z = position.Z;
             double dx = direction.X, dy = direction.Y, dz = direction.Z;
 

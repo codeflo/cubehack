@@ -60,7 +60,9 @@
     <Compile Include="Client\TextureHelper.cs" />
     <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="Game\AbstractGameClient.cs" />
+    <Compile Include="Game\Chunk.cs" />
     <Compile Include="Game\ChunkData.cs" />
+    <Compile Include="Game\Dictionary3D.cs" />
     <Compile Include="Game\CubeUpdateData.cs" />
     <Compile Include="Game\DataLoader.cs" />
     <Compile Include="Game\GameKey.cs" />

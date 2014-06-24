@@ -134,18 +134,21 @@ namespace CubeHack.Game
         private ChunkData CreateExampleChunkData()
         {
             var ret = new ChunkData();
-            ret.X0 = -10;
-            ret.X1 = 10;
-            ret.Y0 = -10;
-            ret.Y1 = 10;
-            ret.Z0 = -10;
-            ret.Z1 = 10;
+            ret.X0 = -20;
+            ret.X1 = 20;
+            ret.Y0 = -20;
+            ret.Y1 = 20;
+            ret.Z0 = -20;
+            ret.Z1 = 20;
 
-            for (int x = -10; x < 10; ++x)
+            for (int x = ret.X0; x < ret.X1; ++x)
             {
-                for (int z = -10; z < 10; ++z)
+                for (int y = ret.Y0; y <= -1; ++y)
                 {
-                    ret[x, -1, z] = 1;
+                    for (int z = ret.Z0; z < ret.Z1; ++z)
+                    {
+                        ret[x, y, z] = 1;
+                    }
                 }
             }
 
