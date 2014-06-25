@@ -14,18 +14,18 @@
         <PhysicsValues>
             <PhysicsValues.Gravity>40</PhysicsValues.Gravity>
             <PhysicsValues.PlayerJumpHeight>2.5</PhysicsValues.PlayerJumpHeight>
-            <PhysicsValues.TerminalHeight>20.0</PhysicsValues.TerminalHeight>
+            <PhysicsValues.TerminalHeight>32.0</PhysicsValues.TerminalHeight>
             
             <PhysicsValues.PlayerMovementSpeed>10.0</PhysicsValues.PlayerMovementSpeed>
             <PhysicsValues.PlayerWidth>1.6</PhysicsValues.PlayerWidth>
             <PhysicsValues.PlayerHeight>2.8</PhysicsValues.PlayerHeight>
             <PhysicsValues.PlayerEyeHeight>2.4</PhysicsValues.PlayerEyeHeight>
 
-            <PhysicsValues.PlacementCooldown>0.5</PhysicsValues.PlacementCooldown>
+            <PhysicsValues.PlacementCooldown>0.25</PhysicsValues.PlacementCooldown>
             <PhysicsValues.MiningDistance>6.0</PhysicsValues.MiningDistance>
 
             <!-- This should be material specific. -->
-            <PhysicsValues.MiningTime>0.5</PhysicsValues.MiningTime>
+            <PhysicsValues.MiningTime>0.25</PhysicsValues.MiningTime>
         </PhysicsValues>
     </Mod.PhysicsValues>
 

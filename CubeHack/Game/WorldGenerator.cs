@@ -12,6 +12,7 @@ namespace CubeHack.Game
     class WorldGenerator
     {
         private readonly World _world;
+        private readonly Random _random = new Random();
 
         public WorldGenerator(World world)
         {
@@ -22,8 +23,8 @@ namespace CubeHack.Game
         {
             int x0 = chunkX << Chunk.Bits;
             int x1 = x0 + Chunk.Size;
-            int y0 = -5;
-            int y1 = 0;
+            int y0 = (chunkY << Chunk.Bits) + 16;
+            int y1 = y0 + 1 + _random.Next(8);
             int z0 = chunkZ << Chunk.Bits;
             int z1 = z0 + Chunk.Size;
 
@@ -39,10 +40,6 @@ namespace CubeHack.Game
                         }
                     }
                 }
-            }
-            else if (chunkY == 0)
-            {
-                _world[x0 + 16, 0, z0 + 16] = 1;
             }
         }
     }

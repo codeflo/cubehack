@@ -213,8 +213,8 @@ namespace CubeHack.Client
 
             float yScale = df * dd / dh;
             float xScale = df * dd / dw;
-            float near = 0.1f;
-            float far = 100.0f;
+            float near = 0.05f;
+            float far = 1000.0f;
             float length = far - near;
 
             Matrix4 projectionMatrix = Matrix4.Zero;
