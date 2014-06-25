@@ -57,6 +57,30 @@ namespace CubeHack.Game
             }
         }
 
+        public int ChunkX
+        {
+            get
+            {
+                return GetChunkCoordinate(X);
+            }
+        }
+
+        public int ChunkY
+        {
+            get
+            {
+                return GetChunkCoordinate(Y);
+            }
+        }
+
+        public int ChunkZ
+        {
+            get
+            {
+                return GetChunkCoordinate(Z);
+            }
+        }
+
         public static Offset operator -(Position a, Position b)
         {
             return new Offset((a.X - b.X) * _inverseScaleFactor, (a.Y - b.Y) * _inverseScaleFactor, (a.Z - b.Z) * _inverseScaleFactor);
@@ -75,6 +99,11 @@ namespace CubeHack.Game
         public static int GetCubeCoordinate(long coordinate)
         {
             return (int)(coordinate >> 32);
+        }
+
+        public static int GetChunkCoordinate(long coordinate)
+        {
+            return (int)(coordinate >> (32 + Chunk.Bits));
         }
     }
 }

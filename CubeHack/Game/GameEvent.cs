@@ -21,9 +21,12 @@ namespace CubeHack.Game
         public PhysicsValues PhysicsValues { get; set; }
 
         [ProtoMember(3)]
-        public ChunkData ChunkData { get; set; }
+        public List<ChunkData> ChunkDataList { get; set; }
 
         [ProtoMember(4)]
         public List<CubeUpdateData> CubeUpdates { get; set; }
+
+        [ProtoMember(5)]
+        public bool? IsFrozen { get; set; }
     }
 }

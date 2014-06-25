@@ -76,14 +76,16 @@ namespace CubeHack.Client
             int chunkY = gameClient.PositionData.Position.CubeY >> Chunk.Bits;
             int chunkZ = gameClient.PositionData.Position.CubeZ >> Chunk.Bits;
 
-            for (int x = chunkX - 2; x <= chunkX + 2; ++x)
+            var listsToRender = new List<int>();
+
+            for (int x = chunkX - 5; x <= chunkX + 5; ++x)
             {
-                for (int y = chunkY - 2; y <= chunkY + 2; ++y)
+                for (int y = chunkY - 5; y <= chunkY + 5; ++y)
                 {
-                    for (int z = chunkZ - 2; z <= chunkZ + 2; ++z)
+                    for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
                         var chunk = gameClient.World.PeekChunk(x, y, z);
-                        if (chunk != null)
+                        if (chunk != null && chunk.HasData)
                         {
                             var entry = _displayLists[x, y, z];
                             int displayList = entry == null ? 0 : entry.Item2;
@@ -95,20 +97,20 @@ namespace CubeHack.Client
                                     displayList = GL.GenLists(1);
                                 }
 
-                                GL.NewList(displayList, ListMode.CompileAndExecute);
+                                GL.NewList(displayList, ListMode.Compile);
                                 RenderChunk(chunk, x, y, z);
                                 GL.EndList();
 
                                 _displayLists[x, y, z] = Tuple.Create(chunk.ContentHash, displayList);
                             }
-                            else
-                            {
-                                GL.CallList(displayList);
-                            }
+
+                            listsToRender.Add(displayList);
                         }
                     }
                 }
             }
+
+            GL.CallLists(listsToRender.Count, ListNameType.Int, listsToRender.ToArray());
 
             GL.UseProgram(0);
         }

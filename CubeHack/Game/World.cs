@@ -17,6 +17,8 @@ namespace CubeHack.Game
 
         private readonly Dictionary3D<Chunk> _chunkMap = new Dictionary3D<Chunk>();
 
+        public WorldGenerator Generator { get; set; }
+
         public ushort this[int x, int y, int z]
         {
             get
@@ -45,10 +47,17 @@ namespace CubeHack.Game
         public Chunk GetChunk(int x, int y, int z)
         {
             var chunk = _chunkMap[x, y, z];
+
             if (chunk == null)
             {
-                chunk = new Chunk();
+                chunk = new Chunk(x, y, z);
                 _chunkMap[x, y, z] = chunk;
+
+                if (Generator != null)
+                {
+                    Generator.CreateChunk(x, y, z);
+                    chunk = _chunkMap[x, y, z];
+                }
             }
 
             return chunk;
@@ -59,18 +68,9 @@ namespace CubeHack.Game
             return _chunkMap[x, y, z];
         }
 
-        public void AddChunk(ChunkData chunkData)
+        public void PasteChunkData(ChunkData chunkData)
         {
-            for (int x = chunkData.X0; x < chunkData.X1; ++x)
-            {
-                for (int y = chunkData.Y0; y < chunkData.Y1; ++y)
-                {
-                    for (int z = chunkData.Z0; z < chunkData.Z1; ++z)
-                    {
-                        this[x, y, z] = chunkData[x, y, z];
-                    }
-                }
-            }
+            GetChunk(chunkData.X, chunkData.Y, chunkData.Z).PasteChunkData(chunkData);
         }
 
         public RayCastResult CastRay(Position position, Offset direction, double max)

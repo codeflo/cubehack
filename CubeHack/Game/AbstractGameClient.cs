@@ -30,9 +30,12 @@ namespace CubeHack.Game
 
         public List<PositionData> EntityPositions = new List<PositionData>();
 
+        public bool IsFrozen { get; set; }
+
         public AbstractGameClient(IChannel channel)
         {
             World = new World();
+            IsFrozen = true;
 
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
@@ -95,9 +98,12 @@ namespace CubeHack.Game
                     PhysicsValues = gameEvent.PhysicsValues;
                 }
 
-                if (gameEvent.ChunkData != null)
+                if (gameEvent.ChunkDataList != null)
                 {
-                    World.AddChunk(gameEvent.ChunkData);
+                    foreach (var chunkData in gameEvent.ChunkDataList)
+                    {
+                        World.PasteChunkData(chunkData);
+                    }
                 }
 
                 if (gameEvent.CubeUpdates != null)
@@ -107,6 +113,11 @@ namespace CubeHack.Game
                         World[chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z] = chunkUpdate.Material;
                     }
                 }
+
+                if (gameEvent.IsFrozen != null)
+                {
+                    IsFrozen = gameEvent.IsFrozen.Value;
+                }
             }
 
             return Task.FromResult(0);
@@ -114,6 +125,11 @@ namespace CubeHack.Game
 
         protected void UpdateState(Func<GameKey, bool> isKeyPressed)
         {
+            if (IsFrozen)
+            {
+                return;
+            }
+
             double elapsedTime = _frameTimer.SetZero();
             MovePlayer(elapsedTime, isKeyPressed);
             UpdateBuildAction(elapsedTime, isKeyPressed);

@@ -21,11 +21,14 @@ namespace CubeHack.Game
         {
             _universe = universe;
             _player = player;
+            SentChunks = new Dictionary3D<bool>();
 
             Task.Run(() => RunChannel());
         }
 
         public int SentCubeUpdates { get; set; }
+
+        public Dictionary3D<bool> SentChunks { get; private set; }
 
         Func<GameEvent, Task> _onGameEventAsync;
         public Func<GameEvent, Task> OnGameEventAsync
@@ -98,7 +101,6 @@ namespace CubeHack.Game
                         {
                             hasSentInitialValues = true;
                             gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
-                            gameEvent.ChunkData = _universe.ExampleChunkData;
                         }
 
                         await onGameEventAsync(gameEvent);

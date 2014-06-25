@@ -79,6 +79,7 @@
     <Compile Include="Game\RayCastResult.cs" />
     <Compile Include="Game\Universe.cs" />
     <Compile Include="Game\World.cs" />
+    <Compile Include="Game\WorldGenerator.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AssemblyInfo.cs" />
