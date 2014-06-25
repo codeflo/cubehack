@@ -24,6 +24,8 @@ namespace CubeHack.Editor
             Load();
         }
 
+        public event Action TriggerFocusChange;
+
         public ICommand SaveCommand { get; private set; }
 
         public ICommand RunCommand { get; private set; }
@@ -51,6 +53,8 @@ namespace CubeHack.Editor
 
         private void Save()
         {
+            if (TriggerFocusChange != null) TriggerFocusChange();
+
             string s = JsonConvert.SerializeObject(ModItem.Save(), Formatting.Indented);
             File.WriteAllText(GetPath(), s, Encoding.UTF8);
         }

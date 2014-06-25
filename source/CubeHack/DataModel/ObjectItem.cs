@@ -24,6 +24,8 @@ namespace CubeHack.DataModel
             {
                 Properties.Add(new Property(this) { Name = property.Name, Value = Item.Create(property.PropertyType) });
             }
+
+            IsExpanded = IsExpanded || Properties.Count <= ExpansionLimit;
         }
 
         private string _typeName;
@@ -69,8 +71,6 @@ namespace CubeHack.DataModel
                     matchingProperty.Value.Load(entry.Value);
                 }
             }
-
-            IsExpanded = IsExpanded || Properties.Count <= ExpansionLimit;
         }
 
         public override object GetObject()

@@ -23,6 +23,14 @@ namespace CubeHack.Editor
         public MainWindow()
         {
             InitializeComponent();
+
+            var viewModel = new ViewModel();
+            viewModel.TriggerFocusChange += () =>
+                {
+                    FocusManager.SetFocusedElement(this, null);
+                };
+
+            DataContext = viewModel;
         }
 
         protected override void OnClosed(EventArgs e)
