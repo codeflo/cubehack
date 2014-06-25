@@ -1,0 +1,156 @@
+﻿<Application x:Class="CubeHack.Editor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CubeHack.Editor"
+             xmlns:datamodel="clr-namespace:CubeHack.DataModel;assembly=CubeHackLib"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <Style TargetType="local:ItemEditor">
+            <Setter Property="IsTabStop"
+                    Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:ItemEditor">
+                        <ContentControl Content="{TemplateBinding Item}"
+                                        Focusable="False">
+                            <ContentControl.Resources>
+
+                                <!-- StringItem -->
+                                <DataTemplate DataType="{x:Type datamodel:StringItem}">
+                                    <TextBox Text="{Binding Value}"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True" />
+                                </DataTemplate>
+
+                                <!-- FloatItem -->
+                                <DataTemplate DataType="{x:Type datamodel:FloatItem}">
+                                    <TextBox Text="{Binding Value}" />
+                                </DataTemplate>
+
+                                <!-- DoubleItem -->
+                                <DataTemplate DataType="{x:Type datamodel:DoubleItem}">
+                                    <TextBox Text="{Binding Value}" />
+                                </DataTemplate>
+
+                                <!-- ObjectItem -->
+                                <DataTemplate DataType="{x:Type datamodel:ObjectItem}">
+                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                        <Expander.Header>
+                                            <TextBlock Text="{Binding TypeName}" />
+                                        </Expander.Header>
+
+                                        <ItemsControl ItemsSource="{Binding Properties}"
+                                                      Focusable="False"
+                                                      Grid.IsSharedSizeScope="True"
+                                                      Margin="23,0,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"
+                                                                              SharedSizeGroup="{Binding SharedSizeGroupName}" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding Name}"
+                                                                   Margin="0,0,4,0"
+                                                                   Foreground="{x:Static SystemColors.GrayTextBrush}"/>
+                                                        <local:ItemEditor Grid.Column="1"
+                                                                          Item="{Binding Value}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Expander>
+                                </DataTemplate>
+
+                                <!-- DictionaryItem -->
+                                <DataTemplate DataType="{x:Type datamodel:DictionaryItem}">
+                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                        <Expander.Header>
+                                            <TextBlock>
+                                                <Run Text="{Binding Entries.Count, Mode=OneWay}" />
+                                                <Run Text="entries" />
+                                            </TextBlock>
+                                        </Expander.Header>
+
+                                        <StackPanel Margin="23,0,0,0">
+                                            <ItemsControl ItemsSource="{Binding Entries}"
+                                                          Focusable="False"
+                                                          Grid.IsSharedSizeScope="True">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="1">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"
+                                                                                  MinWidth="100"
+                                                                                  SharedSizeGroup="{Binding SharedSizeGroupName}" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel Grid.Column="0">
+                                                                <TextBox Text="{Binding Name}"
+                                                                         Margin="0,0,4,0" />
+                                                            </StackPanel>
+                                                            <local:ItemEditor Grid.Column="1"
+                                                                              Item="{Binding Value}" />
+                                                            <StackPanel Grid.Column="2">
+                                                                <Button Command="{Binding RemoveCommand}"
+                                                                        Content="Remove" />
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Command="{Binding AddEntryCommand}">Add entry</Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Expander>
+                                </DataTemplate>
+
+                                <!-- ListItem -->
+                                <DataTemplate DataType="{x:Type datamodel:ListItem}">
+                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                        <Expander.Header>
+                                            <TextBlock>
+                                                <Run Text="{Binding Entries.Count, Mode=OneWay}" />
+                                                <Run Text="entries" />
+                                            </TextBlock>
+                                        </Expander.Header>
+
+                                        <StackPanel Margin="23,0,0,0">
+                                            <ItemsControl ItemsSource="{Binding Entries}"
+                                                          Focusable="False">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="1">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <local:ItemEditor Grid.Column="0"
+                                                                              Item="{Binding Value}" />
+                                                            <StackPanel Grid.Column="1">
+                                                                <Button Command="{Binding RemoveCommand}"
+                                                                        Content="Remove" />
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Command="{Binding AddEntryCommand}">Add entry</Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Expander>
+                                </DataTemplate>
+
+                            </ContentControl.Resources>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+</Application>
