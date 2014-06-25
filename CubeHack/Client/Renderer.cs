@@ -65,6 +65,27 @@ namespace CubeHack.Client
 
             RenderCubes(gameClient);
 
+            var highlightedCube = gameClient.HighlightedCube;
+            if (highlightedCube != null)
+            {
+                GL.Enable(EnableCap.PolygonOffsetFill);
+                GL.PolygonOffset(-1f, -1f);
+                GL.UseProgram(_cubeShader.Value.Id);
+                GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
+                GL.Begin(PrimitiveType.Quads);
+                var textureEntry = TextureAtlas.GetTextureEntry(0);
+                if (highlightedCube.NormalX < 0) DrawCubeLeft(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                if (highlightedCube.NormalX > 0) DrawCubeRight(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                if (highlightedCube.NormalY < 0) DrawCubeBottom(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                if (highlightedCube.NormalY > 0) DrawCubeTop(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                if (highlightedCube.NormalZ < 0) DrawCubeBack(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                if (highlightedCube.NormalZ > 0) DrawCubeFront(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
+                GL.End();
+                GL.SecondaryColor3(0f, 0f, 0f);
+                GL.UseProgram(0);
+                GL.Disable(EnableCap.PolygonOffsetFill);
+            }
+
             RenderOutlines(width, height);
         }
 
@@ -213,7 +234,7 @@ namespace CubeHack.Client
         {
             GL.Begin(PrimitiveType.Quads);
 
-            GL.Color3(0.9f, 0.9f, 0.9f);
+            GL.Color3(0.85f, 0.85f, 0.85f);
             GL.Vertex3(x - xRadius, y, z + xRadius);
             GL.Vertex3(x + xRadius, y, z + xRadius);
             GL.Vertex3(x + xRadius, y + height, z + xRadius);
@@ -234,6 +255,20 @@ namespace CubeHack.Client
             GL.Vertex3(x - xRadius, y, z - xRadius);
             GL.Vertex3(x - xRadius, y, z + xRadius);
             GL.Vertex3(x - xRadius, y + height, z + xRadius);
+            GL.Vertex3(x - xRadius, y + height, z - xRadius);
+
+            GL.Color3(0.35f, 0.4f, 0.45f);
+
+            GL.Vertex3(x - xRadius, y, z + xRadius);
+            GL.Vertex3(x - xRadius, y, z - xRadius);
+            GL.Vertex3(x + xRadius, y, z - xRadius);
+            GL.Vertex3(x + xRadius, y, z + xRadius);
+
+            GL.Color3(1.0f, 1.0f, 1.0f);
+
+            GL.Vertex3(x - xRadius, y + height, z + xRadius);
+            GL.Vertex3(x + xRadius, y + height, z + xRadius);
+            GL.Vertex3(x + xRadius, y + height, z - xRadius);
             GL.Vertex3(x - xRadius, y + height, z - xRadius);
 
             GL.End();

@@ -24,7 +24,7 @@ namespace CubeHack.Game
 
         List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
-        public PositionData PositionData = new PositionData();
+        public PositionData PositionData = new PositionData() { Position = new Position() + new Offset(0.1, 0.1, 0.1) };
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
 
