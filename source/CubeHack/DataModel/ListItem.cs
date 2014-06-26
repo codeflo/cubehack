@@ -18,6 +18,7 @@ namespace CubeHack.DataModel
             _valueType = valueType;
             Entries = new ObservableCollection<Entry>();
             AddEntryCommand = new Command(AddEntry);
+            IsExpanded = true;
         }
 
         public ICommand AddEntryCommand
@@ -67,7 +68,7 @@ namespace CubeHack.DataModel
                 Entries.Add(new Entry(this) { Value = item });
             }
 
-            IsExpanded = IsExpanded || Entries.Count <= ExpansionLimit;
+            IsExpanded = Entries.Count <= ExpansionLimit;
         }
 
         public override object GetObject()

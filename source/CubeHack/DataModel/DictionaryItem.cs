@@ -19,6 +19,7 @@ namespace CubeHack.DataModel
             SharedSizeGroupName = "x_" + Guid.NewGuid().ToString().Replace('-', '_');
             Entries = new ObservableCollection<Entry>();
             AddEntryCommand = new Command(AddEntry);
+            IsExpanded = true;
         }
 
         public ICommand AddEntryCommand
@@ -81,7 +82,7 @@ namespace CubeHack.DataModel
                 Entries.Add(new Entry(this) { Name = entry.Key, Value = item });
             }
 
-            IsExpanded = IsExpanded || Entries.Count <= ExpansionLimit;
+            IsExpanded = Entries.Count <= ExpansionLimit;
         }
 
         public override object GetObject()
