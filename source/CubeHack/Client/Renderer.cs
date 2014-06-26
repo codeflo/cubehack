@@ -69,6 +69,7 @@ namespace CubeHack.Client
             if (highlightedCube != null)
             {
                 GL.Enable(EnableCap.PolygonOffsetFill);
+                GL.DepthMask(false);
                 GL.PolygonOffset(-1f, -1f);
                 GL.UseProgram(_cubeShader.Value.Id);
                 GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
@@ -83,6 +84,7 @@ namespace CubeHack.Client
                 GL.End();
                 GL.SecondaryColor3(0f, 0f, 0f);
                 GL.UseProgram(0);
+                GL.DepthMask(true);
                 GL.Disable(EnableCap.PolygonOffsetFill);
             }
 
@@ -184,8 +186,13 @@ namespace CubeHack.Client
             }
 
             GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, width, height);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat);
 
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
