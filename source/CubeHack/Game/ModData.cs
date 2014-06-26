@@ -15,6 +15,6 @@ namespace CubeHack.Game
     class ModData
     {
         [ProtoMember(1)]
-        public List<Texture> Textures { get; set; }
+        public List<Material> Materials { get; set; }
     }
 }

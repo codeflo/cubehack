@@ -142,8 +142,6 @@ namespace CubeHack.Client
             float yOffset = (chunkY << Chunk.Bits) + 0.5f;
             float zOffset = (chunkZ << Chunk.Bits) + 0.5f;
 
-            var textureEntry = TextureAtlas.GetTextureEntry(0);
-
             GL.Begin(PrimitiveType.Quads);
             for (int x = 0; x < Chunk.Size; ++x)
             {
@@ -151,8 +149,11 @@ namespace CubeHack.Client
                 {
                     for (int z = 0; z < Chunk.Size; ++z)
                     {
-                        if (chunk[x, y, z] != 0)
+                        ushort cube = chunk[x, y, z];
+                        if (cube != 0)
                         {
+                            var textureEntry = TextureAtlas.GetTextureEntry((int)cube - 1);
+
                             float x1 = x + xOffset, y1 = y + yOffset, z1 = z + zOffset;
 
                             if (x == 0 || chunk[x - 1, y, z] == 0) DrawCubeLeft(textureEntry, x1, y1, z1);

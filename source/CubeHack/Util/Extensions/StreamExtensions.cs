@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 static class StreamExtensions
 {
-    const int _maxSize = 256 * 1024;
+    const int _maxSize = 2 * 1024 * 1024; // We need to limit the number of chunks per packet and make this a lot smaller...
 
     public static async Task WriteObjectAsync<T>(this Stream stream, T instance)
     {

@@ -24,6 +24,12 @@
       "Texture": {
         "Color": "#644316"
       }
+    },
+    "Rock": {
+      "Name": "Rock",
+      "Texture": {
+        "Color": "#606060"
+      }
     }
   }
 }

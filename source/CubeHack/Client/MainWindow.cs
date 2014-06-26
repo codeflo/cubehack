@@ -58,7 +58,7 @@ namespace CubeHack.Client
 
                 _gameClient = new GameClient(channel);
 
-                TextureAtlas.Build(channel.ModData.Textures);
+                TextureAtlas.Build(channel.ModData.Materials.Select(m => m.Texture).ToList());
 
                 while (true)
                 {

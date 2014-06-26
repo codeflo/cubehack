@@ -31,7 +31,11 @@ namespace CubeHack.Game
 
             _modData = new ModData
             {
-                Textures = new List<Texture> { _mod.Materials[_mod.DefaultMaterial].Texture },
+                Materials = mod.Materials.Values.Select((m, i) =>
+                {
+                    m.Index = i;
+                    return m;
+                }).ToList(),
             };
 
             Task.Run(() => RunUniverse());

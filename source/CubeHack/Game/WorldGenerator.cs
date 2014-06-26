@@ -36,7 +36,7 @@ namespace CubeHack.Game
                     {
                         for (int z = z0; z < z1; ++z)
                         {
-                            _world[x, y, z] = 1;
+                            _world[x, y, z] = (ushort)(1 + _random.Next(2));
                         }
                     }
                 }

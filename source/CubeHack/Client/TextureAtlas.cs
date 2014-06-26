@@ -14,7 +14,8 @@ namespace CubeHack.Client
 {
     static class TextureAtlas
     {
-        const int _textureSize = 256;
+        const int _textureSizeBits = 8;
+        const int _textureSize = 1 << _textureSizeBits;
 
         static int _count;
         static int _size;
@@ -43,6 +44,7 @@ namespace CubeHack.Client
             }
 
             GL.BindTexture(TextureTarget.Texture2D, _textureId);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, _textureSizeBits - 1);
         }
 
         public static void Build(List<Texture> textures)
@@ -55,7 +57,7 @@ namespace CubeHack.Client
             for (_size = 1; _size * _size < _count; _size += _size) { }
 
             _textureEntries = new TextureEntry[_count];
-            float tf = 1f / _textureSize;
+            float tf = 1f / _size;
 
             TextureHelper.DrawTexture(
                 _size * _textureSize,
@@ -65,15 +67,15 @@ namespace CubeHack.Client
                     int x = 0, y = 0;
                     for (int i = 0; i < _count; ++i)
                     {
+                        DrawTexture(graphics, textures[i], x * _textureSize, y * _textureSize);
+                        _textureEntries[i] = new TextureEntry { X0 = x * tf, Y0 = y * tf, X1 = (x + 1) * tf, Y1 = (y + 1) * tf };
+
                         ++x;
                         if (x == _size)
                         {
                             x = 0;
                             ++y;
                         }
-
-                        DrawTexture(graphics, textures[i], x, y);
-                        _textureEntries[i] = new TextureEntry { X0 = x * tf, Y0 = (y + _textureSize) * tf, X1 = (x + _textureSize) * tf, Y1 = y * tf };
                     }
                 });
         }
@@ -81,7 +83,7 @@ namespace CubeHack.Client
         static void DrawTexture(Graphics graphics, Texture texture, int x, int y)
         {
             var color = new CubeHack.Data.Color(texture.Color);
-            graphics.FillRectangle(BrushFromColor(color), x, y, x + _textureSize, y + _textureSize);
+            graphics.FillRectangle(BrushFromColor(color), x, y, _textureSize, _textureSize);
         }
 
         static Brush BrushFromColor(CubeHack.Data.Color c)
