@@ -67,7 +67,10 @@
     <Compile Include="Data\Color.cs" />
     <Compile Include="Data\EditorDataAttribute.cs" />
     <Compile Include="Data\Material.cs" />
+    <Compile Include="Data\MobType.cs" />
     <Compile Include="Data\Mod.cs" />
+    <Compile Include="Data\Model.cs" />
+    <Compile Include="Data\ModelCuboid.cs" />
     <Compile Include="Data\ModMetaData.cs" />
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />

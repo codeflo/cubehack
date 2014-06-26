@@ -36,6 +36,12 @@ namespace CubeHack.Game
                     m.Index = i;
                     return m;
                 }).ToList(),
+
+                Models = mod.MobTypes.Values.Select((m, i) =>
+                {
+                    m.Model.Index = i;
+                    return m.Model;
+                }).ToList(),
             };
 
             Task.Run(() => RunUniverse());

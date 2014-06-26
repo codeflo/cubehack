@@ -20,5 +20,8 @@ namespace CubeHack.Data
 
         [EditorData]
         public Dictionary<string, Material> Materials { get; set; }
+
+        [EditorData]
+        public Dictionary<string, MobType> MobTypes { get; set; }
     }
 }

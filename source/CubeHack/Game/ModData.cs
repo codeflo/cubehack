@@ -16,5 +16,8 @@ namespace CubeHack.Game
     {
         [ProtoMember(1)]
         public List<Material> Materials { get; set; }
+
+        [ProtoMember(2)]
+        public List<Model> Models { get; set; }
     }
 }

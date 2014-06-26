@@ -17,19 +17,20 @@
     "PlacementCooldown": 0.25,
     "TerminalHeight": 32.0
   },
-  "DefaultMaterial": "Dirt",
+  "DefaultMaterial": "dirt",
   "Materials": {
-    "Dirt": {
+    "dirt": {
       "Name": "Dirt",
       "Texture": {
         "Color": "#644316"
       }
     },
-    "Rock": {
+    "rock": {
       "Name": "Rock",
       "Texture": {
         "Color": "#606060"
       }
     }
-  }
+  },
+  "MobTypes": {}
 }
