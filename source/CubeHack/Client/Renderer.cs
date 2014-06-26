@@ -73,7 +73,7 @@ namespace CubeHack.Client
                 GL.UseProgram(_cubeShader.Value.Id);
                 GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
                 GL.Begin(PrimitiveType.Quads);
-                var textureEntry = TextureAtlas.GetTextureEntry(0);
+                var textureEntry = TextureAtlas.GetTextureEntry(gameClient.World[highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ] - 1);
                 if (highlightedCube.NormalX < 0) DrawCubeLeft(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalX > 0) DrawCubeRight(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalY < 0) DrawCubeBottom(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);

@@ -58,6 +58,7 @@ namespace CubeHack.Client
 
             _textureEntries = new TextureEntry[_count];
             float tf = 1f / _size;
+            float to = 1f / (_size * _textureSize);
 
             TextureHelper.DrawTexture(
                 _size * _textureSize,
@@ -68,7 +69,7 @@ namespace CubeHack.Client
                     for (int i = 0; i < _count; ++i)
                     {
                         DrawTexture(graphics, textures[i], x * _textureSize, y * _textureSize);
-                        _textureEntries[i] = new TextureEntry { X0 = x * tf, Y0 = y * tf, X1 = (x + 1) * tf, Y1 = (y + 1) * tf };
+                        _textureEntries[i] = new TextureEntry { X0 = x * tf + to, Y0 = y * tf + to, X1 = (x + 1) * tf - to, Y1 = (y + 1) * tf - to };
 
                         ++x;
                         if (x == _size)
