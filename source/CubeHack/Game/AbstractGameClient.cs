@@ -19,6 +19,8 @@ namespace CubeHack.Game
         readonly PrecisionTimer _frameTimer = new PrecisionTimer();
         readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
+        readonly double _inverseSqrt2 = Math.Sqrt(0.5);
+
         double _miningTime = 0;
         double _placementCooldown = 0;
 
@@ -200,28 +202,39 @@ namespace CubeHack.Game
             double lookZ = -PhysicsValues.PlayerMovementSpeed * Math.Cos(PositionData.HAngle * f);
             double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
 
+            bool isMovingAlong = false, isMovingSideways = false;
             if (isKeyPressed(GameKey.Forwards))
             {
+                isMovingAlong = true;
                 vx += lookX;
                 vz += lookZ;
             }
 
             if (isKeyPressed(GameKey.Left))
             {
+                isMovingSideways = true;
                 vx += lookZ;
                 vz -= lookX;
             }
 
             if (isKeyPressed(GameKey.Backwards))
             {
+                isMovingAlong = true;
                 vx -= lookX;
                 vz -= lookZ;
             }
 
             if (isKeyPressed(GameKey.Right))
             {
+                isMovingSideways = true;
                 vx -= lookZ;
                 vz += lookX;
+            }
+
+            if (isMovingAlong && isMovingSideways)
+            {
+                vx *= _inverseSqrt2;
+                vz *= _inverseSqrt2;
             }
 
             if (!PositionData.IsFalling && isKeyPressed(GameKey.Jump))
