@@ -21,5 +21,7 @@ namespace CubeHack.Data
         [EditorData]
         [ProtoMember(1)]
         public string Color { get; set; }
+
+        public int Index { get; set; }
     }
 }

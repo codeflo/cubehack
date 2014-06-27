@@ -14,8 +14,10 @@ namespace CubeHack.Client
 {
     static class TextureAtlas
     {
-        const int _textureSizeBits = 8;
-        const int _textureSize = 1 << _textureSizeBits;
+        public const int TextureSizeBits = 8;
+        public const int TextureSize = 1 << TextureSizeBits;
+
+        static readonly List<Texture> _textures = new List<Texture>();
 
         static int _count;
         static int _size;
@@ -44,31 +46,39 @@ namespace CubeHack.Client
             }
 
             GL.BindTexture(TextureTarget.Texture2D, _textureId);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, _textureSizeBits - 1);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, TextureSizeBits - 1);
         }
 
-        public static void Build(List<Texture> textures)
+        public static int Register(Texture texture)
+        {
+            int index = _count;
+            texture.Index = index;
+            _textures.Add(texture);
+            ++_count;
+            return index;
+        }
+
+        public static void Build()
         {
             Bind();
-
-            _count = textures.Count;
 
             // Find a texture size that fits all cube textures.
             for (_size = 1; _size * _size < _count; _size += _size) { }
 
             _textureEntries = new TextureEntry[_count];
             float tf = 1f / _size;
-            float to = 1f / (_size * _textureSize);
+            float to = 1f / (_size * TextureSize);
 
             TextureHelper.DrawTexture(
-                _size * _textureSize,
-                _size * _textureSize,
-                graphics =>
+                _size * TextureSize,
+                _size * TextureSize,
+                null,
+                bitmapData =>
                 {
                     int x = 0, y = 0;
                     for (int i = 0; i < _count; ++i)
                     {
-                        DrawTexture(graphics, textures[i], x * _textureSize, y * _textureSize);
+                        TextureGenerator.DrawTexture(bitmapData, _textures[i], x * TextureSize, y * TextureSize);
                         _textureEntries[i] = new TextureEntry { X0 = x * tf + to, Y0 = y * tf + to, X1 = (x + 1) * tf - to, Y1 = (y + 1) * tf - to };
 
                         ++x;
@@ -79,25 +89,6 @@ namespace CubeHack.Client
                         }
                     }
                 });
-        }
-
-        static void DrawTexture(Graphics graphics, Texture texture, int x, int y)
-        {
-            var color = new CubeHack.Data.Color(texture.Color);
-            graphics.FillRectangle(BrushFromColor(color), x, y, _textureSize, _textureSize);
-        }
-
-        static Brush BrushFromColor(CubeHack.Data.Color c)
-        {
-            return new SolidBrush(System.Drawing.Color.FromArgb(
-                IntFromFloatColor(c.R),
-                IntFromFloatColor(c.G),
-                IntFromFloatColor(c.B)));
-        }
-
-        static int IntFromFloatColor(float v)
-        {
-            return (int)(v * 255f);
         }
 
         public struct TextureEntry

@@ -24,6 +24,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
@@ -52,6 +53,7 @@
     <Compile Include="Client\Renderer.cs" />
     <Compile Include="Client\Shader.cs" />
     <Compile Include="Client\TextureAtlas.cs" />
+    <Compile Include="Client\TextureGenerator.cs" />
     <Compile Include="Client\TextureHelper.cs" />
     <Compile Include="Client\UiRenderer.cs" />
     <Compile Include="DataModel\Command.cs" />

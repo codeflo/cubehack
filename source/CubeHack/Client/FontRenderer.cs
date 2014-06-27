@@ -139,7 +139,8 @@ namespace CubeHack.Client
                         _charEntries[c] = new CharEntry { X = (currentX - 1) / bitmapWidth, Y = currentY / bitmapHeight, Width = width / bitmapWidth, Height = height / bitmapHeight };
                         currentX += width + 2;
                     }
-                });
+                },
+                null);
         }
 
         static IEnumerable<char> GetPrintableChars()

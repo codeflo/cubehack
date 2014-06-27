@@ -14,18 +14,26 @@ namespace CubeHack.Client
 {
     static class TextureHelper
     {
-        public static void DrawTexture(int width, int height, Action<Graphics> drawAction)
+        public static void DrawTexture(int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
         {
             using (var bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                if (drawAction != null)
                 {
-                    drawAction(graphics);
+                    using (var graphics = Graphics.FromImage(bitmap))
+                    {
+                        drawAction(graphics);
+                    }
                 }
 
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 try
                 {
+                    if (bitmapAction != null)
+                    {
+                        bitmapAction(bitmapData);
+                    }
+
                     GL.TexImage2D(
                         TextureTarget.Texture2D,
                         0,
