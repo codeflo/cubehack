@@ -17,6 +17,6 @@ int __stdcall WinMain(
 	int nCmdShow)
 {
 	Console::WriteLine(L"Hello World");
-	CubeHack::Program::Main();
+	CubeHack::Client::Program::Main();
 	return 0;
 }

@@ -3,6 +3,7 @@
 *.sdf
 *.suo
 *.vcxproj.user
+*.userprefs
 /source/packages/
 /**/bin/
 /**/obj/

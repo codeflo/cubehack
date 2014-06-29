@@ -68,7 +68,7 @@
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CubeHack\CubeHack.csproj">
+    <ProjectReference Include="..\CubeHack.Client\CubeHack.Client.csproj">
       <Project>{58777cfb-f70c-4c01-85c2-7b24827f91e7}</Project>
     </ProjectReference>
   </ItemGroup>
