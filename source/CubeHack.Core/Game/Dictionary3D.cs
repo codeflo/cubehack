@@ -11,21 +11,70 @@ namespace CubeHack.Game
 {
     public class Dictionary3D<T>
     {
-        private Dictionary<Tuple<int, int, int>, T> _data = new Dictionary<Tuple<int, int, int>, T>();
+        private int _bucketCount = 2048;
+        private Entry[] _buckets = new Entry[2048];
 
         public T this[int x, int y, int z]
         {
             get
             {
-                T ret;
-                _data.TryGetValue(Tuple.Create(x, y, z), out ret);
-                return ret;
+                int hashCode = GetHashCode(x, y, z);
+                int bucket = hashCode & (_bucketCount - 1);
+
+                Entry e = _buckets[bucket];
+                while (e != null)
+                {
+                    if (e.X == x && e.Y == y && e.Z == z)
+                    {
+                        return e.Value;
+                    }
+
+                    e = e.Next;
+                }
+
+                return default(T);
             }
 
             set
             {
-                _data[Tuple.Create(x, y, z)] = value;
+                int hashCode = GetHashCode(x, y, z);
+                int bucket = hashCode & (_bucketCount - 1);
+
+                Entry firstBucket = _buckets[bucket];
+                Entry e = firstBucket;
+                while (e != null)
+                {
+                    if (e.X == x && e.Y == y && e.Z == z)
+                    {
+                        e.Value = value;
+                    }
+
+                    e = e.Next;
+                }
+
+                _buckets[bucket] = new Entry
+                {
+                    X = x,
+                    Y = y,
+                    Z = z,
+                    Value = value,
+                    Next = firstBucket,
+                };
             }
+        }
+
+        private static int GetHashCode(int x, int y, int z)
+        {
+            return (x * 777 + y) * 111111 + z;
+        }
+
+        private class Entry
+        {
+            public int X, Y, Z;
+
+            public T Value;
+
+            public Entry Next;
         }
     }
 }

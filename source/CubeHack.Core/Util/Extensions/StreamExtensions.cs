@@ -16,6 +16,11 @@ static class StreamExtensions
 
     public static async Task WriteObjectAsync<T>(this Stream stream, T instance)
     {
+        if (instance == null)
+        {
+            throw new ArgumentNullException("instance");
+        }
+
         using (var buffer = new MemoryStream())
         {
             // Reserve space for the length

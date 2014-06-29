@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,19 +12,14 @@ namespace CubeHack.Game
 {
     internal sealed class Channel : IChannel
     {
-        readonly object _mutex = new object();
         readonly Universe _universe;
         readonly Entity _player;
-
-        bool hasSentInitialValues = false;
 
         public Channel(Universe universe, Entity player)
         {
             _universe = universe;
             _player = player;
             SentChunks = new Dictionary3D<bool>();
-
-            Task.Run(() => RunChannel());
         }
 
         public int SentCubeUpdates { get; set; }
@@ -35,18 +31,12 @@ namespace CubeHack.Game
         {
             get
             {
-                lock (_mutex)
-                {
-                    return _onGameEventAsync;
-                }
+                return _onGameEventAsync;
             }
 
             set
             {
-                lock (_mutex)
-                {
-                    _onGameEventAsync = value;
-                }
+                _onGameEventAsync = value;
             }
         }
 
@@ -63,59 +53,63 @@ namespace CubeHack.Game
             }
         }
 
-        public Task SendPlayerEventAsync(PlayerEvent playerEvent)
+        public bool HasSentInitialValues
         {
-            if (playerEvent.PositionData != null)
-            {
-                lock (_player.Mutex)
-                {
-                    _player.PositionData = playerEvent.PositionData;
-                }
-            }
-
-            if (playerEvent.CubeUpdates != null)
-            {
-                _universe.AddCubeUpdates(playerEvent.CubeUpdates);
-            }
-
-            return Task.FromResult(true);
+            get;
+            set;
         }
 
-        private async Task RunChannel()
+        private ConcurrentQueue<PlayerEvent> _playerEvents = new ConcurrentQueue<PlayerEvent>();
+        public PlayerEvent TakePlayerEvent()
         {
-            try
+            PlayerEvent ret;
+            _playerEvents.TryDequeue(out ret);
+            return ret;
+        }
+
+        private ConcurrentQueue<GameEvent> _gameEvents = new ConcurrentQueue<GameEvent>();
+
+        public async Task SendPlayerEventAsync(PlayerEvent playerEvent)
+        {
+            Func<GameEvent, Task> onGameEventAsync;
+
+            _playerEvents.Enqueue(playerEvent);
+
+            onGameEventAsync = OnGameEventAsync;
+
+            if (onGameEventAsync != null)
             {
-                while (true)
+                if (_gameEvents.Count == 0)
                 {
-                    Func<GameEvent, Task> onGameEventAsync;
-                    lock (_mutex)
+                    // Always send an empty GameEvent as an ACK.
+                    await onGameEventAsync(new GameEvent());
+                }
+                else
+                {
+                    while (true)
                     {
-                        onGameEventAsync = _onGameEventAsync;
-                    }
-
-                    if (onGameEventAsync != null)
-                    {
-                        var gameEvent = _universe.GetCurrentGameEvent(this);
-
-                        if (!hasSentInitialValues)
-                        {
-                            hasSentInitialValues = true;
-                            gameEvent.PhysicsValues = _universe.Mod.PhysicsValues;
-                        }
-
+                        GameEvent gameEvent;
+                        _gameEvents.TryDequeue(out gameEvent);
+                        if (gameEvent == null) break;
                         await onGameEventAsync(gameEvent);
                     }
-
-                    await Task.Delay(10);
                 }
             }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-                _universe.DeregisterChannel(this);
-            }
+        }
+
+        public bool NeedsGameEvent()
+        {
+            return _gameEvents.Count == 0;
+        }
+
+        public void QueueGameEvent(GameEvent gameEvent)
+        {
+            _gameEvents.Enqueue(gameEvent);
+        }
+
+        public void Dispose()
+        {
+            _universe.DeregisterChannel(this);
         }
     }
 }

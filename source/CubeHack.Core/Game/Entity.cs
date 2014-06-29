@@ -11,8 +11,6 @@ namespace CubeHack.Game
 {
     sealed class Entity
     {
-        public readonly object Mutex = new object();
-
         public PositionData PositionData { get; set; }
     }
 }

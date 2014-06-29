@@ -39,6 +39,8 @@ namespace CubeHack.Tcp
 
         async Task RunConnection(TcpClient client)
         {
+            IChannel internalChannel = null;
+
             try
             {
                 client.NoDelay = true;
@@ -48,18 +50,19 @@ namespace CubeHack.Tcp
 
                 await stream.WriteObjectAsync(_universe.ModData);
 
-                var internalChannel = _universe.ConnectPlayer();
-                internalChannel.OnGameEventAsync += e => SendGameEventAsync(stream, e);
-
-                while (true)
+                using (internalChannel = _universe.ConnectPlayer())
                 {
-                    var playerEvent = await stream.ReadObjectAsync<PlayerEvent>();
-                    await internalChannel.SendPlayerEventAsync(playerEvent);
+                    internalChannel.OnGameEventAsync += e => SendGameEventAsync(stream, e);
+
+                    while (true)
+                    {
+                        var playerEvent = await stream.ReadObjectAsync<PlayerEvent>();
+                        await internalChannel.SendPlayerEventAsync(playerEvent);
+                    }
                 }
             }
             catch (Exception)
             {
-                // TODO: log
             }
             finally
             {

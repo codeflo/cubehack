@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CubeHack.Game
@@ -44,7 +45,9 @@ namespace CubeHack.Game
                 }).ToList(),
             };
 
-            Task.Run(() => RunUniverse());
+            var thread = new Thread(() => RunUniverse());
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         public Mod Mod
@@ -84,7 +87,7 @@ namespace CubeHack.Game
             }
         }
 
-        public void AddCubeUpdates(List<CubeUpdateData> cubeUpdates)
+        private void AddCubeUpdates(List<CubeUpdateData> cubeUpdates)
         {
             lock (_mutex)
             {
@@ -97,63 +100,57 @@ namespace CubeHack.Game
             }
         }
 
-        internal GameEvent GetCurrentGameEvent(Channel channel)
+        private GameEvent GetCurrentGameEvent(Channel channel)
         {
             var player = channel.Player;
 
             var gameEvent = new GameEvent() { EntityPositions = new List<PositionData>() };
-            lock (_mutex)
+            foreach (var entity in _entities)
             {
-                foreach (var entity in _entities)
+                if (entity != player)
                 {
-                    if (entity != player)
-                    {
-                        lock (entity.Mutex)
-                        {
-                            gameEvent.EntityPositions.Add(entity.PositionData);
-                        }
-                    }
+                    gameEvent.EntityPositions.Add(entity.PositionData);
                 }
+            }
 
-                if (player.PositionData != null)
+            if (player.PositionData != null)
+            {
+                int chunkX = player.PositionData.Position.ChunkX;
+                int chunkY = player.PositionData.Position.ChunkY;
+                int chunkZ = player.PositionData.Position.ChunkZ;
+
+                for (int x = chunkX - 5; x <= chunkX + 5; ++x)
                 {
-                    int chunkX = player.PositionData.Position.ChunkX;
-                    int chunkY = player.PositionData.Position.ChunkY;
-                    int chunkZ = player.PositionData.Position.ChunkZ;
-
-                    for (int x = chunkX - 5; x <= chunkX + 5; ++x)
+                    for (int y = chunkY - 5; y <= chunkY + 5; ++y)
                     {
-                        for (int y = chunkY - 5; y <= chunkY + 5; ++y)
+                        for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                         {
-                            for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
+                            if (!channel.SentChunks[x, y, z])
                             {
-                                if (!channel.SentChunks[x, y, z])
+                                channel.SentChunks[x, y, z] = true;
+                                var chunk = _startWorld.GetChunk(x, y, z);
+
+                                if (chunk != null)
                                 {
-                                    channel.SentChunks[x, y, z] = true;
-                                    var chunk = _startWorld.GetChunk(x, y, z);
-
-                                    if (chunk != null)
+                                    if (gameEvent.ChunkDataList == null)
                                     {
-                                        if (gameEvent.ChunkDataList == null)
-                                        {
-                                            gameEvent.ChunkDataList = new List<ChunkData>();
-                                        }
-
-                                        gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                        gameEvent.ChunkDataList = new List<ChunkData>();
                                     }
+
+                                    gameEvent.ChunkDataList.Add(chunk.GetChunkData());
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                gameEvent.IsFrozen = player.PositionData == null;
+            gameEvent.IsFrozen = player.PositionData == null;
 
-                if (channel.SentCubeUpdates != _cubeUpdates.Count)
-                {
-                    gameEvent.CubeUpdates = _cubeUpdates.GetRange(channel.SentCubeUpdates, _cubeUpdates.Count - channel.SentCubeUpdates);
-                    channel.SentCubeUpdates = _cubeUpdates.Count;
-                }
+            if (channel.SentCubeUpdates != _cubeUpdates.Count)
+            {
+                gameEvent.CubeUpdates = _cubeUpdates.GetRange(channel.SentCubeUpdates, _cubeUpdates.Count - channel.SentCubeUpdates);
+                channel.SentCubeUpdates = _cubeUpdates.Count;
             }
 
             return gameEvent;
@@ -161,6 +158,8 @@ namespace CubeHack.Game
 
         internal void DeregisterChannel(Channel channel)
         {
+            Log.Info("Player disconnected");
+
             lock (_mutex)
             {
                 _entities.Remove(channel.Player);
@@ -168,11 +167,60 @@ namespace CubeHack.Game
             }
         }
 
-        private async Task RunUniverse()
+        private void RunUniverse()
         {
             while (true)
             {
-                await Task.Delay(100);
+                var startTime = DateTime.Now;
+
+                lock (_mutex)
+                {
+                    foreach (var channel in _channels)
+                    {
+                        while (true)
+                        {
+                            var playerEvent = channel.TakePlayerEvent();
+                            if (playerEvent == null) break;
+                            HandlePlayerEvent(channel, playerEvent);
+                        }
+                    }
+
+                    foreach (var channel in _channels)
+                    {
+                        if (channel.NeedsGameEvent())
+                        {
+                            var gameEvent = GetCurrentGameEvent(channel);
+                            if (!channel.HasSentInitialValues)
+                            {
+                                channel.HasSentInitialValues = true;
+                                gameEvent.PhysicsValues = _mod.PhysicsValues;
+                            }
+
+                            channel.QueueGameEvent(gameEvent);
+                        }
+                    }
+                }
+
+                var endTime = DateTime.Now;
+
+                double sleepMillis = 10 - (endTime - startTime).TotalMilliseconds;
+                if (sleepMillis > 0)
+                {
+                    Thread.Sleep((int)Math.Ceiling(sleepMillis));
+                }
+            }
+        }
+
+        private void HandlePlayerEvent(Channel channel, PlayerEvent playerEvent)
+        {
+            if (playerEvent.PositionData != null)
+            {
+                channel.Player.PositionData = playerEvent.PositionData;
+            }
+
+            if (playerEvent.CubeUpdates != null)
+            {
+                AddCubeUpdates(playerEvent.CubeUpdates);
             }
         }
     }

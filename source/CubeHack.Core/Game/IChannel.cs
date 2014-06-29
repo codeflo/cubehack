@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
-    public interface IChannel
+    public interface IChannel : IDisposable
     {
         Func<GameEvent, Task> OnGameEventAsync { get; set; }
 

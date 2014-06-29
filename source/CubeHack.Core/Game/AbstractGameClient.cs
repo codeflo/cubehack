@@ -21,12 +21,14 @@ namespace CubeHack.Game
 
         readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
+        static readonly Random _random = new Random();
+
         double _miningTime = 0;
         double _placementCooldown = 0;
 
         List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
-        public PositionData PositionData = new PositionData() { Position = new Position() + new Offset(0.1, 0.1, 0.1) };
+        public PositionData PositionData = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
 
@@ -39,10 +41,29 @@ namespace CubeHack.Game
             World = new World();
             IsFrozen = true;
 
+            ResetPosition();
+
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
 
-            Task.Run(() => RunSendPlayerEvents());
+            Task.Run(async () =>
+                {
+                    PlayerEvent playerEvent;
+                    using (_mutex.TakeLock())
+                    {
+                        playerEvent = CreatePlayerEvent();
+                    }
+
+                    await _channel.SendPlayerEventAsync(playerEvent);
+                });
+        }
+
+        private void ResetPosition()
+        {
+            PositionData = new PositionData()
+            {
+                Position = new Position() + new Offset((_random.NextDouble() * 2 - 1) * 32, 0, (_random.NextDouble() * 2 - 1) * 32),
+            };
         }
 
         public World World { get; private set; }
@@ -86,14 +107,23 @@ namespace CubeHack.Game
             }
         }
 
+        internal virtual void OnSendPlayerEvents()
+        {
+        }
+
         Task HandleGameEventAsync(GameEvent gameEvent)
         {
+            PlayerEvent playerEvent;
+
             using (_mutex.TakeLock())
             {
                 // We extrapolate from this, so using server time would be more accurate perhaps?
                 _gameEventTimer.SetZero();
 
-                EntityPositions = gameEvent.EntityPositions ?? new List<PositionData>();
+                if (gameEvent.EntityPositions != null)
+                {
+                    EntityPositions = gameEvent.EntityPositions ?? new List<PositionData>();
+                }
 
                 if (gameEvent.PhysicsValues != null)
                 {
@@ -120,9 +150,12 @@ namespace CubeHack.Game
                 {
                     IsFrozen = gameEvent.IsFrozen.Value;
                 }
+
+                OnSendPlayerEvents();
+                playerEvent = CreatePlayerEvent();
             }
 
-            return Task.FromResult(0);
+            return _channel.SendPlayerEventAsync(playerEvent);
         }
 
         protected void UpdateState(Func<GameKey, bool> isKeyPressed)
@@ -135,6 +168,27 @@ namespace CubeHack.Game
             double elapsedTime = _frameTimer.SetZero();
             MovePlayer(elapsedTime, isKeyPressed);
             UpdateBuildAction(elapsedTime, isKeyPressed);
+        }
+
+        private PlayerEvent CreatePlayerEvent()
+        {
+            var playerEvent = new PlayerEvent();
+
+            playerEvent.PositionData = new PositionData
+            {
+                Position = PositionData.Position,
+                Velocity = PositionData.Velocity,
+                HAngle = PositionData.HAngle,
+                VAngle = PositionData.VAngle,
+                IsFalling = PositionData.IsFalling,
+            };
+
+            if (_cubeUpdates.Count > 0)
+            {
+                playerEvent.CubeUpdates = _cubeUpdates;
+                _cubeUpdates = new List<CubeUpdateData>();
+            }
+            return playerEvent;
         }
 
         private void UpdateBuildAction(double elapsedTime, Func<GameKey, bool> isKeyPressed)
@@ -260,9 +314,7 @@ namespace CubeHack.Game
 
                 if (Math.Abs(vy) > Math.Sqrt(2 * PhysicsValues.Gravity * PhysicsValues.TerminalHeight))
                 {
-                    PositionData = new PositionData();
-                    vx = 0;
-                    vz = 0;
+                    ResetPosition();
                 }
 
                 vy = 0;
@@ -273,41 +325,6 @@ namespace CubeHack.Game
             }
 
             PositionData.Velocity = new Offset(vx, vy, vz);
-        }
-
-        private async Task RunSendPlayerEvents()
-        {
-            while (true)
-            {
-                try
-                {
-                    var playerEvent = new PlayerEvent();
-                    using (_mutex.TakeLock())
-                    {
-                        playerEvent.PositionData = new PositionData
-                        {
-                            Position = PositionData.Position,
-                            Velocity = PositionData.Velocity,
-                            HAngle = PositionData.HAngle,
-                            VAngle = PositionData.VAngle,
-                            IsFalling = PositionData.IsFalling,
-                        };
-
-                        if (_cubeUpdates.Count > 0)
-                        {
-                            playerEvent.CubeUpdates = _cubeUpdates;
-                            _cubeUpdates = new List<CubeUpdateData>();
-                        }
-                    }
-
-                    await _channel.SendPlayerEventAsync(playerEvent);
-                }
-                catch (Exception)
-                {
-                }
-
-                await Task.Delay(10);
-            }
         }
 
         private double GetJumpingSpeed()

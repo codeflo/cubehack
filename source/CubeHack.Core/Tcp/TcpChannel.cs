@@ -110,5 +110,10 @@ namespace CubeHack.Tcp
                 Environment.Exit(0);
             }
         }
+
+        public void Dispose()
+        {
+            _tcpClient.Close();
+        }
     }
 }
