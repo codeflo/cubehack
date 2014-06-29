@@ -69,6 +69,8 @@ namespace CubeHack.Game
 
         public IChannel ConnectPlayer()
         {
+            Log.Info("Player connected");
+
             lock (_mutex)
             {
                 var entity = new Entity();
@@ -77,6 +79,7 @@ namespace CubeHack.Game
                 var channel = new Channel(this, entity);
                 _channels.Add(channel);
 
+                channel.SentCubeUpdates = _cubeUpdates.Count;
                 return channel;
             }
         }
@@ -86,6 +89,11 @@ namespace CubeHack.Game
             lock (_mutex)
             {
                 _cubeUpdates.AddRange(cubeUpdates);
+
+                foreach (var cubeUpdate in cubeUpdates)
+                {
+                    _startWorld[cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z] = cubeUpdate.Material;
+                }
             }
         }
 

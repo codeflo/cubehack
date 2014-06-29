@@ -66,6 +66,7 @@ namespace CubeHack
                     while (true)
                     {
                         var entry = _queue.Take();
+                        Console.WriteLine(entry.Item2);
                         writer.Write(entry.Item1.ToString("HH:mm:ss.fff "));
                         writer.WriteLine(entry.Item2);
                         writer.Flush();
