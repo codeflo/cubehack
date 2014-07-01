@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Game;
+using CubeHack.Util;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -16,6 +17,8 @@ namespace CubeHack.Client
     {
         const float _viewingAngle = 100f;
 
+        static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
+
         static readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
         static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
         static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
@@ -25,7 +28,9 @@ namespace CubeHack.Client
         static int _depthBufferWidth;
         static int _depthBufferHeight;
 
-        public static void Render(GameClient gameClient, int width, int height)
+        private static int[] _displayListsToRender = new int[16];
+
+        public static void Render(AbstractGameClient gameClient, int width, int height)
         {
             GL.Viewport(0, 0, width, height);
             GL.ClearColor(0.5f, 0.6f, 0.9f, 1f);
@@ -91,7 +96,7 @@ namespace CubeHack.Client
             RenderOutlines(width, height);
         }
 
-        private static void RenderCubes(GameClient gameClient)
+        private static void RenderCubes(AbstractGameClient gameClient)
         {
             GL.UseProgram(_cubeShader.Value.Id);
 
@@ -99,14 +104,18 @@ namespace CubeHack.Client
             int chunkY = gameClient.PositionData.Position.CubeY >> Chunk.Bits;
             int chunkZ = gameClient.PositionData.Position.CubeZ >> Chunk.Bits;
 
-            var listsToRender = new List<int>();
+            var offset = (gameClient.PositionData.Position - new Position()) + new Offset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
+
+            int displayListCount = 0;
 
             for (int x = chunkX - 5; x <= chunkX + 5; ++x)
             {
-                for (int y = chunkY - 5; y <= chunkY + 5; ++y)
+                for (int y = chunkY - 3; y <= chunkY + 3; ++y)
                 {
                     for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
+                        if (!IsInViewingFrustum(gameClient, offset, x, y, z)) continue;
+
                         var chunk = gameClient.World.PeekChunk(x, y, z);
                         if (chunk != null && chunk.HasData)
                         {
@@ -127,15 +136,53 @@ namespace CubeHack.Client
                                 _displayLists[x, y, z] = Tuple.Create(chunk.ContentHash, displayList);
                             }
 
-                            listsToRender.Add(displayList);
+                            if (displayListCount == _displayListsToRender.Length)
+                            {
+                                var newArray = new int[_displayListsToRender.Length * 2];
+                                Array.Copy(_displayListsToRender, newArray, _displayListsToRender.Length);
+                                _displayListsToRender = newArray;
+                            }
+
+                            _displayListsToRender[displayListCount] = displayList;
+                            ++displayListCount;
                         }
                     }
                 }
             }
 
-            GL.CallLists(listsToRender.Count, ListNameType.Int, listsToRender.ToArray());
+            GL.CallLists(displayListCount, ListNameType.Int, _displayListsToRender);
 
             GL.UseProgram(0);
+        }
+
+        private static bool IsInViewingFrustum(AbstractGameClient gameClient, Offset offset, int x, int y, int z)
+        {
+            // Check if the bounding sphere of the chunk is in the viewing frustum.
+
+            double df = (double)(Chunk.Size);
+
+            // Determine the chunk center relative to the viewer.
+            double dx = (x + 0.5) * df - offset.X;
+            double dy = (y + 0.5) * df - offset.Y;
+            double dz = (z + 0.5) * df - offset.Z;
+
+            double t0, t1;
+
+            // Perform mouselook rotation
+            double ha = gameClient.PositionData.HAngle * ExtraMath.RadiansPerDegree;
+            double hc = Math.Cos(ha), hs = Math.Sin(ha);
+            t0 = dx * hc - dz * hs; t1 = dz * hc + dx * hs; dx = t0; dz = t1;
+
+            double va = -gameClient.PositionData.VAngle * ExtraMath.RadiansPerDegree;
+            double vc = Math.Cos(va), vs = Math.Sin(va);
+            t0 = dz * vc - dy * vs; t1 = dy * vc + dz * vs; dz = t0; dy = t1;
+
+            // Check if the chunk is behind the viewer.
+            if (dz > ChunkRadius && dz > ChunkRadius) return false;
+
+            // TODO: We can discard even more chunks by taking the left, right, top and bottom planes into account.
+
+            return true;
         }
 
         private static void RenderChunk(Chunk chunk, int chunkX, int chunkY, int chunkZ)

@@ -40,6 +40,11 @@ namespace CubeHack.Game
             }
         }
 
+        public static Offset operator +(Offset o, Offset p)
+        {
+            return new Offset(o.X + p.X, o.Y + p.Y, o.Z + p.Z);
+        }
+
         public static Offset operator *(double f, Offset o)
         {
             return new Offset(f * o.X, f * o.Y, f * o.Z);
