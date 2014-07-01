@@ -6,12 +6,12 @@
     "Description": "This is a description.\r\n\r\nWith multiple paragraphs."
   },
   "PhysicsValues": {
-    "Gravity": 40.0,
-    "PlayerMovementSpeed": 10.0,
-    "PlayerWidth": 1.6,
-    "PlayerHeight": 2.8,
-    "PlayerEyeHeight": 2.4,
-    "PlayerJumpHeight": 2.5,
+    "Gravity": 30.0,
+    "PlayerMovementSpeed": 9.0,
+    "PlayerWidth": 1.5,
+    "PlayerHeight": 2.7,
+    "PlayerEyeHeight": 2.5,
+    "PlayerJumpHeight": 2.2,
     "MiningDistance": 6.0,
     "MiningTime": 0.25,
     "PlacementCooldown": 0.25,

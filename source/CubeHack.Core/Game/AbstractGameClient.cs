@@ -28,6 +28,7 @@ namespace CubeHack.Game
 
         List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
+        public Position CollisionPosition;
         public PositionData PositionData = new PositionData();
 
         public PhysicsValues PhysicsValues = new PhysicsValues();
@@ -64,6 +65,8 @@ namespace CubeHack.Game
             {
                 Position = new Position() + new Offset((_random.NextDouble() * 2 - 1) * 32, 0, (_random.NextDouble() * 2 - 1) * 32),
             };
+
+            CollisionPosition = PositionData.Position;
         }
 
         public World World { get; private set; }
@@ -296,18 +299,7 @@ namespace CubeHack.Game
                 vy += GetJumpingSpeed();
             }
 
-            if (vx > vz)
-            {
-                if (MoveX(vx * elapsedTime)) vx = 0;
-                if (MoveZ(vz * elapsedTime)) vz = 0;
-            }
-            else
-            {
-                if (MoveZ(vz * elapsedTime)) vz = 0;
-                if (MoveX(vx * elapsedTime)) vx = 0;
-            }
-
-            vy -= elapsedTime * PhysicsValues.Gravity;
+            vy -= 0.5 * elapsedTime * PhysicsValues.Gravity;
             if (MoveY(vy * elapsedTime))
             {
                 PositionData.IsFalling = false;
@@ -321,10 +313,142 @@ namespace CubeHack.Game
             }
             else
             {
+                vy -= 0.5 * elapsedTime * PhysicsValues.Gravity;
                 PositionData.IsFalling = true;
             }
 
+            if (vx != 0 || vz != 0)
+            {
+                long savedY = 0;
+                if (!PositionData.IsFalling)
+                {
+                    // Temporarily move the character up a cube so that it can climb up stairs.
+                    savedY = CollisionPosition.Y;
+                    MoveY(1);
+                }
+
+                Position positionBeforeMovement = CollisionPosition;
+                double moveX = vx * elapsedTime;
+                double moveZ = vz * elapsedTime;
+
+                if (vx > vz)
+                {
+                    MoveX(moveX);
+                    MoveZ(moveZ);
+                }
+                else
+                {
+                    MoveZ(moveZ);
+                    MoveX(moveX);
+                }
+
+                var moveDelta = CollisionPosition - positionBeforeMovement;
+                moveX -= moveDelta.X;
+                moveZ -= moveDelta.Z;
+
+                if (!PositionData.IsFalling)
+                {
+                    // Attempt to move the character back down to the ground in case we didn't climb a stair.
+                    MoveY((savedY - CollisionPosition.Y) / (double)(1L << 32));
+
+                    savedY = CollisionPosition.Y;
+
+                    // Attempt to move the caracter down an additional cube so that it can walk down stairs.
+                    if (!MoveY(-((1L << 32) + 1) / (double)(1L << 32)))
+                    {
+                        CollisionPosition.Y = savedY;
+                        PositionData.IsFalling = true;
+                    }
+                }
+
+                // Attempt to continue movement at this new (lower) Y position.
+                if (vx > vz)
+                {
+                    if (MoveX(moveX)) vx = 0;
+                    if (MoveZ(moveZ)) vz = 0;
+                }
+                else
+                {
+                    if (MoveZ(moveZ)) vz = 0;
+                    if (MoveX(moveX)) vx = 0;
+                }
+            }
+
             PositionData.Velocity = new Offset(vx, vy, vz);
+            SetPositionFromCollisionPosition();
+        }
+
+        private void SetPositionFromCollisionPosition()
+        {
+            if (PositionData.IsFalling)
+            {
+                PositionData.Position = CollisionPosition;
+                return;
+            }
+
+            var position = CollisionPosition;
+
+            if (World[position.CubeX, position.CubeY - 1, position.CubeZ] == 0 && World[position.CubeX, position.CubeY - 2, position.CubeZ] != 0)
+            {
+                position.Y -= 1L << 32;
+            }
+
+            long yd = 0;
+
+            if (!IsAllowed(position + new Offset(1, 0, 0)) && IsAllowed(position + new Offset(1, 1, 0)))
+            {
+                yd = position.X & 0xffffffffL;
+            }
+
+            if (!IsAllowed(position + new Offset(1, 0, 1)) && IsAllowed(position + new Offset(1, 1, 1)))
+            {
+                yd = MaxMin(yd, position.X & 0xffffffffL, position.Z & 0xffffffffL);
+            }
+
+            if (!IsAllowed(position + new Offset(0, 0, 1)) && IsAllowed(position + new Offset(0, 1, 1)))
+            {
+                yd = Math.Max(yd, position.Z & 0xffffffffL);
+            }
+
+            if (!IsAllowed(position + new Offset(-1, 0, 1)) && IsAllowed(position + new Offset(-1, 1, 1)))
+            {
+                yd = MaxMin(yd, (1L << 32) - (position.X & 0xffffffffL), position.Z & 0xffffffffL);
+            }
+
+            if (!IsAllowed(position + new Offset(-1, 0, 0)) && IsAllowed(position + new Offset(-1, 1, 0)))
+            {
+                yd = Math.Max(yd, (1L << 32) - (position.X & 0xffffffffL));
+            }
+
+            if (!IsAllowed(position + new Offset(-1, 0, -1)) && IsAllowed(position + new Offset(-1, 1, -1)))
+            {
+                yd = MaxMin(yd, (1L << 32) - (position.X & 0xffffffffL), (1L << 32) - (position.Z & 0xffffffffL));
+            }
+
+            if (!IsAllowed(position + new Offset(0, 0, -1)) && IsAllowed(position + new Offset(0, 1, -1)))
+            {
+                yd = Math.Max(yd, (1L << 32) - (position.Z & 0xffffffffL));
+            }
+
+            if (!IsAllowed(position + new Offset(1, 0, -1)) && IsAllowed(position + new Offset(1, 1, -1)))
+            {
+                yd = MaxMin(yd, position.X & 0xffffffffL, (1L << 32) - (position.Z & 0xffffffffL));
+            }
+
+            position.Y += yd;
+            PositionData.Position = position;
+        }
+
+        private long MaxMin(long a, long b, long c)
+        {
+            return Math.Max(a, Math.Min(b, c));
+        }
+
+        private bool IsAllowed(Position position)
+        {
+            var a = position + new Offset(Offset.Epsilon, 0, Offset.Epsilon);
+            var b = position + new Offset(-Offset.Epsilon, PhysicsValues.PlayerHeight - Offset.Epsilon, -Offset.Epsilon);
+            return AllPassable(a.CubeX, b.CubeX, a.CubeY, b.CubeY, a.CubeZ, b.CubeZ);
         }
 
         private double GetJumpingSpeed()
@@ -334,7 +458,7 @@ namespace CubeHack.Game
 
         bool MoveX(double distance)
         {
-            Position position = PositionData.Position;
+            Position position = CollisionPosition;
             long p = position.X;
 
             int cy0 = Position.GetCubeCoordinate(position.Y + 1);
@@ -344,13 +468,13 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(cx, cx, cy0, cy1, cz0, cz1), out p);
             position.X = p;
 
-            PositionData.Position = position;
+            CollisionPosition = position;
             return hasCollided;
         }
 
         bool MoveY(double distance)
         {
-            Position position = PositionData.Position;
+            Position position = CollisionPosition;
             long p = position.Y;
 
             int cx0 = Position.GetCubeCoordinate(position.X - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
@@ -360,13 +484,13 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, distance > 0 ? PhysicsValues.PlayerHeight : 0, distance, cy => AllPassable(cx0, cx1, cy, cy, cz0, cz1), out p);
             position.Y = p;
 
-            PositionData.Position = position;
+            CollisionPosition = position;
             return hasCollided;
         }
 
         bool MoveZ(double distance)
         {
-            Position position = PositionData.Position;
+            Position position = CollisionPosition;
             long p = position.Z;
 
             int cx0 = Position.GetCubeCoordinate(position.X - (long)(0.5 * PhysicsValues.PlayerWidth * (1L << 32)) + 1);
@@ -376,7 +500,7 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, PhysicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(cx0, cx1, cy0, cy1, cz, cz), out p);
             position.Z = p;
 
-            PositionData.Position = position;
+            CollisionPosition = position;
             return hasCollided;
         }
 

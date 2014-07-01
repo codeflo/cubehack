@@ -13,6 +13,8 @@ namespace CubeHack.Game
     [ProtoContract]
     public struct Offset
     {
+        public const double Epsilon = 1.0 / (1L << 32);
+
         public Offset(double x, double y, double z)
             : this()
         {
