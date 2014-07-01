@@ -1,4 +1,7 @@
-﻿<Window x:Class="CubeHack.Editor.MainWindow"
+﻿<!-- Copyright (c) 2014 the CubeHack authors. All rights reserved.
+     Licensed under a BSD 2-clause license, see LICENSE.txt for details. -->
+
+<Window x:Class="CubeHack.Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CubeHack.Editor"
