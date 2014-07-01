@@ -19,24 +19,29 @@ namespace CubeHack.Game
             _world = world;
         }
 
-        public void CreateChunk(int chunkX, int chunkY, int chunkZ)
+        public void CreateChunk(Chunk chunk)
         {
-            int x0 = chunkX << Chunk.Bits;
-            int x1 = x0 + Chunk.Size;
-            int y0 = (chunkY << Chunk.Bits) + 16;
-            int y1 = y0 + 1 + _random.Next(8);
-            int z0 = chunkZ << Chunk.Bits;
-            int z1 = z0 + Chunk.Size;
-
-            if (chunkY == -1)
+            for (int x = 0; x < Chunk.Size; ++x)
             {
-                for (int x = x0; x < x1; ++x)
+                long wx = ((long)chunk.ChunkX << Chunk.Bits) + x;
+                for (int z = 0; z < Chunk.Size; ++z)
                 {
-                    for (int y = y0; y < y1; ++y)
+                    long wz = ((long)chunk.ChunkZ << Chunk.Bits) + z;
+
+                    long y1 = (long)(8 * (Math.Sin(wx * 0.08 + 1) + Math.Sin(wz * 0.073 + 2))) - 16;
+                    long y2 = (long)(3 * (Math.Sin(wx * 0.23 + wz * 0.02 + 1) + Math.Sin(-wx * 0.05 + wz * 0.31 + 2))) - 12;
+
+                    for (int y = 0; y < Chunk.Size; ++y)
                     {
-                        for (int z = z0; z < z1; ++z)
+                        long wy = ((long)chunk.ChunkY << Chunk.Bits) + y;
+
+                        if (wy < y1)
                         {
-                            _world[x, y, z] = (ushort)(1 + _random.Next(2));
+                            chunk[x, y, z] = 2;
+                        }
+                        else if (wy < y2)
+                        {
+                            chunk[x, y, z] = 1;
                         }
                     }
                 }

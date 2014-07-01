@@ -55,8 +55,7 @@ namespace CubeHack.Game
 
                 if (Generator != null)
                 {
-                    Generator.CreateChunk(x, y, z);
-                    chunk = _chunkMap[x, y, z];
+                    Generator.CreateChunk(chunk);
                 }
             }
 
