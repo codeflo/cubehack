@@ -11,6 +11,8 @@ namespace CubeHack.Game
 {
     sealed class Entity
     {
+        public bool IsAiControlled { get; set; }
+
         public PositionData PositionData { get; set; }
     }
 }

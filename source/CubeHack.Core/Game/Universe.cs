@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Data;
+using CubeHack.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,18 @@ namespace CubeHack.Game
                     return m.Model;
                 }).ToList(),
             };
+
+            for (int i = 0; i < 20; ++i)
+            {
+                var e = new Entity()
+                    {
+                        PositionData = new PositionData(),
+                        IsAiControlled = true,
+                    };
+
+                Movement.Respawn(e.PositionData);
+                _entities.Add(e);
+            }
 
             var thread = new Thread(() => RunUniverse());
             thread.IsBackground = true;
@@ -169,6 +182,8 @@ namespace CubeHack.Game
 
         private void RunUniverse()
         {
+            var timer = new PrecisionTimer();
+
             while (true)
             {
                 var startTime = DateTime.Now;
@@ -183,6 +198,29 @@ namespace CubeHack.Game
                             if (playerEvent == null) break;
                             HandlePlayerEvent(channel, playerEvent);
                         }
+                    }
+
+                    double elapsedTime = timer.SetZero();
+                    foreach (var entity in _entities)
+                    {
+                        if (entity.PositionData == null)
+                        {
+                            continue;
+                        }
+
+                        if (entity.IsAiControlled)
+                        {
+                            Ai.Control(_mod.PhysicsValues, elapsedTime, entity);
+                        }
+
+                        Movement.MoveEntity(
+                            _mod.PhysicsValues,
+                            _startWorld,
+                            entity.PositionData,
+                            elapsedTime,
+                            entity.PositionData.Velocity.X,
+                            entity.PositionData.Velocity.Y,
+                            entity.PositionData.Velocity.Z);
                     }
 
                     foreach (var channel in _channels)

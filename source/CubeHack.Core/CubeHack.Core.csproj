@@ -55,6 +55,7 @@
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
     <Compile Include="Game\AbstractGameClient.cs" />
+    <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />
     <Compile Include="Game\Chunk.cs" />
     <Compile Include="Game\ChunkData.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Util\ExtraMath.cs" />
     <Compile Include="Util\PrecisionTimer.cs" />
     <Compile Include="Util\PriorityMutex.cs" />
+    <Compile Include="Util\Rng.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

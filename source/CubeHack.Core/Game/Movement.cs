@@ -16,6 +16,8 @@ namespace CubeHack.Game
 
         public static void Respawn(PositionData positionData)
         {
+            positionData.VAngle = 0;
+            positionData.HAngle = (float)(_random.NextDouble() * 360);
             positionData.Position = new Position() + new Offset((_random.NextDouble() * 2 - 1) * 32, 0, (_random.NextDouble() * 2 - 1) * 32);
             positionData.CollisionPosition = positionData.Position;
         }
