@@ -17,7 +17,6 @@ namespace CubeHack.Game
         readonly IChannel _channel;
 
         readonly PrecisionTimer _frameTimer = new PrecisionTimer();
-        readonly PrecisionTimer _gameEventTimer = new PrecisionTimer();
 
         readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
@@ -67,14 +66,6 @@ namespace CubeHack.Game
 
         public RayCastResult HighlightedCube { get; private set; }
 
-        public float TimeSinceGameEvent
-        {
-            get
-            {
-                return _gameEventTimer.ElapsedTime;
-            }
-        }
-
         public IDisposable TakeRenderLock()
         {
             var unlocker = _mutex.TakePriorityLock();
@@ -114,12 +105,9 @@ namespace CubeHack.Game
 
             using (_mutex.TakeLock())
             {
-                // We extrapolate from this, so using server time would be more accurate perhaps?
-                _gameEventTimer.SetZero();
-
                 if (gameEvent.EntityPositions != null)
                 {
-                    EntityPositions = gameEvent.EntityPositions ?? new List<PositionData>();
+                    EntityPositions = gameEvent.EntityPositions;
                 }
 
                 if (gameEvent.PhysicsValues != null)
@@ -164,6 +152,12 @@ namespace CubeHack.Game
 
             double elapsedTime = _frameTimer.SetZero();
             MovePlayer(elapsedTime, isKeyPressed);
+
+            foreach (var entityPosition in EntityPositions)
+            {
+                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedTime, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
+            }
+
             UpdateBuildAction(elapsedTime, isKeyPressed);
         }
 
@@ -174,6 +168,7 @@ namespace CubeHack.Game
             playerEvent.PositionData = new PositionData
             {
                 Position = PositionData.Position,
+                CollisionPosition = PositionData.CollisionPosition,
                 Velocity = PositionData.Velocity,
                 HAngle = PositionData.HAngle,
                 VAngle = PositionData.VAngle,

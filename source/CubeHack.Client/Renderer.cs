@@ -53,12 +53,10 @@ namespace CubeHack.Client
 
             if (gameClient.EntityPositions != null)
             {
-                float dt = gameClient.TimeSinceGameEvent;
-
                 foreach (var position in gameClient.EntityPositions)
                 {
                     GL.PushMatrix();
-                    var offset2 = position.Position + dt * position.Velocity - new Position();
+                    var offset2 = position.Position - new Position();
                     GL.Translate(offset2.X, offset2.Y, offset2.Z);
                     GL.Rotate(position.HAngle + 180, 0, 1, 0);
                     DrawEntity(0, 0, 0, 0.5f * gameClient.PhysicsValues.PlayerWidth, gameClient.PhysicsValues.PlayerHeight);
@@ -112,7 +110,7 @@ namespace CubeHack.Client
 
             for (int x = chunkX - 5; x <= chunkX + 5; ++x)
             {
-                for (int y = chunkY -3; y <= chunkY + 3; ++y)
+                for (int y = chunkY - 3; y <= chunkY + 3; ++y)
                 {
                     for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
