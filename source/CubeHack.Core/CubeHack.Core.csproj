@@ -67,6 +67,7 @@
     <Compile Include="Game\IChannel.cs" />
     <Compile Include="Game\LoadTestingGameClient.cs" />
     <Compile Include="Game\ModData.cs" />
+    <Compile Include="Game\Movement.cs" />
     <Compile Include="Game\Offset.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
     <Compile Include="Game\Position.cs" />
