@@ -16,6 +16,7 @@ namespace CubeHack.Client
     static class Renderer
     {
         const float _viewingAngle = 100f;
+        const int _maxChunkUpdatesPerFrame = 4;
 
         static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
 
@@ -107,10 +108,11 @@ namespace CubeHack.Client
             var offset = (gameClient.PositionData.Position - new Position()) + new Offset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
             int displayListCount = 0;
+            int chunkUpdates = 0;
 
             for (int x = chunkX - 5; x <= chunkX + 5; ++x)
             {
-                for (int y = chunkY - 3; y <= chunkY + 3; ++y)
+                for (int y = chunkY -3; y <= chunkY + 3; ++y)
                 {
                     for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
@@ -122,8 +124,10 @@ namespace CubeHack.Client
                             var entry = _displayLists[x, y, z];
                             int displayList = entry == null ? 0 : entry.Item2;
 
-                            if (displayList == 0 || entry.Item1 != chunk.ContentHash)
+                            if ((displayList == 0 || entry.Item1 != chunk.ContentHash) && chunkUpdates < _maxChunkUpdatesPerFrame)
                             {
+                                ++chunkUpdates;
+
                                 if (displayList == 0)
                                 {
                                     displayList = GL.GenLists(1);
@@ -136,21 +140,27 @@ namespace CubeHack.Client
                                 _displayLists[x, y, z] = Tuple.Create(chunk.ContentHash, displayList);
                             }
 
-                            if (displayListCount == _displayListsToRender.Length)
+                            if (displayList != 0)
                             {
-                                var newArray = new int[_displayListsToRender.Length * 2];
-                                Array.Copy(_displayListsToRender, newArray, _displayListsToRender.Length);
-                                _displayListsToRender = newArray;
-                            }
+                                if (displayListCount == _displayListsToRender.Length)
+                                {
+                                    var newArray = new int[_displayListsToRender.Length * 2];
+                                    Array.Copy(_displayListsToRender, newArray, _displayListsToRender.Length);
+                                    _displayListsToRender = newArray;
+                                }
 
-                            _displayListsToRender[displayListCount] = displayList;
-                            ++displayListCount;
+                                _displayListsToRender[displayListCount] = displayList;
+                                ++displayListCount;
+                            }
                         }
                     }
                 }
             }
 
-            GL.CallLists(displayListCount, ListNameType.Int, _displayListsToRender);
+            if (displayListCount > 0)
+            {
+                GL.CallLists(displayListCount, ListNameType.Int, _displayListsToRender);
+            }
 
             GL.UseProgram(0);
         }
