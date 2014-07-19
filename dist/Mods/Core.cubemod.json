@@ -8,7 +8,7 @@
   "PhysicsValues": {
     "Gravity": 30.0,
     "PlayerMovementSpeed": 9.0,
-    "PlayerWidth": 1.5,
+    "PlayerWidth": 1.2,
     "PlayerHeight": 2.7,
     "PlayerEyeHeight": 2.5,
     "PlayerJumpHeight": 2.2,
