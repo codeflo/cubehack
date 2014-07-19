@@ -111,55 +111,45 @@ namespace CubeHack.Game
 
             var position = positionData.CollisionPosition;
 
-            if (world[position.CubeX, position.CubeY - 1, position.CubeZ] == 0 && world[position.CubeX, position.CubeY - 2, position.CubeZ] != 0)
+            double yOffset = 0;
+
+            double radius = 0.5 - Offset.Epsilon;
+            Position p;
+
+            double weight = 0;
+            for (int x = -8; x <= 8; ++x)
             {
-                position.Y -= 1L << 32;
+                for (int z = -8; z <= 8; ++z)
+                {
+                    p = position + new Offset(radius * 0.25 * x, 0, radius * 0.25 * z);
+
+                    double w = (x >= -4 && x <= 4 && z >= -4 && z <= 4) ? 1 : 0.5;
+                    yOffset += w * GetWeightedOffset(world, p);
+                    weight += w;
+                }
             }
 
-            long yd = 0;
+            yOffset /= weight;
 
-            if (!IsAllowed(physicsValues, world, position + new Offset(1, 0, 0)) && IsAllowed(physicsValues, world, position + new Offset(1, 1, 0)))
-            {
-                yd = position.X & 0xffffffffL;
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(1, 0, 1)) && IsAllowed(physicsValues, world, position + new Offset(1, 1, 1)))
-            {
-                yd = MaxMin(yd, position.X & 0xffffffffL, position.Z & 0xffffffffL);
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(0, 0, 1)) && IsAllowed(physicsValues, world, position + new Offset(0, 1, 1)))
-            {
-                yd = Math.Max(yd, position.Z & 0xffffffffL);
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(-1, 0, 1)) && IsAllowed(physicsValues, world, position + new Offset(-1, 1, 1)))
-            {
-                yd = MaxMin(yd, (1L << 32) - (position.X & 0xffffffffL), position.Z & 0xffffffffL);
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(-1, 0, 0)) && IsAllowed(physicsValues, world, position + new Offset(-1, 1, 0)))
-            {
-                yd = Math.Max(yd, (1L << 32) - (position.X & 0xffffffffL));
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(-1, 0, -1)) && IsAllowed(physicsValues, world, position + new Offset(-1, 1, -1)))
-            {
-                yd = MaxMin(yd, (1L << 32) - (position.X & 0xffffffffL), (1L << 32) - (position.Z & 0xffffffffL));
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(0, 0, -1)) && IsAllowed(physicsValues, world, position + new Offset(0, 1, -1)))
-            {
-                yd = Math.Max(yd, (1L << 32) - (position.Z & 0xffffffffL));
-            }
-
-            if (!IsAllowed(physicsValues, world, position + new Offset(1, 0, -1)) && IsAllowed(physicsValues, world, position + new Offset(1, 1, -1)))
-            {
-                yd = MaxMin(yd, position.X & 0xffffffffL, (1L << 32) - (position.Z & 0xffffffffL));
-            }
-
-            position.Y += yd;
+            position += new Offset(0, -yOffset, 0);
             positionData.Position = position;
+        }
+
+        private static double GetWeightedOffset(World world, Position p)
+        {
+            if (world[p.CubeX, p.CubeY - 1, p.CubeZ] == 0)
+            {
+                if (world[p.CubeX, p.CubeY - 2, p.CubeZ] == 0)
+                {
+                    return 2;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
         }
 
         static long MaxMin(long a, long b, long c)
