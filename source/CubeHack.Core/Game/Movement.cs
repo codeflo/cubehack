@@ -141,7 +141,10 @@ namespace CubeHack.Game
             {
                 if (world[p.CubeX, p.CubeY - 2, p.CubeZ] == 0)
                 {
-                    return 2;
+                    if (world[p.CubeX, p.CubeY - 3, p.CubeZ] != 0)
+                    {
+                        return 2;
+                    }
                 }
                 else
                 {
