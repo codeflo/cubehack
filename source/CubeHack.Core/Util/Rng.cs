@@ -15,6 +15,10 @@ namespace CubeHack.Util
 
         static Random _random = new Random();
 
+        /// <summary>
+        /// Generates a random number with an exponential distribution and expected value 1.
+        /// </summary>
+        /// <returns>A random number with an exponential distribution.</returns>
         public static double NextExp()
         {
             return -Math.Log(_random.NextDouble());

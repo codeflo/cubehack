@@ -15,7 +15,11 @@ namespace CubeHack.Game
     {
         public static void Control(PhysicsValues physicsValues, double elapsedTime, Entity entity)
         {
-            if (elapsedTime > 1.0 * Rng.NextExp())
+            if (elapsedTime >= 10.0 * Rng.NextExp())
+            {
+                entity.PositionData.HAngle = Rng.NextFloat() * 360f;
+            }
+            else if (elapsedTime > 1.0 * Rng.NextExp())
             {
                 entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
             }
