@@ -108,9 +108,9 @@ namespace CubeHack.Client
             int displayListCount = 0;
             int chunkUpdates = 0;
 
-            for (int x = chunkX - 5; x <= chunkX + 5; ++x)
+            for (int y = chunkY + 3; y >= chunkY - 3; --y)
             {
-                for (int y = chunkY - 3; y <= chunkY + 3; ++y)
+                for (int x = chunkX - 5; x <= chunkX + 5; ++x)
                 {
                     for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
