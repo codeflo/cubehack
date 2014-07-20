@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Data;
+using CubeHack.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +13,11 @@ namespace CubeHack.Game
 {
     static class Movement
     {
-        static readonly Random _random = new Random();
-
         public static void Respawn(PositionData positionData)
         {
             positionData.VAngle = 0;
-            positionData.HAngle = (float)(_random.NextDouble() * 360);
-            positionData.Position = new Position() + new Offset((_random.NextDouble() * 2 - 1) * 32, 0, (_random.NextDouble() * 2 - 1) * 32);
+            positionData.HAngle = (float)(Rng.NextDouble() * 360);
+            positionData.Position = new Position() + new Offset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32);
             positionData.CollisionPosition = positionData.Position;
         }
 

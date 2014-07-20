@@ -2,6 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Data;
+using CubeHack.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,7 +17,6 @@ namespace CubeHack.Client
     {
         public const int TextureSize = TextureAtlas.TextureSize;
 
-        private static readonly Random _random = new Random();
         private static readonly NoiseCube _noiseCube = new NoiseCube();
 
         public static void DrawTexture(BitmapData bitmapData, Texture texture, int offsetX, int offsetY)
@@ -112,7 +112,7 @@ namespace CubeHack.Client
                 {
                     for (int y = 0; y < noiseSize; ++y)
                     {
-                        _data[x, y] = 2 * _random.NextDouble() - 1;
+                        _data[x, y] = 2 * Rng.NextDouble() - 1;
                         avg += _data[x, y];
                     }
                 }

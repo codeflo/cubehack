@@ -20,8 +20,6 @@ namespace CubeHack.Game
 
         readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
-        static readonly Random _random = new Random();
-
         double _miningTime = 0;
         double _placementCooldown = 0;
 

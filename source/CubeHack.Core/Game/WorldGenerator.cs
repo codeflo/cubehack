@@ -12,7 +12,6 @@ namespace CubeHack.Game
     public class WorldGenerator
     {
         private readonly World _world;
-        private readonly Random _random = new Random();
 
         public WorldGenerator(World world)
         {
