@@ -5,33 +5,25 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
-    public class DictionaryItem : Item
+    public class ListItem : Item
     {
         private readonly Type _valueType;
 
         private ObservableCollection<Entry> _entries;
 
-        public DictionaryItem(Type valueType)
+        public ListItem(Type valueType)
         {
             _valueType = valueType;
-            SharedSizeGroupName = "x_" + Guid.NewGuid().ToString().Replace('-', '_');
             Entries = new ObservableCollection<Entry>();
             AddEntryCommand = new Command(AddEntry);
             IsExpanded = true;
         }
 
         public ICommand AddEntryCommand
-        {
-            get;
-            private set;
-        }
-
-        public string SharedSizeGroupName
         {
             get;
             private set;
@@ -52,18 +44,11 @@ namespace CubeHack.DataModel
 
         public override JToken Save()
         {
-            var sortedEntries = new ObservableCollection<Entry>(Entries.OrderBy(e => e.Name));
-            if (Entries.Zip(sortedEntries, (e1, e2) => e1.Name == e2.Name).Any(b => !b))
-            {
-                // List is not ordered.
-                Entries = sortedEntries;
-            }
-
-            var output = new JObject();
+            var output = new JArray();
 
             foreach (var entry in Entries)
             {
-                output[entry.Name] = entry.Value.Save();
+                output.Add(entry.Value.Save());
             }
 
             return output;
@@ -71,7 +56,7 @@ namespace CubeHack.DataModel
 
         public override void Load(JToken data)
         {
-            JObject o = data as JObject;
+            JArray o = data as JArray;
             if (o == null)
             {
                 return;
@@ -80,8 +65,8 @@ namespace CubeHack.DataModel
             foreach (var entry in o)
             {
                 var item = Item.Create(_valueType);
-                item.Load(entry.Value);
-                Entries.Add(new Entry(this) { Name = entry.Key, Value = item });
+                item.Load(entry);
+                Entries.Add(new Entry(this) { Value = item });
             }
 
             IsExpanded = Entries.Count <= ExpansionLimit;
@@ -89,28 +74,26 @@ namespace CubeHack.DataModel
 
         public override object GetObject()
         {
-            dynamic instance = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(string), _valueType));
+            System.Collections.IList instance = (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(_valueType));
             foreach (var entry in Entries)
             {
-                instance.Add(entry.Name, (dynamic)entry.Value.GetObject());
+                instance.Add(entry.Value.GetObject());
             }
             return instance;
         }
 
         private void AddEntry()
         {
-            Entries.Add(new Entry(this) { Name = "New entry", Value = Item.Create(_valueType) });
+            Entries.Add(new Entry(this) { Value = Item.Create(_valueType) });
         }
 
         public class Entry : NotifyPropertyChanged
         {
-            private DictionaryItem _parent;
-
-            private string _name;
+            private ListItem _parent;
 
             private Item _value;
 
-            public Entry(DictionaryItem parent)
+            public Entry(ListItem parent)
             {
                 _parent = parent;
                 RemoveCommand = new Command(Remove);
@@ -122,24 +105,10 @@ namespace CubeHack.DataModel
                 private set;
             }
 
-            public string Name
-            {
-                get { return _name; }
-                set { SetAndNotify(ref _name, value); }
-            }
-
             public Item Value
             {
                 get { return _value; }
                 set { SetAndNotify(ref _value, value); }
-            }
-
-            public string SharedSizeGroupName
-            {
-                get
-                {
-                    return _parent.SharedSizeGroupName;
-                }
             }
 
             private void Remove()

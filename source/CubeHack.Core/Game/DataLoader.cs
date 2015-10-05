@@ -17,7 +17,7 @@ namespace CubeHack.Game
 
         public static Mod LoadMod(string name)
         {
-            var modItem = CubeHack.DataModel.Item.Create(typeof(Mod));
+            var modItem = CubeHack.EditorModel.Item.Create(typeof(Mod));
             string s = File.ReadAllText(Path.Combine(modDir, name + ".cubemod.json"), Encoding.UTF8);
             var json = JToken.Parse(s);
             modItem.Load(json);

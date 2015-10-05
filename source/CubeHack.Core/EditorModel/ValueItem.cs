@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json.Linq;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
     public abstract class ValueItem<T> : Item
     {

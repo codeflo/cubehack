@@ -4,7 +4,7 @@
 using System;
 using System.Windows.Input;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
     public class Command : ICommand
     {

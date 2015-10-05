@@ -6,7 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
     public class ObjectItem : Item
     {

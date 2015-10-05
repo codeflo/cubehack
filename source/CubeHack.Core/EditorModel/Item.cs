@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
     public abstract class Item : NotifyPropertyChanged
     {

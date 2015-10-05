@@ -36,16 +36,16 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataModel\Command.cs" />
-    <Compile Include="DataModel\DictionaryItem.cs" />
-    <Compile Include="DataModel\DoubleItem.cs" />
-    <Compile Include="DataModel\FloatItem.cs" />
-    <Compile Include="DataModel\Item.cs" />
-    <Compile Include="DataModel\ListItem.cs" />
-    <Compile Include="DataModel\NotifyPropertyChanged.cs" />
-    <Compile Include="DataModel\ObjectItem.cs" />
-    <Compile Include="DataModel\StringItem.cs" />
-    <Compile Include="DataModel\ValueItem.cs" />
+    <Compile Include="EditorModel\Command.cs" />
+    <Compile Include="EditorModel\DictionaryItem.cs" />
+    <Compile Include="EditorModel\DoubleItem.cs" />
+    <Compile Include="EditorModel\FloatItem.cs" />
+    <Compile Include="EditorModel\Item.cs" />
+    <Compile Include="EditorModel\ListItem.cs" />
+    <Compile Include="EditorModel\NotifyPropertyChanged.cs" />
+    <Compile Include="EditorModel\ObjectItem.cs" />
+    <Compile Include="EditorModel\StringItem.cs" />
+    <Compile Include="EditorModel\ValueItem.cs" />
     <Compile Include="Data\Color.cs" />
     <Compile Include="Data\EditorDataAttribute.cs" />
     <Compile Include="Data\Material.cs" />

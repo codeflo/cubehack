@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace CubeHack.DataModel
+namespace CubeHack.EditorModel
 {
     public abstract class NotifyPropertyChanged : INotifyPropertyChanged
     {
