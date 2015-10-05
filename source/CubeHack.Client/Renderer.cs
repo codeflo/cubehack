@@ -29,7 +29,6 @@ namespace CubeHack.Client
 
         public static void Render(AbstractGameClient gameClient, int width, int height)
         {
-            GL.Viewport(0, 0, width, height);
             GL.ClearColor(0.5f, 0.6f, 0.9f, 1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);

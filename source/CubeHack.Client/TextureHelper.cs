@@ -5,48 +5,75 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
     internal static class TextureHelper
     {
-        public static void DrawTexture(int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
+        public static async Task DrawTextureAsync(int textureId, int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
         {
-            using (var bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (var computedBitmap = await Task.Run(() => new ComputedBitmap(width, height, drawAction, bitmapAction)))
             {
+                GL.BindTexture(TextureTarget.Texture2D, textureId);
+                GL.TexImage2D(
+                        TextureTarget.Texture2D,
+                        0,
+                        PixelInternalFormat.Rgba,
+                        computedBitmap.BitmapData.Width,
+                        computedBitmap.BitmapData.Height,
+                        0,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                        PixelType.UnsignedByte,
+                        computedBitmap.BitmapData.Scan0);
+            }
+
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+        }
+
+        private class ComputedBitmap : IDisposable
+        {
+            private readonly Bitmap _bitmap;
+            private readonly BitmapData _bitmapData;
+
+            public ComputedBitmap(int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
+            {
+                _bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
                 if (drawAction != null)
                 {
-                    using (var graphics = Graphics.FromImage(bitmap))
+                    using (var graphics = Graphics.FromImage(_bitmap))
                     {
                         drawAction(graphics);
                     }
                 }
 
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                _bitmapData = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                if (bitmapAction != null)
+                {
+                    bitmapAction(_bitmapData);
+                }
+            }
+
+            public BitmapData BitmapData
+            {
+                get
+                {
+                    return _bitmapData;
+                }
+            }
+
+            public void Dispose()
+            {
                 try
                 {
-                    if (bitmapAction != null)
-                    {
-                        bitmapAction(bitmapData);
-                    }
-
-                    GL.TexImage2D(
-                        TextureTarget.Texture2D,
-                        0,
-                        PixelInternalFormat.Rgba,
-                        bitmapData.Width,
-                        bitmapData.Height,
-                        0,
-                        OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-                        PixelType.UnsignedByte,
-                        bitmapData.Scan0);
+                    _bitmap.UnlockBits(_bitmapData);
                 }
                 finally
                 {
-                    bitmap.UnlockBits(bitmapData);
+                    _bitmap.Dispose();
                 }
-
-                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             }
         }
     }

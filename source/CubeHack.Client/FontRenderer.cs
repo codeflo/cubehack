@@ -11,12 +11,14 @@ namespace CubeHack.Client
     {
         private static readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
 
+        private static bool _isInitializing;
         private static bool _isInitialized;
         private static int _fontTextureId;
 
         public static void Draw(float x, float y, float width, float height, string text)
         {
             Initialize();
+            if (!_isInitialized) return;
 
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
@@ -68,10 +70,10 @@ namespace CubeHack.Client
             return e;
         }
 
-        private static void Initialize()
+        private static async void Initialize()
         {
-            if (_isInitialized) return;
-            _isInitialized = true;
+            if (_isInitialized || _isInitializing) return;
+            _isInitializing = true;
 
             _fontTextureId = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, _fontTextureId);
@@ -84,7 +86,8 @@ namespace CubeHack.Client
             float currentX = 0;
             float currentY = 0;
 
-            TextureHelper.DrawTexture(
+            await TextureHelper.DrawTextureAsync(
+                _fontTextureId,
                 bitmapWidth,
                 bitmapHeight,
                 graphics =>
@@ -136,6 +139,9 @@ namespace CubeHack.Client
                     }
                 },
                 null);
+
+            _isInitialized = true;
+            _isInitializing = false;
         }
 
         private static IEnumerable<char> GetPrintableChars()

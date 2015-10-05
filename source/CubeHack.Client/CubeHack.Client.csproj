@@ -48,8 +48,10 @@
   <ItemGroup>
     <Compile Include="FontRenderer.cs" />
     <Compile Include="GameClient.cs" />
+    <Compile Include="GameLoop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Renderer.cs" />
+    <Compile Include="RenderInfo.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="TextureAtlas.cs" />
     <Compile Include="TextureGenerator.cs" />

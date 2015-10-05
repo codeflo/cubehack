@@ -1,0 +1,270 @@
+﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
+// Licensed under a BSD 2-clause license, see LICENSE.txt for details.
+
+using OpenTK;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+namespace CubeHack.Client
+{
+    /// <summary>
+    /// <para>
+    /// Implements a single-threaded UI/rendering event queue (similar to the Dispatcher class in WPF), which
+    /// acts as a SynchronizationContext for async/await.
+    /// </para>
+    /// <para>
+    /// OpenGL and all window event handling need to be run from a single main thread, but using async/await,
+    /// we can offload expensive things to worker threads. This allows us to render and react to user events
+    /// while connecting to the server, loading data, etc.
+    /// </para>
+    /// </summary>
+    internal static class GameLoop
+    {
+        private static readonly object _mutex = new object();
+        private static readonly Queue<QueuedAction> _queuedActions = new Queue<QueuedAction>();
+        private static Thread _loopThread;
+        private static bool _shouldQuit;
+        private static bool _wasStarted;
+
+        /// <summary>
+        /// Raised when the next frame should be rendered.
+        /// </summary>
+        public static event Action<RenderInfo> RenderFrame;
+
+        /// <summary>
+        /// Quits the game loop. This call always terminates with a GameLoopExitException.
+        /// </summary>
+        public static void Quit()
+        {
+            lock (_mutex)
+            {
+                _shouldQuit = true;
+            }
+
+            throw new GameLoopExitException();
+        }
+
+        /// <summary>
+        /// Adds a new action to the end of the event queue, to be run asynchronously.
+        /// </summary>
+        /// <param name="action">The action to enqueue.</param>
+        public static void Post(Action action)
+        {
+            if (action == null) return;
+            PostInternal(new QueuedAction(action));
+        }
+
+        /// <summary>
+        /// Runs the game loop, until the window receives a quit event or GameLoop.Quit() is called.
+        /// </summary>
+        /// <param name="window">The window for which to run the game loop.</param>
+        public static void Run(GameWindow window)
+        {
+            lock (_mutex)
+            {
+                if (_wasStarted) throw new InvalidOperationException();
+                _wasStarted = true;
+                _loopThread = Thread.CurrentThread;
+            }
+
+            var oldSynchronizationContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(new GameSynchronizationContext());
+            try
+            {
+                while (true)
+                {
+                    ProcessWindowEvents(window);
+                    RenderFrame?.Invoke(new RenderInfo { Width = window.Width, Height = window.Height });
+                    ProcessWindowEvents(window);
+                    window.SwapBuffers();
+                }
+            }
+            catch (GameLoopExitException)
+            {
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(oldSynchronizationContext);
+
+                List<QueuedAction> actionsToAbort;
+                lock (_mutex)
+                {
+                    _loopThread = null;
+                    _shouldQuit = true;
+                    actionsToAbort = new List<QueuedAction>(_queuedActions);
+                    _queuedActions.Clear();
+                }
+
+                foreach (var queuedAction in actionsToAbort)
+                {
+                    queuedAction.Abort();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds a new action to the end of the event queue, and waits until the action is processed.
+        /// </summary>
+        /// <param name="action">The action to enqueue.</param>
+        public static void Send(Action action)
+        {
+            SendInternal(new QueuedAction(action));
+        }
+
+        private static void PostInternal(QueuedAction queuedAction)
+        {
+            lock (_mutex)
+            {
+                if (_shouldQuit) throw new GameLoopExitException();
+                _queuedActions.Enqueue(queuedAction);
+            }
+        }
+
+        private static void ProcessWindowEvents(GameWindow window)
+        {
+            if (window.IsExiting) throw new GameLoopExitException();
+            window.ProcessEvents();
+            while (!window.IsExiting && ProcessSingleQueuedAction()) ;
+            if (window.IsExiting) throw new GameLoopExitException();
+        }
+
+        private static bool ProcessSingleQueuedAction()
+        {
+            QueuedAction nextAction;
+            lock (_mutex)
+            {
+                if (_shouldQuit) throw new GameLoopExitException();
+                if (_queuedActions.Count == 0) return false;
+                nextAction = _queuedActions.Dequeue();
+            }
+
+            nextAction.Execute();
+            return true;
+        }
+
+        private static void SendInternal(QueuedAction queuedAction)
+        {
+            ManualResetEventSlim completedEvent = null;
+
+            try
+            {
+                lock (_mutex)
+                {
+                    if (_shouldQuit) throw new GameLoopExitException();
+
+                    if (Thread.CurrentThread != _loopThread)
+                    {
+                        /* If we come from a different thread, create an event so that we can be notified. */
+                        completedEvent = new ManualResetEventSlim();
+                        queuedAction.SetCompletedEvent(completedEvent);
+                    }
+
+                    _queuedActions.Enqueue(queuedAction);
+                }
+
+                if (completedEvent != null)
+                {
+                    /* We come from a different thread. Wait for the event to be processed. */
+                    completedEvent.Wait();
+                }
+                else
+                {
+                    /* We are in the main thread. Process queued actions until our action is finished. */
+                    while (ProcessSingleQueuedAction() && !queuedAction.IsCompleted) ;
+                }
+
+                /* Exceptions should bubble up to the caller. */
+                queuedAction.ThrowIfNotSuccessful();
+            }
+            finally
+            {
+                if (completedEvent != null) completedEvent.Dispose();
+            }
+        }
+
+        private class GameLoopExitException : Exception
+        {
+        }
+
+        private class GameSynchronizationContext : SynchronizationContext
+        {
+            public override void Post(SendOrPostCallback d, object state)
+            {
+                if (d == null) return;
+                PostInternal(new QueuedAction(d, state));
+            }
+
+            public override void Send(SendOrPostCallback d, object state)
+            {
+                SendInternal(new QueuedAction(d, state));
+            }
+        }
+
+        private class QueuedAction
+        {
+            private readonly Action _action;
+            private readonly SendOrPostCallback _callback;
+            private readonly object _state;
+            private volatile ManualResetEventSlim _completedEvent;
+            private volatile Exception _exception;
+            private volatile bool _isCompleted;
+
+            public QueuedAction(Action action)
+            {
+                _action = action;
+            }
+
+            public QueuedAction(SendOrPostCallback callback, object state)
+            {
+                _callback = callback;
+                _state = state;
+            }
+
+            public bool IsCompleted { get { return !_isCompleted; } }
+
+            public void Abort()
+            {
+                _exception = new OperationCanceledException();
+                _isCompleted = true;
+                if (_completedEvent != null) _completedEvent.Set();
+            }
+
+            public void ThrowIfNotSuccessful()
+            {
+                if (!_isCompleted) throw new InvalidOperationException();
+                if (_exception != null) throw _exception;
+            }
+
+            public void Execute()
+            {
+                try
+                {
+                    if (_action != null)
+                    {
+                        _action();
+                    }
+                    else if (_callback != null)
+                    {
+                        _callback(_state);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _exception = ex;
+                    throw;
+                }
+                finally
+                {
+                    _isCompleted = true;
+                    if (_completedEvent != null) _completedEvent.Set();
+                }
+            }
+
+            public void SetCompletedEvent(ManualResetEventSlim completedEvent)
+            {
+                _completedEvent = completedEvent;
+            }
+        }
+    }
+}

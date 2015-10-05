@@ -4,6 +4,7 @@
 using CubeHack.Data;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
@@ -53,7 +54,7 @@ namespace CubeHack.Client
             return index;
         }
 
-        public static void Build()
+        public static async Task BuildAsync()
         {
             Bind();
 
@@ -64,7 +65,8 @@ namespace CubeHack.Client
             float tf = 1f / _size;
             float to = 1f / (_size * TextureSize);
 
-            TextureHelper.DrawTexture(
+            await TextureHelper.DrawTextureAsync(
+                _textureId,
                 _size * TextureSize,
                 _size * TextureSize,
                 null,

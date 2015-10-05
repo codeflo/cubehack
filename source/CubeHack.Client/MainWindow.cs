@@ -4,6 +4,7 @@
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System.Linq;
 
 namespace CubeHack.Client
@@ -13,8 +14,7 @@ namespace CubeHack.Client
         private GameWindow _gameWindow;
         private GameClient _gameClient;
 
-        private volatile bool _willQuit = false;
-        private bool _mouseLookActive = false;
+        private bool _mouseLookActive = true;
 
         public void Run(string host)
         {
@@ -49,26 +49,9 @@ namespace CubeHack.Client
                     new TcpServer(universe);
                 }
 
-                var channel = new TcpChannel(host, TcpConstants.Port);
-                channel.ConnectAsync().Wait();
-
-                _gameClient = new GameClient(channel);
-
-                foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
-                {
-                    TextureAtlas.Register(texture);
-                }
-
-                TextureAtlas.Build();
-
-                while (true)
-                {
-                    if (ProcessEvents()) break;
-                    Render();
-
-                    if (ProcessEvents()) break;
-                    _gameWindow.SwapBuffers();
-                }
+                GameLoop.Post(() => Connect(host));
+                GameLoop.RenderFrame += RenderFrame;
+                GameLoop.Run(_gameWindow);
             }
             finally
             {
@@ -89,23 +72,27 @@ namespace CubeHack.Client
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool GetCursorPos(out System.Drawing.Point point);
 
-        private bool ProcessEvents()
+        private async void Connect(string host)
         {
-            if (_willQuit) return true;
+            var channel = new TcpChannel(host, TcpConstants.Port);
+            await channel.ConnectAsync();
+            var gameClient = new GameClient(channel);
 
-            if (_gameWindow != null)
+            foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
             {
-                _gameWindow.ProcessEvents();
+                TextureAtlas.Register(texture);
             }
 
-            return _gameWindow == null || _gameWindow.IsExiting;
+            await TextureAtlas.BuildAsync();
+
+            _gameClient = gameClient;
         }
 
         private void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             if (e.Key == OpenTK.Input.Key.F10)
             {
-                _willQuit = true;
+                GameLoop.Quit();
             }
 
             if (e.Key == OpenTK.Input.Key.Escape)
@@ -127,7 +114,7 @@ namespace CubeHack.Client
 
         private void UpdateMouse()
         {
-            if (_mouseLookActive && _gameWindow.Focused)
+            if (_mouseLookActive && _gameWindow.Focused && _gameClient != null)
             {
                 var center = _gameWindow.PointToScreen(new System.Drawing.Point(_gameWindow.Width / 2, _gameWindow.Height / 2));
 
@@ -157,18 +144,24 @@ namespace CubeHack.Client
             }
         }
 
-        private void Render()
+        private void RenderFrame(RenderInfo renderInfo)
         {
+            UpdateMouse();
+            GL.Viewport(0, 0, renderInfo.Width, renderInfo.Height);
+
             if (_gameClient != null)
             {
                 using (_gameClient.TakeRenderLock())
                 {
-                    UpdateMouse();
                     _gameClient.UpdateState(_gameWindow.Focused);
 
-                    Renderer.Render(_gameClient, _gameWindow.Width, _gameWindow.Height);
-                    UiRenderer.Render(_gameWindow.Width, _gameWindow.Height, _mouseLookActive);
+                    Renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
+                    UiRenderer.Render(renderInfo.Width, renderInfo.Height, _mouseLookActive, null);
                 }
+            }
+            else
+            {
+                UiRenderer.Render(renderInfo.Width, renderInfo.Height, false, "Connecting...");
             }
         }
     }
