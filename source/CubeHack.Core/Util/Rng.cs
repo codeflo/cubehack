@@ -2,10 +2,6 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Util
 {
@@ -13,7 +9,7 @@ namespace CubeHack.Util
     {
         // TODO: Replace this with a more robust RNG, something like Mersenne Twister perhaps?
 
-        static Random _random = new Random();
+        private static Random _random = new Random();
 
         /// <summary>
         /// Generates a random number with an exponential distribution and expected value 1.

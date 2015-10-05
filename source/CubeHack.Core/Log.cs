@@ -3,16 +3,13 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CubeHack
 {
-    static class Log
+    internal static class Log
     {
         private static BlockingCollection<Tuple<DateTime, string>> _queue = new BlockingCollection<Tuple<DateTime, string>>();
 

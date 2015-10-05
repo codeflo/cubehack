@@ -148,7 +148,6 @@
                                         </StackPanel>
                                     </Expander>
                                 </DataTemplate>
-
                             </ContentControl.Resources>
                         </ContentControl>
                     </ControlTemplate>

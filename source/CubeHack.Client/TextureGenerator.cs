@@ -4,16 +4,12 @@
 using CubeHack.Data;
 using CubeHack.Util;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class TextureGenerator
+    internal static class TextureGenerator
     {
         public const int TextureSize = TextureAtlas.TextureSize;
 
@@ -56,7 +52,7 @@ namespace CubeHack.Client
             }
         }
 
-        static void SetPixel(BitmapData bitmapData, int offsetX, int offsetY, int x, int y, float r, float g, float b)
+        private static void SetPixel(BitmapData bitmapData, int offsetX, int offsetY, int x, int y, float r, float g, float b)
         {
             var ptr = bitmapData.Scan0 + (y + offsetY) * bitmapData.Stride + (x + offsetX) * 4;
             uint v = GetColorValue(NormalizeColor(r), NormalizeColor(g), NormalizeColor(b), 1.0f);
@@ -72,12 +68,12 @@ namespace CubeHack.Client
             return r > 1 ? 1 : (r < 0 ? 0 : r);
         }
 
-        static uint GetColorValue(float r, float g, float b, float a)
+        private static uint GetColorValue(float r, float g, float b, float a)
         {
             return GetByte(b) | (GetByte(g) << 8) | (GetByte(r) << 16) | (GetByte(a) << 24);
         }
 
-        static uint GetByte(float v)
+        private static uint GetByte(float v)
         {
             if (v < 0) v = 0;
             uint i = (uint)(v * 255);
@@ -85,7 +81,7 @@ namespace CubeHack.Client
             return i;
         }
 
-        static Brush BrushFromColor(CubeHack.Data.Color c)
+        private static Brush BrushFromColor(CubeHack.Data.Color c)
         {
             return new SolidBrush(System.Drawing.Color.FromArgb(
                 IntFromFloatColor(c.R),
@@ -93,16 +89,16 @@ namespace CubeHack.Client
                 IntFromFloatColor(c.B)));
         }
 
-        static int IntFromFloatColor(float v)
+        private static int IntFromFloatColor(float v)
         {
             return (int)(v * 255f);
         }
 
-        class NoiseCube
+        private class NoiseCube
         {
-            const int noiseSize = 64;
-            const double noiseFactor = 1.0 / noiseSize;
-            double[,] _data = new double[noiseSize, noiseSize];
+            private const int noiseSize = 64;
+            private const double noiseFactor = 1.0 / noiseSize;
+            private double[,] _data = new double[noiseSize, noiseSize];
 
             public NoiseCube()
             {

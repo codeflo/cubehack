@@ -4,22 +4,17 @@
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    sealed class MainWindow
+    internal sealed class MainWindow
     {
-        GameWindow _gameWindow;
-        GameClient _gameClient;
+        private GameWindow _gameWindow;
+        private GameClient _gameClient;
 
-        volatile bool _willQuit = false;
-        bool _mouseLookActive = false;
+        private volatile bool _willQuit = false;
+        private bool _mouseLookActive = false;
 
         public void Run(string host)
         {
@@ -86,7 +81,14 @@ namespace CubeHack.Client
             }
         }
 
-        bool ProcessEvents()
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(out System.Drawing.Point point);
+
+        private bool ProcessEvents()
         {
             if (_willQuit) return true;
 
@@ -98,7 +100,7 @@ namespace CubeHack.Client
             return _gameWindow == null || _gameWindow.IsExiting;
         }
 
-        void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        private void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             if (e.Key == OpenTK.Input.Key.F10)
             {
@@ -111,7 +113,7 @@ namespace CubeHack.Client
             }
         }
 
-        void OnMouseButtonDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        private void OnMouseButtonDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
         {
             if (e.Button == OpenTK.Input.MouseButton.Left)
             {
@@ -122,7 +124,7 @@ namespace CubeHack.Client
             }
         }
 
-        void UpdateMouse()
+        private void UpdateMouse()
         {
             if (_mouseLookActive && _gameWindow.Focused)
             {
@@ -154,7 +156,7 @@ namespace CubeHack.Client
             }
         }
 
-        void Render()
+        private void Render()
         {
             if (_gameClient != null)
             {
@@ -168,12 +170,5 @@ namespace CubeHack.Client
                 }
             }
         }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern bool SetCursorPos(int x, int y);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        static extern bool GetCursorPos(out System.Drawing.Point point);
     }
 }

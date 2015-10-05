@@ -2,22 +2,17 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class FontRenderer
+    internal static class FontRenderer
     {
-        static readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
+        private static readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
 
-        static bool _isInitialized;
-        static int _fontTextureId;
+        private static bool _isInitialized;
+        private static int _fontTextureId;
 
         public static void Draw(float x, float y, float width, float height, string text)
         {
@@ -62,7 +57,7 @@ namespace CubeHack.Client
             GL.Disable(EnableCap.Texture2D);
         }
 
-        static CharEntry GetCharEntry(char c)
+        private static CharEntry GetCharEntry(char c)
         {
             CharEntry e;
             if (!_charEntries.TryGetValue(c, out e))
@@ -73,7 +68,7 @@ namespace CubeHack.Client
             return e;
         }
 
-        static void Initialize()
+        private static void Initialize()
         {
             if (_isInitialized) return;
             _isInitialized = true;
@@ -143,7 +138,7 @@ namespace CubeHack.Client
                 null);
         }
 
-        static IEnumerable<char> GetPrintableChars()
+        private static IEnumerable<char> GetPrintableChars()
         {
             for (int i = 0; i < 65535; ++i)
             {
@@ -156,7 +151,7 @@ namespace CubeHack.Client
             }
         }
 
-        class CharEntry
+        private class CharEntry
         {
             public float X, Y, Width, Height;
         }

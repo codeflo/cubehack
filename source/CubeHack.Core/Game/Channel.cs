@@ -3,17 +3,20 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
     internal sealed class Channel : IChannel
     {
-        readonly Universe _universe;
-        readonly Entity _player;
+        private readonly Universe _universe;
+        private readonly Entity _player;
+
+        private Func<GameEvent, Task> _onGameEventAsync;
+
+        private ConcurrentQueue<PlayerEvent> _playerEvents = new ConcurrentQueue<PlayerEvent>();
+
+        private ConcurrentQueue<GameEvent> _gameEvents = new ConcurrentQueue<GameEvent>();
 
         public Channel(Universe universe, Entity player)
         {
@@ -26,7 +29,6 @@ namespace CubeHack.Game
 
         public Dictionary3D<bool> SentChunks { get; private set; }
 
-        Func<GameEvent, Task> _onGameEventAsync;
         public Func<GameEvent, Task> OnGameEventAsync
         {
             get
@@ -59,15 +61,12 @@ namespace CubeHack.Game
             set;
         }
 
-        private ConcurrentQueue<PlayerEvent> _playerEvents = new ConcurrentQueue<PlayerEvent>();
         public PlayerEvent TakePlayerEvent()
         {
             PlayerEvent ret;
             _playerEvents.TryDequeue(out ret);
             return ret;
         }
-
-        private ConcurrentQueue<GameEvent> _gameEvents = new ConcurrentQueue<GameEvent>();
 
         public async Task SendPlayerEventAsync(PlayerEvent playerEvent)
         {

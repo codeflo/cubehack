@@ -1,21 +1,16 @@
 ﻿// Copyright (c) 2014 the CubeHack authors. All rights reserved.
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Util
 {
     public class PrecisionTimer
     {
-        static readonly float _oneOverTicksPerSecond = 1.0f / (float)Stopwatch.Frequency;
+        private static readonly float _oneOverTicksPerSecond = 1.0f / (float)Stopwatch.Frequency;
 
-        readonly Stopwatch _stopwatch;
-        long _zeroTicks;
+        private readonly Stopwatch _stopwatch;
+        private long _zeroTicks;
 
         public PrecisionTimer()
         {

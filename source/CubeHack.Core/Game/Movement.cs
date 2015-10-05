@@ -4,14 +4,10 @@
 using CubeHack.Data;
 using CubeHack.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
-    static class Movement
+    internal static class Movement
     {
         public static void Respawn(PositionData positionData)
         {
@@ -102,7 +98,7 @@ namespace CubeHack.Game
             SetPositionFromCollisionPosition(physicsValues, world, positionData);
         }
 
-        static void SetPositionFromCollisionPosition(PhysicsValues physicsValues, World world, PositionData positionData)
+        private static void SetPositionFromCollisionPosition(PhysicsValues physicsValues, World world, PositionData positionData)
         {
             if (positionData.IsFalling)
             {
@@ -156,19 +152,19 @@ namespace CubeHack.Game
             return 0;
         }
 
-        static long MaxMin(long a, long b, long c)
+        private static long MaxMin(long a, long b, long c)
         {
             return Math.Max(a, Math.Min(b, c));
         }
 
-        static bool IsAllowed(PhysicsValues physicsValues, World world, Position position)
+        private static bool IsAllowed(PhysicsValues physicsValues, World world, Position position)
         {
             var a = position + new Offset(Offset.Epsilon, 0, Offset.Epsilon);
             var b = position + new Offset(-Offset.Epsilon, physicsValues.PlayerHeight - Offset.Epsilon, -Offset.Epsilon);
             return AllPassable(world, a.CubeX, b.CubeX, a.CubeY, b.CubeY, a.CubeZ, b.CubeZ);
         }
 
-        static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
             Position position = positionData.CollisionPosition;
             long p = position.X;
@@ -184,7 +180,7 @@ namespace CubeHack.Game
             return hasCollided;
         }
 
-        static bool MoveY(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveY(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
             Position position = positionData.CollisionPosition;
             long p = position.Y;
@@ -200,7 +196,7 @@ namespace CubeHack.Game
             return hasCollided;
         }
 
-        static bool MoveZ(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveZ(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
             Position position = positionData.CollisionPosition;
             long p = position.Z;
@@ -216,7 +212,7 @@ namespace CubeHack.Game
             return hasCollided;
         }
 
-        static bool MoveInternal(long startPosition, double radius, double distance, Func<int, bool> isPassable, out long position)
+        private static bool MoveInternal(long startPosition, double radius, double distance, Func<int, bool> isPassable, out long position)
         {
             int sign;
 
@@ -283,7 +279,7 @@ namespace CubeHack.Game
             return false;
         }
 
-        static bool AllPassable(World world, int cx0, int cx1, int cy0, int cy1, int cz0, int cz1)
+        private static bool AllPassable(World world, int cx0, int cx1, int cy0, int cy1, int cz0, int cz1)
         {
             for (int x = cx0; x <= cx1; ++x)
             {

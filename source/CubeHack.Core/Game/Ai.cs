@@ -4,14 +4,10 @@
 using CubeHack.Data;
 using CubeHack.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
-    static class Ai
+    internal static class Ai
     {
         public static void Control(PhysicsValues physicsValues, double elapsedTime, Entity entity)
         {

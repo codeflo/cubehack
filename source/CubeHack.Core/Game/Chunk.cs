@@ -2,11 +2,7 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
@@ -28,8 +24,18 @@ namespace CubeHack.Game
         public ulong ContentHash { get; private set; }
 
         public int ChunkX { get; set; }
+
         public int ChunkY { get; set; }
+
         public int ChunkZ { get; set; }
+
+        public bool HasData
+        {
+            get
+            {
+                return _data != null;
+            }
+        }
 
         public ushort this[int x, int y, int z]
         {
@@ -59,14 +65,6 @@ namespace CubeHack.Game
                     _data[index] = value;
                     _chunkData = null;
                 }
-            }
-        }
-
-        public bool HasData
-        {
-            get
-            {
-                return _data != null;
             }
         }
 

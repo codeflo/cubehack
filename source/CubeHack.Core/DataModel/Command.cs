@@ -2,10 +2,6 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CubeHack.DataModel
@@ -24,14 +20,16 @@ namespace CubeHack.DataModel
             _execute = execute;
         }
 
+#pragma warning disable 0067 // The event is never used
+
+        public event EventHandler CanExecuteChanged;
+
+#pragma warning restore 0067
+
         public bool CanExecute(object parameter)
         {
             return true;
         }
-
-#pragma warning disable 0067 // The event is never used
-        public event EventHandler CanExecuteChanged;
-#pragma warning restore 0067
 
         public void Execute(object parameter)
         {

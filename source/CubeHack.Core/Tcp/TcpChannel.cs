@@ -3,24 +3,23 @@
 
 using CubeHack.Game;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CubeHack.Tcp
 {
     public class TcpChannel : IChannel
     {
-        readonly object _mutex = new object();
-        readonly TcpClient _tcpClient;
-        readonly string _host;
-        readonly int _port;
+        private readonly object _mutex = new object();
+        private readonly TcpClient _tcpClient;
+        private readonly string _host;
+        private readonly int _port;
 
-        Stream _stream;
-        bool _isConnected;
+        private Stream _stream;
+        private bool _isConnected;
+
+        private Func<GameEvent, Task> _onGameEventAsync;
 
         public TcpChannel(string host, int port)
         {
@@ -31,7 +30,6 @@ namespace CubeHack.Tcp
 
         public ModData ModData { get; private set; }
 
-        Func<GameEvent, Task> _onGameEventAsync;
         public Func<GameEvent, Task> OnGameEventAsync
         {
             get
@@ -84,6 +82,11 @@ namespace CubeHack.Tcp
             await _stream.WriteObjectAsync(playerEvent);
         }
 
+        public void Dispose()
+        {
+            _tcpClient.Close();
+        }
+
         private async Task RunChannel()
         {
             try
@@ -109,11 +112,6 @@ namespace CubeHack.Tcp
                 // TODO: Drop to the main menu or something. For now, any disconnect terminates the application.
                 Environment.Exit(0);
             }
-        }
-
-        public void Dispose()
-        {
-            _tcpClient.Close();
         }
     }
 }

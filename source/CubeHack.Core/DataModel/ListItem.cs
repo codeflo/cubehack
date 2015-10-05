@@ -5,16 +5,15 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CubeHack.DataModel
 {
     public class ListItem : Item
     {
-        readonly Type _valueType;
+        private readonly Type _valueType;
+
+        private ObservableCollection<Entry> _entries;
 
         public ListItem(Type valueType)
         {
@@ -30,7 +29,6 @@ namespace CubeHack.DataModel
             private set;
         }
 
-        ObservableCollection<Entry> _entries;
         public ObservableCollection<Entry> Entries
         {
             get
@@ -84,7 +82,7 @@ namespace CubeHack.DataModel
             return instance;
         }
 
-        void AddEntry()
+        private void AddEntry()
         {
             Entries.Add(new Entry(this) { Value = Item.Create(_valueType) });
         }
@@ -92,6 +90,8 @@ namespace CubeHack.DataModel
         public class Entry : NotifyPropertyChanged
         {
             private ListItem _parent;
+
+            private Item _value;
 
             public Entry(ListItem parent)
             {
@@ -105,7 +105,6 @@ namespace CubeHack.DataModel
                 private set;
             }
 
-            private Item _value;
             public Item Value
             {
                 get { return _value; }

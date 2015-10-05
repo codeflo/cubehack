@@ -6,25 +6,23 @@ using CubeHack.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
     public sealed class Universe : IDisposable
     {
-        readonly object _mutex = new object();
+        private readonly object _mutex = new object();
 
-        readonly Mod _mod;
-        readonly ModData _modData;
+        private readonly Mod _mod;
+        private readonly ModData _modData;
 
-        readonly List<Entity> _entities = new List<Entity>();
-        readonly HashSet<Channel> _channels = new HashSet<Channel>();
+        private readonly List<Entity> _entities = new List<Entity>();
+        private readonly HashSet<Channel> _channels = new HashSet<Channel>();
 
-        readonly World _startWorld = new World();
+        private readonly World _startWorld = new World();
 
-        readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+        private readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
         public Universe(Mod mod)
         {
@@ -49,10 +47,10 @@ namespace CubeHack.Game
             for (int i = 0; i < 20; ++i)
             {
                 var e = new Entity()
-                    {
-                        PositionData = new PositionData(),
-                        IsAiControlled = true,
-                    };
+                {
+                    PositionData = new PositionData(),
+                    IsAiControlled = true,
+                };
 
                 Movement.Respawn(e.PositionData);
                 _entities.Add(e);
@@ -97,6 +95,17 @@ namespace CubeHack.Game
 
                 channel.SentCubeUpdates = _cubeUpdates.Count;
                 return channel;
+            }
+        }
+
+        internal void DeregisterChannel(Channel channel)
+        {
+            Log.Info("Player disconnected");
+
+            lock (_mutex)
+            {
+                _entities.Remove(channel.Player);
+                _channels.Remove(channel);
             }
         }
 
@@ -167,17 +176,6 @@ namespace CubeHack.Game
             }
 
             return gameEvent;
-        }
-
-        internal void DeregisterChannel(Channel channel)
-        {
-            Log.Info("Player disconnected");
-
-            lock (_mutex)
-            {
-                _entities.Remove(channel.Player);
-                _channels.Remove(channel);
-            }
         }
 
         private void RunUniverse()

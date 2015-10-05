@@ -6,16 +6,13 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class UiRenderer
+    internal static class UiRenderer
     {
-        static readonly PrecisionTimer _frameTimer = new PrecisionTimer();
-        static readonly Queue<float> _timeMeasurements = new Queue<float>();
+        private static readonly PrecisionTimer _frameTimer = new PrecisionTimer();
+        private static readonly Queue<float> _timeMeasurements = new Queue<float>();
 
         public static void Render(float width, float height, bool mouseLookActive)
         {
@@ -51,7 +48,7 @@ namespace CubeHack.Client
             }
         }
 
-        static void DrawCrossHair(float width, float height)
+        private static void DrawCrossHair(float width, float height)
         {
             float d = (float)Math.Sqrt(width * width + height * height);
             float w = (float)height / d;
@@ -75,7 +72,7 @@ namespace CubeHack.Client
             GL.End();
         }
 
-        static void DrawFps(float width, float height)
+        private static void DrawFps(float width, float height)
         {
             float elapsedTime = _frameTimer.SetZero();
             if (_timeMeasurements.Count >= 50)

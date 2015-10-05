@@ -3,27 +3,22 @@
 
 using CubeHack.Data;
 using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class TextureAtlas
+    internal static class TextureAtlas
     {
         public const int TextureSizeBits = 8;
         public const int TextureSize = 1 << TextureSizeBits;
 
-        static readonly List<Texture> _textures = new List<Texture>();
+        private static readonly List<Texture> _textures = new List<Texture>();
 
-        static int _count;
-        static int _size;
+        private static int _count;
+        private static int _size;
 
-        static int _textureId;
-        static TextureEntry[] _textureEntries;
+        private static int _textureId;
+        private static TextureEntry[] _textureEntries;
 
         public static int TextureId
         {

@@ -3,16 +3,12 @@
 
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class TextureHelper
+    internal static class TextureHelper
     {
         public static void DrawTexture(int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
         {

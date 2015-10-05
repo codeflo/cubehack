@@ -3,10 +3,6 @@
 
 using ProtoBuf;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Data
 {
@@ -53,7 +49,7 @@ namespace CubeHack.Data
         [ProtoMember(3)]
         public float B { get; set; }
 
-        float FromHex(string s)
+        private float FromHex(string s)
         {
             return (float)Convert.ToInt32(s, 16);
         }

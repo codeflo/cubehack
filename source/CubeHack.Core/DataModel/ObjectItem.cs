@@ -3,17 +3,16 @@
 
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.DataModel
 {
     public class ObjectItem : Item
     {
-        Type _type;
+        private Type _type;
+
+        private string _typeName;
 
         public ObjectItem(Type type)
         {
@@ -31,7 +30,6 @@ namespace CubeHack.DataModel
             IsExpanded = IsExpanded || Properties.Count <= ExpansionLimit;
         }
 
-        private string _typeName;
         public string TypeName
         {
             get { return _typeName; }
@@ -94,19 +92,21 @@ namespace CubeHack.DataModel
         {
             private ObjectItem _parent;
 
+            private string _name;
+
+            private Item _value;
+
             public Property(ObjectItem parent)
             {
                 _parent = parent;
             }
 
-            private string _name;
             public string Name
             {
                 get { return _name; }
                 set { SetAndNotify(ref _name, value); }
             }
 
-            private Item _value;
             public Item Value
             {
                 get { return _value; }

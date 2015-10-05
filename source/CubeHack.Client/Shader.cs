@@ -3,14 +3,11 @@
 
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    class Shader
+    internal class Shader
     {
         private int _id;
 
@@ -44,11 +41,10 @@ namespace CubeHack.Client
                 throw new Exception("Error linking shader: " + GL.GetProgramInfoLog(id));
             }
 
-
             return new Shader(id);
         }
 
-        static int LoadProgram(string path, ShaderType type)
+        private static int LoadProgram(string path, ShaderType type)
         {
             var source = LoadResource(path);
             var id = GL.CreateShader(type);

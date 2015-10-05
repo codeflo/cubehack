@@ -6,28 +6,24 @@ using CubeHack.Util;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    static class Renderer
+    internal static class Renderer
     {
-        const float _viewingAngle = 100f;
-        const int _maxChunkUpdatesPerFrame = 4;
+        private const float _viewingAngle = 100f;
+        private const int _maxChunkUpdatesPerFrame = 4;
 
-        static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
+        private static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
 
-        static readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
-        static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
-        static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
+        private static readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
+        private static readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
+        private static readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
 
-        static readonly Dictionary3D<Tuple<ulong, int>> _displayLists = new Dictionary3D<Tuple<ulong, int>>();
+        private static readonly Dictionary3D<Tuple<ulong, int>> _displayLists = new Dictionary3D<Tuple<ulong, int>>();
 
-        static int _depthBufferWidth;
-        static int _depthBufferHeight;
+        private static int _depthBufferWidth;
+        private static int _depthBufferHeight;
 
         private static int[] _displayListsToRender = new int[16];
 
@@ -267,7 +263,7 @@ namespace CubeHack.Client
             GL.UseProgram(0);
         }
 
-        static void SetProjectionMatrix(float width, float height)
+        private static void SetProjectionMatrix(float width, float height)
         {
             float dw = width;
             float dh = height;
@@ -293,7 +289,7 @@ namespace CubeHack.Client
             GL.LoadMatrix(ref projectionMatrix);
         }
 
-        static void DrawEntity(float x, float y, float z, float xRadius, float height)
+        private static void DrawEntity(float x, float y, float z, float xRadius, float height)
         {
             GL.Begin(PrimitiveType.Quads);
 
@@ -337,7 +333,7 @@ namespace CubeHack.Client
             GL.End();
         }
 
-        static void DrawCubeFront(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeFront(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
@@ -346,7 +342,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
         }
 
-        static void DrawCubeRight(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeRight(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
@@ -355,7 +351,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z + 0.5f);
         }
 
-        static void DrawCubeBack(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeBack(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z - 0.5f);
@@ -364,7 +360,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x + 0.5f, y + 0.5f, z - 0.5f);
         }
 
-        static void DrawCubeLeft(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeLeft(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(0.67f, 0.67f, 0.67f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z - 0.5f);
@@ -373,7 +369,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
         }
 
-        static void DrawCubeTop(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeTop(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(1f, 1f, 1f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y + 0.5f, z + 0.5f);
@@ -382,7 +378,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X0, textureEntry.Y1); GL.Vertex3(x - 0.5f, y + 0.5f, z - 0.5f);
         }
 
-        static void DrawCubeBottom(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
+        private static void DrawCubeBottom(TextureAtlas.TextureEntry textureEntry, float x, float y, float z)
         {
             GL.Color3(0.33f, 0.33f, 0.33f);
             GL.TexCoord2(textureEntry.X0, textureEntry.Y0); GL.Vertex3(x - 0.5f, y - 0.5f, z + 0.5f);
@@ -391,7 +387,7 @@ namespace CubeHack.Client
             GL.TexCoord2(textureEntry.X1, textureEntry.Y0); GL.Vertex3(x + 0.5f, y - 0.5f, z + 0.5f);
         }
 
-        static void SetHighlightColor(RayCastResult highlightedCube, int normalX, int normalY, int normalZ)
+        private static void SetHighlightColor(RayCastResult highlightedCube, int normalX, int normalY, int normalZ)
         {
             if (highlightedCube != null
                 && highlightedCube.NormalX == normalX

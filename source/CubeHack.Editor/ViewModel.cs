@@ -5,17 +5,18 @@ using CubeHack.DataModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CubeHack.Editor
 {
     public class ViewModel : NotifyPropertyChanged
     {
+        private string _modName;
+
+        private Item _modItem;
+
         public ViewModel()
         {
             SaveCommand = new Command(Save);
@@ -33,18 +34,21 @@ namespace CubeHack.Editor
 
         public ICommand RunCommand { get; private set; }
 
-        private string _modName;
         public string ModName
         {
             get { return _modName; }
             set { SetAndNotify(ref _modName, value); }
         }
 
-        private Item _modItem;
         public Item ModItem
         {
             get { return _modItem; }
             set { SetAndNotify(ref _modItem, value); }
+        }
+
+        private static string GetDirectory()
+        {
+            return Path.GetDirectoryName(typeof(ViewModel).Assembly.Location);
         }
 
         private void Load()
@@ -68,14 +72,9 @@ namespace CubeHack.Editor
             System.Diagnostics.Process.Start(Path.Combine(GetDirectory(), "CubeHack.exe"), "localhost");
         }
 
-        string GetPath()
+        private string GetPath()
         {
             return Path.Combine(GetDirectory(), "Mods", _modName + ".cubemod.json");
-        }
-
-        private static string GetDirectory()
-        {
-            return Path.GetDirectoryName(typeof(ViewModel).Assembly.Location);
         }
     }
 }

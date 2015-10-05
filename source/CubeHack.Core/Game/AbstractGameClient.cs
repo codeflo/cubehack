@@ -5,33 +5,26 @@ using CubeHack.Data;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
     public abstract class AbstractGameClient
     {
-        readonly PriorityMutex _mutex = new PriorityMutex();
-        readonly IChannel _channel;
-
-        readonly PrecisionTimer _frameTimer = new PrecisionTimer();
-
-        readonly double _inverseSqrt2 = Math.Sqrt(0.5);
-
-        double _miningTime = 0;
-        double _placementCooldown = 0;
-
-        List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
-
         public PositionData PositionData = new PositionData();
-
         public PhysicsValues PhysicsValues = new PhysicsValues();
-
         public List<PositionData> EntityPositions = new List<PositionData>();
+        private readonly PriorityMutex _mutex = new PriorityMutex();
+        private readonly IChannel _channel;
 
-        public bool IsFrozen { get; set; }
+        private readonly PrecisionTimer _frameTimer = new PrecisionTimer();
+
+        private readonly double _inverseSqrt2 = Math.Sqrt(0.5);
+
+        private double _miningTime = 0;
+        private double _placementCooldown = 0;
+
+        private List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
         public AbstractGameClient(IChannel channel)
         {
@@ -55,10 +48,7 @@ namespace CubeHack.Game
                 });
         }
 
-        private void ResetPosition()
-        {
-            Movement.Respawn(PositionData);
-        }
+        public bool IsFrozen { get; set; }
 
         public World World { get; private set; }
 
@@ -97,7 +87,30 @@ namespace CubeHack.Game
         {
         }
 
-        Task HandleGameEventAsync(GameEvent gameEvent)
+        protected void UpdateState(Func<GameKey, bool> isKeyPressed)
+        {
+            if (IsFrozen)
+            {
+                return;
+            }
+
+            double elapsedTime = _frameTimer.SetZero();
+            MovePlayer(elapsedTime, isKeyPressed);
+
+            foreach (var entityPosition in EntityPositions)
+            {
+                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedTime, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
+            }
+
+            UpdateBuildAction(elapsedTime, isKeyPressed);
+        }
+
+        private void ResetPosition()
+        {
+            Movement.Respawn(PositionData);
+        }
+
+        private Task HandleGameEventAsync(GameEvent gameEvent)
         {
             PlayerEvent playerEvent;
 
@@ -139,24 +152,6 @@ namespace CubeHack.Game
             }
 
             return _channel.SendPlayerEventAsync(playerEvent);
-        }
-
-        protected void UpdateState(Func<GameKey, bool> isKeyPressed)
-        {
-            if (IsFrozen)
-            {
-                return;
-            }
-
-            double elapsedTime = _frameTimer.SetZero();
-            MovePlayer(elapsedTime, isKeyPressed);
-
-            foreach (var entityPosition in EntityPositions)
-            {
-                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedTime, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
-            }
-
-            UpdateBuildAction(elapsedTime, isKeyPressed);
         }
 
         private PlayerEvent CreatePlayerEvent()
@@ -209,12 +204,12 @@ namespace CubeHack.Game
                     if (_miningTime >= PhysicsValues.MiningTime)
                     {
                         _cubeUpdates.Add(new CubeUpdateData
-                            {
-                                X = result.CubeX,
-                                Y = result.CubeY,
-                                Z = result.CubeZ,
-                                Material = 0,
-                            });
+                        {
+                            X = result.CubeX,
+                            Y = result.CubeY,
+                            Z = result.CubeZ,
+                            Material = 0,
+                        });
                     }
                 }
                 else
@@ -225,12 +220,12 @@ namespace CubeHack.Game
                     {
                         _placementCooldown = PhysicsValues.PlacementCooldown;
                         _cubeUpdates.Add(new CubeUpdateData
-                            {
-                                X = result.CubeX + result.NormalX,
-                                Y = result.CubeY + result.NormalY,
-                                Z = result.CubeZ + result.NormalZ,
-                                Material = 1,
-                            });
+                        {
+                            X = result.CubeX + result.NormalX,
+                            Y = result.CubeY + result.NormalY,
+                            Z = result.CubeZ + result.NormalZ,
+                            Material = 1,
+                        });
                     }
                 }
 

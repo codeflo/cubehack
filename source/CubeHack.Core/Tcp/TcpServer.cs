@@ -2,22 +2,17 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using CubeHack.Game;
-using CubeHack.Tcp;
-using ProtoBuf;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CubeHack.Tcp
 {
     public class TcpServer
     {
-        readonly Universe _universe;
+        private readonly Universe _universe;
 
         public TcpServer(Universe universe)
         {
@@ -25,7 +20,7 @@ namespace CubeHack.Tcp
             Task.Run(() => RunHost());
         }
 
-        async Task RunHost()
+        private async Task RunHost()
         {
             var listener = new TcpListener(IPAddress.Any, TcpConstants.Port);
             listener.Start();
@@ -37,7 +32,7 @@ namespace CubeHack.Tcp
             }
         }
 
-        async Task RunConnection(TcpClient client)
+        private async Task RunConnection(TcpClient client)
         {
             IChannel internalChannel = null;
 
@@ -70,12 +65,12 @@ namespace CubeHack.Tcp
             }
         }
 
-        Task SendGameEventAsync(Stream stream, GameEvent e)
+        private Task SendGameEventAsync(Stream stream, GameEvent e)
         {
             return stream.WriteObjectAsync(e);
         }
 
-        async Task ReadCookie(Stream stream)
+        private async Task ReadCookie(Stream stream)
         {
             byte[] cookieBytes = new byte[TcpConstants.MAGIC_COOKIE.Length];
             await stream.ReadArrayAsync(cookieBytes);

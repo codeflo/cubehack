@@ -3,16 +3,13 @@
 
 using ProtoBuf;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 
-static class StreamExtensions
+internal static class StreamExtensions
 {
-    const int _maxSize = 2 * 1024 * 1024; // We need to limit the number of chunks per packet and make this a lot smaller...
+    private const int _maxSize = 2 * 1024 * 1024; // We need to limit the number of chunks per packet and make this a lot smaller...
 
     public static async Task WriteObjectAsync<T>(this Stream stream, T instance)
     {

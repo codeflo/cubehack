@@ -2,12 +2,8 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.DataModel
 {

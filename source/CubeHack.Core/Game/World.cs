@@ -2,18 +2,14 @@
 // Licensed under a BSD 2-clause license, see LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
     public class World
     {
-        const int _chunkMask = Chunk.Size - 1;
+        private const int _chunkMask = Chunk.Size - 1;
 
-        const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
+        private const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
 
         private readonly Dictionary3D<Chunk> _chunkMap = new Dictionary3D<Chunk>();
 
