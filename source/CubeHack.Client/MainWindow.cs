@@ -35,6 +35,7 @@ namespace CubeHack.Client
             {
                 _gameWindow.Title = "CubeHack";
                 _gameWindow.VSync = VSyncMode.Adaptive;
+                _gameWindow.WindowState = WindowState.Maximized;
 
                 _gameWindow.Visible = true;
 
