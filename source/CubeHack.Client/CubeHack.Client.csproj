@@ -46,10 +46,14 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CubeHack.Core\Properties\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="FontRenderer.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="GameLoop.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="RenderInfo.cs" />
     <Compile Include="Shader.cs" />
@@ -58,7 +62,6 @@
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="MainWindow.cs" />
-    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

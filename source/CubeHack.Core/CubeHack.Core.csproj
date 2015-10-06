@@ -81,6 +81,7 @@
     <Compile Include="Game\WorldGenerator.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\SharedAssemblyInfo.cs" />
     <Compile Include="Tcp\TcpChannel.cs" />
     <Compile Include="Tcp\TcpConstants.cs" />
     <Compile Include="Tcp\TcpServer.cs" />
