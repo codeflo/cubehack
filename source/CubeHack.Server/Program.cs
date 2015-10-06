@@ -11,11 +11,11 @@ namespace CubeHack.Server
     {
         private static void Main(string[] args)
         {
-            var universe = new Universe(DataLoader.LoadMod("Core"));
-            new TcpServer(universe);
-
-            Console.WriteLine("Server running, press Q to quit.");
-            while (Console.ReadKey(true).Key != ConsoleKey.Q) { }
+            using (new TcpServer(new Universe(DataLoader.LoadMod("Core")), true))
+            {
+                Console.WriteLine("Server running, press Q to quit.");
+                while (Console.ReadKey(true).Key != ConsoleKey.Q) { }
+            }
         }
     }
 }

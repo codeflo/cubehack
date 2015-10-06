@@ -21,7 +21,7 @@ namespace CubeHack.Util
                 Monitor.Enter(_actualMutex);
             }
 
-            return new DelegateDiposable(ReleaseLock);
+            return new DelegateDisposable(ReleaseLock);
         }
 
         public IDisposable TakePriorityLock()
@@ -33,7 +33,7 @@ namespace CubeHack.Util
 
             Monitor.Enter(_actualMutex);
 
-            return new DelegateDiposable(ReleasePriorityLock);
+            return new DelegateDisposable(ReleasePriorityLock);
         }
 
         private void ReleaseLock()

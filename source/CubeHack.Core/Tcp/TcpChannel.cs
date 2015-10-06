@@ -24,7 +24,7 @@ namespace CubeHack.Tcp
         public TcpChannel(string host, int port)
         {
             _host = host;
-            _port = port;
+            _port = port == 0 ? TcpConstants.Port : port;
             _tcpClient = new TcpClient();
         }
 
@@ -109,8 +109,6 @@ namespace CubeHack.Tcp
             }
             catch (Exception)
             {
-                // TODO: Drop to the main menu or something. For now, any disconnect terminates the application.
-                Environment.Exit(0);
             }
         }
     }

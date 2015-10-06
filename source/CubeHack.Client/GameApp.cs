@@ -5,60 +5,119 @@ using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
+using System;
 using System.Linq;
+using System.Threading;
 
 namespace CubeHack.Client
 {
-    internal sealed class MainWindow
+    public sealed class GameApp : IGameController
     {
+        private static GameApp _instance;
         private GameWindow _gameWindow;
         private GameClient _gameClient;
-
+        private KeyboardState _keyboardState;
+        private MouseState _mouseState;
         private bool _mouseLookActive = true;
 
-        public void Run(string host)
+        public GameApp()
         {
-            if (host == null)
+            GameLoop.Reset();
+            FontRenderer = new FontRenderer();
+            TextureAtlas = new TextureAtlas();
+            Renderer = new Renderer();
+        }
+
+        public static GameApp Instance => _instance;
+
+        internal FontRenderer FontRenderer { get; }
+
+        internal TextureAtlas TextureAtlas { get; }
+
+        internal Renderer Renderer { get; }
+
+        public void Run()
+        {
+            if (Interlocked.CompareExchange(ref _instance, this, null) != null)
             {
-                host = Microsoft.VisualBasic.Interaction.InputBox("Enter server address:\n\n(Leave blank for single player.)", "CubeHack", " ");
-                if (host == null || host.Length == 0)
-                {
-                    return;
-                }
+                throw new InvalidOperationException();
             }
-
-            Universe universe = null;
-
-            _gameWindow = new GameWindow(1280, 720);
 
             try
             {
-                _gameWindow.Title = "CubeHack";
-                _gameWindow.VSync = VSyncMode.Adaptive;
-                _gameWindow.WindowState = WindowState.Maximized;
+                _gameWindow = new GameWindow(1280, 720);
 
-                _gameWindow.Visible = true;
-
-                _gameWindow.KeyDown += OnKeyDown;
-                _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
-
-                if (host == "localhost" || string.IsNullOrWhiteSpace(host))
+                try
                 {
-                    host = "localhost";
-                    universe = new Universe(DataLoader.LoadMod("Core"));
-                    new TcpServer(universe);
-                }
+                    _gameWindow.Title = "CubeHack";
+                    _gameWindow.VSync = VSyncMode.Adaptive;
+                    _gameWindow.WindowState = WindowState.Maximized;
 
-                GameLoop.Post(() => Connect(host));
-                GameLoop.RenderFrame += RenderFrame;
-                GameLoop.Run(_gameWindow);
+                    _gameWindow.Visible = true;
+
+                    _gameWindow.KeyDown += OnKeyDown;
+                    _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
+
+                    GameLoop.RenderFrame += RenderFrame;
+                    try
+                    {
+                        GameLoop.Run(_gameWindow);
+                    }
+                    finally
+                    {
+                        GameLoop.RenderFrame -= RenderFrame;
+                    }
+                }
+                finally
+                {
+                    _gameWindow.Dispose();
+                    _gameWindow = null;
+
+                    _gameClient?.Dispose();
+                    _gameClient = null;
+                }
             }
             finally
             {
-                _gameWindow.Dispose();
-                _gameWindow = null;
+                Volatile.Write(ref _instance, null);
+            }
+        }
 
-                universe?.Dispose();
+        public void Connect(string host, int port)
+        {
+            GameLoop.Post(() => ConnectInternal(host, port));
+        }
+
+        public bool IsKeyPressed(GameKey gameKey)
+        {
+            if (!_gameWindow.Focused) return false;
+
+            switch (gameKey)
+            {
+                case GameKey.Jump:
+                    return _keyboardState.IsKeyDown(Key.Space);
+
+                case GameKey.Forwards:
+                    return _keyboardState.IsKeyDown(Key.W);
+
+                case GameKey.Left:
+                    return _keyboardState.IsKeyDown(Key.A);
+
+                case GameKey.Backwards:
+                    return _keyboardState.IsKeyDown(Key.S);
+
+                case GameKey.Right:
+                    return _keyboardState.IsKeyDown(Key.D);
+
+                case GameKey.Primary:
+                    return _mouseState.LeftButton == ButtonState.Pressed;
+
+                case GameKey.Secondary:
+                    return _mouseState.RightButton == ButtonState.Pressed;
+
+                default:
+                    return false;
             }
         }
 
@@ -69,11 +128,13 @@ namespace CubeHack.Client
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool GetCursorPos(out System.Drawing.Point point);
 
-        private async void Connect(string host)
+        private async void ConnectInternal(string host, int port)
         {
-            var channel = new TcpChannel(host, TcpConstants.Port);
+            if (string.IsNullOrWhiteSpace(host)) host = "localhost";
+
+            var channel = new TcpChannel(host, port);
             await channel.ConnectAsync();
-            var gameClient = new GameClient(channel);
+            var gameClient = new GameClient(this, channel);
 
             foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
             {
@@ -150,7 +211,9 @@ namespace CubeHack.Client
             {
                 using (_gameClient.TakeRenderLock())
                 {
-                    _gameClient.UpdateState(_gameWindow.Focused);
+                    _keyboardState = Keyboard.GetState();
+                    _mouseState = Mouse.GetState();
+                    _gameClient.UpdateState();
 
                     Renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
                     UiRenderer.Render(renderInfo.Width, renderInfo.Height, _mouseLookActive, null);

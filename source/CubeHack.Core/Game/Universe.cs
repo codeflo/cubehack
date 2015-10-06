@@ -24,6 +24,8 @@ namespace CubeHack.Game
 
         private readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
+        private volatile bool _isDisposed;
+
         public Universe(Mod mod)
         {
             _mod = mod;
@@ -79,6 +81,7 @@ namespace CubeHack.Game
 
         public void Dispose()
         {
+            _isDisposed = true;
         }
 
         public IChannel ConnectPlayer()
@@ -182,7 +185,7 @@ namespace CubeHack.Game
         {
             var timer = new PrecisionTimer();
 
-            while (true)
+            while (!_isDisposed)
             {
                 var startTime = DateTime.Now;
 

@@ -10,25 +10,58 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Tcp
 {
-    public class TcpServer
+    public sealed class TcpServer : IDisposable
     {
         private readonly Universe _universe;
+        private TcpListener _listener;
+        private int _port;
 
-        public TcpServer(Universe universe)
+        public TcpServer(Universe universe, bool runPublic)
         {
             _universe = universe;
-            Task.Run(() => RunHost());
+            RunHost(runPublic);
         }
 
-        private async Task RunHost()
-        {
-            var listener = new TcpListener(IPAddress.Any, TcpConstants.Port);
-            listener.Start();
+        public int Port => _port;
 
-            while (true)
+        public void Dispose()
+        {
+            try
             {
-                var client = await listener.AcceptTcpClientAsync();
-                var spawnedTask = Task.Run(() => RunConnection(client));
+                _listener.Stop();
+            }
+            catch
+            {
+            }
+
+            _universe.Dispose();
+        }
+
+        private async void RunHost(bool runPublic)
+        {
+            try
+            {
+                if (runPublic)
+                {
+                    _port = TcpConstants.Port;
+                    _listener = TcpListener.Create(_port);
+                    _listener.Start();
+                }
+                else
+                {
+                    _listener = new TcpListener(IPAddress.Loopback, 0);
+                    _listener.Start();
+                    _port = ((IPEndPoint)_listener.LocalEndpoint).Port;
+                }
+
+                while (true)
+                {
+                    var client = await _listener.AcceptTcpClientAsync();
+                    var spawnedTask = Task.Run(() => RunConnection(client));
+                }
+            }
+            catch
+            {
             }
         }
 

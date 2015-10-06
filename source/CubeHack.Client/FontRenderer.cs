@@ -7,15 +7,15 @@ using System.Drawing;
 
 namespace CubeHack.Client
 {
-    internal static class FontRenderer
+    internal class FontRenderer
     {
-        private static readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
+        private readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
 
-        private static bool _isInitializing;
-        private static bool _isInitialized;
-        private static int _fontTextureId;
+        private bool _isInitializing;
+        private bool _isInitialized;
+        private int _fontTextureId;
 
-        public static void Draw(float x, float y, float width, float height, string text)
+        public void Draw(float x, float y, float width, float height, string text)
         {
             Initialize();
             if (!_isInitialized) return;
@@ -59,7 +59,7 @@ namespace CubeHack.Client
             GL.Disable(EnableCap.Texture2D);
         }
 
-        private static CharEntry GetCharEntry(char c)
+        private CharEntry GetCharEntry(char c)
         {
             CharEntry e;
             if (!_charEntries.TryGetValue(c, out e))
@@ -70,7 +70,7 @@ namespace CubeHack.Client
             return e;
         }
 
-        private static async void Initialize()
+        private async void Initialize()
         {
             if (_isInitialized || _isInitializing) return;
             _isInitializing = true;
@@ -144,7 +144,7 @@ namespace CubeHack.Client
             _isInitializing = false;
         }
 
-        private static IEnumerable<char> GetPrintableChars()
+        private IEnumerable<char> GetPrintableChars()
         {
             for (int i = 0; i < 65535; ++i)
             {

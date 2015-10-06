@@ -25,12 +25,23 @@ namespace CubeHack.Client
         private static readonly Queue<QueuedAction> _queuedActions = new Queue<QueuedAction>();
         private static Thread _loopThread;
         private static bool _shouldQuit;
-        private static bool _wasStarted;
+        private static bool _isRunning;
 
         /// <summary>
         /// Raised when the next frame should be rendered.
         /// </summary>
         public static event Action<RenderInfo> RenderFrame;
+
+        /// <summary>
+        /// Resets the game loop to its initial state.
+        /// </summary>
+        public static void Reset()
+        {
+            lock (_mutex)
+            {
+                _shouldQuit = false;
+            }
+        }
 
         /// <summary>
         /// Quits the game loop. This call always terminates with a GameLoopExitException.
@@ -63,8 +74,10 @@ namespace CubeHack.Client
         {
             lock (_mutex)
             {
-                if (_wasStarted) throw new InvalidOperationException();
-                _wasStarted = true;
+                if (_isRunning) throw new InvalidOperationException();
+
+                _isRunning = true;
+                _shouldQuit = false;
                 _loopThread = Thread.CurrentThread;
             }
 
@@ -92,6 +105,7 @@ namespace CubeHack.Client
                 {
                     _loopThread = null;
                     _shouldQuit = true;
+                    _isRunning = false;
                     actionsToAbort = new List<QueuedAction>(_queuedActions);
                     _queuedActions.Clear();
                 }

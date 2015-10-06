@@ -15,7 +15,7 @@
         <KeyBinding Key="F5"
                     Command="{Binding RunCommand}" />
     </Window.InputBindings>
-    <DockPanel>
+    <DockPanel IsEnabled="{Binding IsEnabled}">
         <ToolBar DockPanel.Dock="Top"
                  ToolBarTray.IsLocked="True">
             <Button Margin="2"

@@ -6,11 +6,11 @@ using System.Threading;
 
 namespace CubeHack.Util
 {
-    internal sealed class DelegateDiposable : IDisposable
+    public sealed class DelegateDisposable : IDisposable
     {
         private Action _action;
 
-        public DelegateDiposable(Action action)
+        public DelegateDisposable(Action action)
         {
             _action = action;
         }

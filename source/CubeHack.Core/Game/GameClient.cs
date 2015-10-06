@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
-    public abstract class AbstractGameClient
+    public sealed class GameClient : IDisposable
     {
         public PositionData PositionData = new PositionData();
         public PhysicsValues PhysicsValues = new PhysicsValues();
@@ -21,17 +21,20 @@ namespace CubeHack.Game
 
         private readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
+        private readonly IGameController _controller;
         private double _miningTime = 0;
         private double _placementCooldown = 0;
 
         private List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
-        public AbstractGameClient(IChannel channel)
+        public GameClient(IGameController controller, IChannel channel)
         {
             World = new World();
             IsFrozen = true;
 
             ResetPosition();
+
+            _controller = controller;
 
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
@@ -83,11 +86,7 @@ namespace CubeHack.Game
             }
         }
 
-        internal virtual void OnSendPlayerEvents()
-        {
-        }
-
-        protected void UpdateState(Func<GameKey, bool> isKeyPressed)
+        public void UpdateState()
         {
             if (IsFrozen)
             {
@@ -95,14 +94,19 @@ namespace CubeHack.Game
             }
 
             double elapsedTime = _frameTimer.SetZero();
-            MovePlayer(elapsedTime, isKeyPressed);
+            MovePlayer(elapsedTime);
 
             foreach (var entityPosition in EntityPositions)
             {
                 Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedTime, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
             }
 
-            UpdateBuildAction(elapsedTime, isKeyPressed);
+            UpdateBuildAction(elapsedTime);
+        }
+
+        public void Dispose()
+        {
+            _channel.Dispose();
         }
 
         private void ResetPosition()
@@ -147,7 +151,6 @@ namespace CubeHack.Game
                     IsFrozen = gameEvent.IsFrozen.Value;
                 }
 
-                OnSendPlayerEvents();
                 playerEvent = CreatePlayerEvent();
             }
 
@@ -176,7 +179,7 @@ namespace CubeHack.Game
             return playerEvent;
         }
 
-        private void UpdateBuildAction(double elapsedTime, Func<GameKey, bool> isKeyPressed)
+        private void UpdateBuildAction(double elapsedTime)
         {
             if (_placementCooldown > 0)
             {
@@ -197,7 +200,7 @@ namespace CubeHack.Game
             else
             {
                 if (RayCastResult.FaceEquals(HighlightedCube, result)
-                    && isKeyPressed(GameKey.Primary))
+                    && _controller.IsKeyPressed(GameKey.Primary))
                 {
                     _miningTime += elapsedTime;
 
@@ -216,7 +219,7 @@ namespace CubeHack.Game
                 {
                     _miningTime = 0;
 
-                    if (_placementCooldown <= 0 && isKeyPressed(GameKey.Secondary))
+                    if (_placementCooldown <= 0 && _controller.IsKeyPressed(GameKey.Secondary))
                     {
                         _placementCooldown = PhysicsValues.PlacementCooldown;
                         _cubeUpdates.Add(new CubeUpdateData
@@ -233,7 +236,7 @@ namespace CubeHack.Game
             }
         }
 
-        private void MovePlayer(double elapsedTime, Func<GameKey, bool> isKeyPressed)
+        private void MovePlayer(double elapsedTime)
         {
             double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
 
@@ -242,28 +245,28 @@ namespace CubeHack.Game
             double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
 
             bool isMovingAlong = false, isMovingSideways = false;
-            if (isKeyPressed(GameKey.Forwards))
+            if (_controller.IsKeyPressed(GameKey.Forwards))
             {
                 isMovingAlong = true;
                 vx += lookX;
                 vz += lookZ;
             }
 
-            if (isKeyPressed(GameKey.Left))
+            if (_controller.IsKeyPressed(GameKey.Left))
             {
                 isMovingSideways = true;
                 vx += lookZ;
                 vz -= lookX;
             }
 
-            if (isKeyPressed(GameKey.Backwards))
+            if (_controller.IsKeyPressed(GameKey.Backwards))
             {
                 isMovingAlong = true;
                 vx -= lookX;
                 vz -= lookZ;
             }
 
-            if (isKeyPressed(GameKey.Right))
+            if (_controller.IsKeyPressed(GameKey.Right))
             {
                 isMovingSideways = true;
                 vx -= lookZ;
@@ -276,7 +279,7 @@ namespace CubeHack.Game
                 vz *= _inverseSqrt2;
             }
 
-            if (!PositionData.IsFalling && isKeyPressed(GameKey.Jump))
+            if (!PositionData.IsFalling && _controller.IsKeyPressed(GameKey.Jump))
             {
                 vy += GetJumpingSpeed();
             }

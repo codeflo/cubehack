@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Client
 {
-    internal static class TextureAtlas
+    internal class TextureAtlas
     {
         public const int TextureSizeBits = 8;
         public const int TextureSize = 1 << TextureSizeBits;
 
-        private static readonly List<Texture> _textures = new List<Texture>();
+        private readonly List<Texture> _textures = new List<Texture>();
 
-        private static int _count;
-        private static int _size;
+        private int _count;
+        private int _size;
 
-        private static int _textureId;
-        private static TextureEntry[] _textureEntries;
+        private int _textureId;
+        private TextureEntry[] _textureEntries;
 
-        public static int TextureId
+        public int TextureId
         {
             get
             {
@@ -29,12 +29,12 @@ namespace CubeHack.Client
             }
         }
 
-        public static TextureEntry GetTextureEntry(int index)
+        public TextureEntry GetTextureEntry(int index)
         {
             return _textureEntries[index];
         }
 
-        public static void Bind()
+        public void Bind()
         {
             if (_textureId == 0)
             {
@@ -45,7 +45,7 @@ namespace CubeHack.Client
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, TextureSizeBits - 1);
         }
 
-        public static int Register(Texture texture)
+        public int Register(Texture texture)
         {
             int index = _count;
             texture.Index = index;
@@ -54,7 +54,7 @@ namespace CubeHack.Client
             return index;
         }
 
-        public static async Task BuildAsync()
+        public async Task BuildAsync()
         {
             Bind();
 

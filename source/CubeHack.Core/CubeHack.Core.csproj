@@ -56,7 +56,7 @@
     <Compile Include="Data\ModMetaData.cs" />
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
-    <Compile Include="Game\AbstractGameClient.cs" />
+    <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />
     <Compile Include="Game\Chunk.cs" />
@@ -68,7 +68,7 @@
     <Compile Include="Game\GameEvent.cs" />
     <Compile Include="Game\GameKey.cs" />
     <Compile Include="Game\IChannel.cs" />
-    <Compile Include="Game\LoadTestingGameClient.cs" />
+    <Compile Include="Game\IGameController.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\Movement.cs" />
     <Compile Include="Game\Offset.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="Tcp\TcpChannel.cs" />
     <Compile Include="Tcp\TcpConstants.cs" />
     <Compile Include="Tcp\TcpServer.cs" />
-    <Compile Include="Util\DelegateDiposable.cs" />
+    <Compile Include="Util\DelegateDisposable.cs" />
     <Compile Include="Util\Extensions\StreamExtensions.cs" />
     <Compile Include="Util\ExtraMath.cs" />
     <Compile Include="Util\PrecisionTimer.cs" />

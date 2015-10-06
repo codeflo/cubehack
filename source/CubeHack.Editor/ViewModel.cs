@@ -1,12 +1,17 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Client;
 using CubeHack.EditorModel;
+using CubeHack.Game;
+using CubeHack.Tcp;
+using CubeHack.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CubeHack.Editor
@@ -16,6 +21,8 @@ namespace CubeHack.Editor
         private string _modName;
 
         private Item _modItem;
+
+        private int _lockCount;
 
         public ViewModel()
         {
@@ -33,6 +40,8 @@ namespace CubeHack.Editor
         public ICommand SaveCommand { get; }
 
         public ICommand RunCommand { get; }
+
+        public bool IsEnabled => _lockCount == 0;
 
         public string ModName
         {
@@ -60,21 +69,56 @@ namespace CubeHack.Editor
 
         private void Save()
         {
-            if (TriggerFocusChange != null) TriggerFocusChange();
-
+            /* Refocus, to propagate any changes to text boxes into the view model. */
+            TriggerFocusChange?.Invoke();
             string s = JsonConvert.SerializeObject(ModItem.Save(), Formatting.Indented);
             File.WriteAllText(GetPath(), s, Encoding.UTF8);
         }
 
-        private void Run()
+        private async void Run()
         {
-            Save();
-            System.Diagnostics.Process.Start(Path.Combine(GetDirectory(), "CubeHack.exe"), "localhost");
+            using (Lock())
+            {
+                Save();
+
+                await Task.Run(
+                    () =>
+                    {
+                        using (var server = new TcpServer(new Universe(DataLoader.LoadMod(_modName)), false))
+                        {
+                            var gameApp = new GameApp();
+                            gameApp.Connect(null, server.Port);
+                            gameApp.Run();
+                        }
+                    });
+            }
         }
 
         private string GetPath()
         {
             return Path.Combine(GetDirectory(), "Mods", _modName + ".cubemod.json");
+        }
+
+        private IDisposable Lock()
+        {
+            if (_lockCount++ == 0)
+            {
+                try
+                {
+                    Notify(nameof(IsEnabled));
+                }
+                catch
+                {
+                    Unlock();
+                }
+            }
+
+            return new DelegateDisposable(Unlock);
+        }
+
+        private void Unlock()
+        {
+            if (--_lockCount == 0) Notify(nameof(IsEnabled));
         }
     }
 }

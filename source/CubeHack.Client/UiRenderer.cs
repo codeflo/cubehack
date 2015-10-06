@@ -37,7 +37,7 @@ namespace CubeHack.Client
                 GL.End();
                 GL.Disable(EnableCap.Blend);
 
-                FontRenderer.Draw(-0.15f, 0, 0.06f, 0.06f * width / height, status ?? "Click to play");
+                GameApp.Instance.FontRenderer.Draw(-0.15f, 0, 0.06f, 0.06f * width / height, status ?? "Click to play");
             }
 
             DrawFps(width, height);
@@ -92,7 +92,7 @@ namespace CubeHack.Client
                 float fps = _timeMeasurements.Count / totalTime;
 
                 string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0.0} fps", fps);
-                FontRenderer.Draw(-1, 1, 0.04f, 0.04f * width / height, fpsString);
+                GameApp.Instance.FontRenderer.Draw(-1, 1, 0.04f, 0.04f * width / height, fpsString);
             }
         }
     }
