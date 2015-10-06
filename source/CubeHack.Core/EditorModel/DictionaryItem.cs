@@ -21,21 +21,13 @@ namespace CubeHack.EditorModel
             _valueType = valueType;
             SharedSizeGroupName = "x_" + Guid.NewGuid().ToString().Replace('-', '_');
             Entries = new ObservableCollection<Entry>();
-            AddEntryCommand = new Command(AddEntry);
+            AddEntryCommand = new DelegateCommand(AddEntry);
             IsExpanded = true;
         }
 
-        public ICommand AddEntryCommand
-        {
-            get;
-            private set;
-        }
+        public ICommand AddEntryCommand { get; }
 
-        public string SharedSizeGroupName
-        {
-            get;
-            private set;
-        }
+        public string SharedSizeGroupName { get; }
 
         public ObservableCollection<Entry> Entries
         {
@@ -113,14 +105,10 @@ namespace CubeHack.EditorModel
             public Entry(DictionaryItem parent)
             {
                 _parent = parent;
-                RemoveCommand = new Command(Remove);
+                RemoveCommand = new DelegateCommand(Remove);
             }
 
-            public ICommand RemoveCommand
-            {
-                get;
-                private set;
-            }
+            public ICommand RemoveCommand { get; }
 
             public string Name
             {
@@ -134,13 +122,7 @@ namespace CubeHack.EditorModel
                 set { SetAndNotify(ref _value, value); }
             }
 
-            public string SharedSizeGroupName
-            {
-                get
-                {
-                    return _parent.SharedSizeGroupName;
-                }
-            }
+            public string SharedSizeGroupName => _parent.SharedSizeGroupName;
 
             private void Remove()
             {

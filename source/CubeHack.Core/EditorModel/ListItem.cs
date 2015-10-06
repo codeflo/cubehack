@@ -19,15 +19,11 @@ namespace CubeHack.EditorModel
         {
             _valueType = valueType;
             Entries = new ObservableCollection<Entry>();
-            AddEntryCommand = new Command(AddEntry);
+            AddEntryCommand = new DelegateCommand(AddEntry);
             IsExpanded = true;
         }
 
-        public ICommand AddEntryCommand
-        {
-            get;
-            private set;
-        }
+        public ICommand AddEntryCommand { get; }
 
         public ObservableCollection<Entry> Entries
         {
@@ -96,14 +92,10 @@ namespace CubeHack.EditorModel
             public Entry(ListItem parent)
             {
                 _parent = parent;
-                RemoveCommand = new Command(Remove);
+                RemoveCommand = new DelegateCommand(Remove);
             }
 
-            public ICommand RemoveCommand
-            {
-                get;
-                private set;
-            }
+            public ICommand RemoveCommand { get; }
 
             public Item Value
             {

@@ -3,7 +3,7 @@
 
 using CubeHack.Game;
 using CubeHack.Tcp;
-using System.Threading;
+using System;
 
 namespace CubeHack.Server
 {
@@ -14,10 +14,8 @@ namespace CubeHack.Server
             var universe = new Universe(DataLoader.LoadMod("Core"));
             new TcpServer(universe);
 
-            while (true)
-            {
-                Thread.Sleep(1000);
-            }
+            Console.WriteLine("Server running, press Q to quit.");
+            while (Console.ReadKey(true).Key != ConsoleKey.Q) { }
         }
     }
 }

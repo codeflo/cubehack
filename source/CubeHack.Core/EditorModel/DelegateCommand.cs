@@ -6,25 +6,26 @@ using System.Windows.Input;
 
 namespace CubeHack.EditorModel
 {
-    public class Command : ICommand
+    public class DelegateCommand : ICommand
     {
         private Action<object> _execute;
 
-        public Command(Action execute)
+        public DelegateCommand(Action execute)
         {
             _execute = o => execute();
         }
 
-        public Command(Action<object> execute)
+        public DelegateCommand(Action<object> execute)
         {
             _execute = execute;
         }
 
-#pragma warning disable 0067 // The event is never used
-
         public event EventHandler CanExecuteChanged;
 
-#pragma warning restore 0067
+        public void RaiseCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public bool CanExecute(object parameter)
         {

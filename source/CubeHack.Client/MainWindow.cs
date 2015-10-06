@@ -58,10 +58,7 @@ namespace CubeHack.Client
                 _gameWindow.Dispose();
                 _gameWindow = null;
 
-                if (universe != null)
-                {
-                    universe.Dispose();
-                }
+                universe?.Dispose();
             }
         }
 

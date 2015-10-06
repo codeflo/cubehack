@@ -19,8 +19,8 @@ namespace CubeHack.Editor
 
         public ViewModel()
         {
-            SaveCommand = new Command(Save);
-            RunCommand = new Command(Run);
+            SaveCommand = new DelegateCommand(Save);
+            RunCommand = new DelegateCommand(Run);
 
             ModName = "Core";
             ModItem = Item.Create(typeof(CubeHack.Data.Mod));
@@ -30,9 +30,9 @@ namespace CubeHack.Editor
 
         public event Action TriggerFocusChange;
 
-        public ICommand SaveCommand { get; private set; }
+        public ICommand SaveCommand { get; }
 
-        public ICommand RunCommand { get; private set; }
+        public ICommand RunCommand { get; }
 
         public string ModName
         {

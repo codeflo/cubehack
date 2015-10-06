@@ -18,10 +18,7 @@ namespace CubeHack.Util
         public void Dispose()
         {
             Action action = Interlocked.Exchange(ref _action, null);
-            if (action != null)
-            {
-                action();
-            }
+            action?.Invoke();
         }
     }
 }

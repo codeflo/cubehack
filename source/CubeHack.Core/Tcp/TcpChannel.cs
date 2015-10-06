@@ -63,7 +63,7 @@ namespace CubeHack.Tcp
                 ModData = await _stream.ReadObjectAsync<ModData>();
 
                 _isConnected = true;
-                Task.Run(() => RunChannel()).Forget();
+                var spawnedTask = Task.Run(() => RunChannel());
             }
             catch (Exception)
             {

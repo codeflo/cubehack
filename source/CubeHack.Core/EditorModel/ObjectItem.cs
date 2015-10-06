@@ -12,8 +12,6 @@ namespace CubeHack.EditorModel
     {
         private Type _type;
 
-        private string _typeName;
-
         public ObjectItem(Type type)
         {
             _type = type;
@@ -30,17 +28,9 @@ namespace CubeHack.EditorModel
             IsExpanded = IsExpanded || Properties.Count <= ExpansionLimit;
         }
 
-        public string TypeName
-        {
-            get { return _typeName; }
-            private set { SetAndNotify(ref _typeName, value); }
-        }
+        public string TypeName { get; }
 
-        public string SharedSizeGroupName
-        {
-            get;
-            private set;
-        }
+        public string SharedSizeGroupName { get; }
 
         public ObservableCollection<Property> Properties { get; private set; }
 

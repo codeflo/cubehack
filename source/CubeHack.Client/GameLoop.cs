@@ -240,14 +240,8 @@ namespace CubeHack.Client
             {
                 try
                 {
-                    if (_action != null)
-                    {
-                        _action();
-                    }
-                    else if (_callback != null)
-                    {
-                        _callback(_state);
-                    }
+                    _action?.Invoke();
+                    _callback?.Invoke(_state);
                 }
                 catch (Exception ex)
                 {
@@ -257,7 +251,7 @@ namespace CubeHack.Client
                 finally
                 {
                     _isCompleted = true;
-                    if (_completedEvent != null) _completedEvent.Set();
+                    _completedEvent?.Set();
                 }
             }
 

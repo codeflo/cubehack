@@ -28,7 +28,7 @@ namespace CubeHack.Tcp
             while (true)
             {
                 var client = await listener.AcceptTcpClientAsync();
-                Task.Run(() => RunConnection(client)).Forget();
+                var spawnedTask = Task.Run(() => RunConnection(client));
             }
         }
 
