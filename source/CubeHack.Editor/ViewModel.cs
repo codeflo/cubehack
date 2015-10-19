@@ -4,7 +4,6 @@
 using CubeHack.Client;
 using CubeHack.EditorModel;
 using CubeHack.Game;
-using CubeHack.Tcp;
 using CubeHack.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -94,10 +93,10 @@ namespace CubeHack.Editor
                 await Task.Run(
                     () =>
                     {
-                        using (var server = new TcpServer(new Universe(DataLoader.LoadMod(_modName)), false))
+                        using (var universe = new Universe(DataLoader.LoadMod(_modName)))
                         {
                             var gameApp = new GameApp();
-                            gameApp.Connect(null, server.Port);
+                            gameApp.Connect(universe.ConnectPlayer());
                             gameApp.Run();
                         }
                     });

@@ -5,6 +5,7 @@ using CubeHack.Data;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CubeHack.Game
@@ -26,32 +27,18 @@ namespace CubeHack.Game
         private GameTime _frameTime;
 
         private List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+        private int _playerEventQueued;
 
         public GameClient(IGameController controller, IChannel channel)
         {
             World = new World();
-            IsFrozen = true;
-
-            ResetPosition();
 
             _controller = controller;
 
             _channel = channel;
             channel.OnGameEventAsync = HandleGameEventAsync;
-
-            Task.Run(async () =>
-                {
-                    PlayerEvent playerEvent;
-                    using (_mutex.TakeLock())
-                    {
-                        playerEvent = CreatePlayerEvent();
-                    }
-
-                    await _channel.SendPlayerEventAsync(playerEvent);
-                });
+            QueueSendingPlayerEvent();
         }
-
-        public bool IsFrozen { get; set; }
 
         public World World { get; private set; }
 
@@ -88,11 +75,6 @@ namespace CubeHack.Game
 
         public void UpdateState()
         {
-            if (IsFrozen)
-            {
-                return;
-            }
-
             var elapsedDuration = GameTime.Update(ref _frameTime);
             MovePlayer(elapsedDuration);
 
@@ -102,6 +84,8 @@ namespace CubeHack.Game
             }
 
             UpdateBuildAction(elapsedDuration);
+
+            QueueSendingPlayerEvent();
         }
 
         public void Dispose()
@@ -109,15 +93,35 @@ namespace CubeHack.Game
             _channel.Dispose();
         }
 
-        private void ResetPosition()
+        private void QueueSendingPlayerEvent()
         {
-            Movement.Respawn(PositionData);
+            /* Only queue sending of the player event if we haven't already queued a send operation
+             * to avoid overflowing our buffers with stale player events. We do this check lock-free. */
+            if (Interlocked.Exchange(ref _playerEventQueued, 1) == 0)
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        PlayerEvent playerEvent;
+                        using (_mutex.TakeLock())
+                        {
+                            playerEvent = CreatePlayerEvent();
+                        }
+
+                        await _channel.SendPlayerEventAsync(playerEvent);
+                    }
+                    finally
+                    {
+                        /* Remove the "queued" flag. */
+                        Volatile.Write(ref _playerEventQueued, 0);
+                    }
+                });
+            }
         }
 
         private Task HandleGameEventAsync(GameEvent gameEvent)
         {
-            PlayerEvent playerEvent;
-
             using (_mutex.TakeLock())
             {
                 if (gameEvent.EntityPositions != null)
@@ -145,16 +149,11 @@ namespace CubeHack.Game
                         World[chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z] = chunkUpdate.Material;
                     }
                 }
-
-                if (gameEvent.IsFrozen != null)
-                {
-                    IsFrozen = gameEvent.IsFrozen.Value;
-                }
-
-                playerEvent = CreatePlayerEvent();
             }
 
-            return _channel.SendPlayerEventAsync(playerEvent);
+            QueueSendingPlayerEvent();
+
+            return Task.CompletedTask;
         }
 
         private PlayerEvent CreatePlayerEvent()

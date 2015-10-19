@@ -53,9 +53,12 @@ namespace CubeHack.Client
                 {
                     _gameWindow.Title = "CubeHack";
                     _gameWindow.VSync = VSyncMode.Adaptive;
-                    _gameWindow.WindowState = WindowState.Maximized;
 
+                    /* This sequence seems necessary to bring the window to the front reliably. */
+                    _gameWindow.WindowState = WindowState.Maximized;
+                    _gameWindow.WindowState = WindowState.Minimized;
                     _gameWindow.Visible = true;
+                    _gameWindow.WindowState = WindowState.Maximized;
 
                     _gameWindow.KeyDown += OnKeyDown;
                     _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
@@ -87,7 +90,21 @@ namespace CubeHack.Client
 
         public void Connect(string host, int port)
         {
-            GameLoop.Post(() => ConnectInternal(host, port));
+            if (string.IsNullOrWhiteSpace(host)) host = "localhost";
+
+            GameLoop.Post(
+                async () =>
+                {
+                    _statusText = "Connecting...";
+                    var channel = new TcpChannel(host, port);
+                    await channel.ConnectAsync();
+                    ConnectInternal(channel);
+                });
+        }
+
+        public void Connect(IChannel channel)
+        {
+            GameLoop.Post(() => ConnectInternal(channel));
         }
 
         public bool IsKeyPressed(GameKey gameKey)
@@ -129,13 +146,8 @@ namespace CubeHack.Client
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool GetCursorPos(out System.Drawing.Point point);
 
-        private async void ConnectInternal(string host, int port)
+        private async void ConnectInternal(IChannel channel)
         {
-            if (string.IsNullOrWhiteSpace(host)) host = "localhost";
-
-            _statusText = "Connecting...";
-            var channel = new TcpChannel(host, port);
-            await channel.ConnectAsync();
             var gameClient = new GameClient(this, channel);
 
             _statusText = "Loading textures...";

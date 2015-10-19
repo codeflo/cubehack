@@ -21,8 +21,5 @@ namespace CubeHack.Game
 
         [ProtoMember(4)]
         public List<CubeUpdateData> CubeUpdates { get; set; }
-
-        [ProtoMember(5)]
-        public bool? IsFrozen { get; set; }
     }
 }

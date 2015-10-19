@@ -27,6 +27,7 @@
     <OutputPath>..\..\dist\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <DefineConstants>DEBUG</DefineConstants>
+    <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

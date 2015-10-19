@@ -93,6 +93,9 @@ namespace CubeHack.Game
                 var entity = new Entity();
                 _entities.Add(entity);
 
+                entity.PositionData = new PositionData();
+                Movement.Respawn(entity.PositionData);
+
                 var channel = new Channel(this, entity);
                 _channels.Add(channel);
 
@@ -169,8 +172,6 @@ namespace CubeHack.Game
                     }
                 }
             }
-
-            gameEvent.IsFrozen = player.PositionData == null;
 
             if (channel.SentCubeUpdates != _cubeUpdates.Count)
             {
