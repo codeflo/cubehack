@@ -27,7 +27,7 @@ namespace CubeHack.Editor
         public ViewModel()
         {
             SaveCommand = new DelegateCommand(Save);
-            RunCommand = new DelegateCommand(Run);
+            StartCommand = new DelegateCommand(Start);
 
             ModName = "Core";
             ModItem = Item.Create(typeof(CubeHack.Data.Mod));
@@ -39,7 +39,7 @@ namespace CubeHack.Editor
 
         public ICommand SaveCommand { get; }
 
-        public ICommand RunCommand { get; }
+        public ICommand StartCommand { get; }
 
         public bool IsEnabled => _lockCount == 0;
 
@@ -75,7 +75,7 @@ namespace CubeHack.Editor
             File.WriteAllText(GetPath(), s, Encoding.UTF8);
         }
 
-        private async void Run()
+        private async void Start()
         {
             using (Lock())
             {

@@ -6,28 +6,57 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CubeHack.Editor"
         Title="CubeHack Editor"
-        Height="600"
-        Width="800">
+        Width="1280"
+        Height="720"
+        WindowState="Maximized"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
+        ResizeMode="CanResizeWithGrip">
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl"
                     Key="S"
                     Command="{Binding SaveCommand}" />
         <KeyBinding Key="F5"
-                    Command="{Binding RunCommand}" />
+                    Command="{Binding StartCommand}" />
     </Window.InputBindings>
     <DockPanel IsEnabled="{Binding IsEnabled}">
         <ToolBar DockPanel.Dock="Top"
-                 ToolBarTray.IsLocked="True">
-            <Button Margin="2"
+                 ToolBarTray.IsLocked="True"
+                 Focusable="False">
+            <Button Margin="4"
                     Command="{Binding SaveCommand}"
-                    ToolTip="Save the mod file (Ctrl+S)">Save</Button>
-            <Button Margin="2"
-                    Command="{Binding RunCommand}"
-                    ToolTip="Run the game (F5)">Run</Button>
+                    ToolTip="Save the mod file (Ctrl+S)"
+                    Focusable="False">
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <Canvas Width="0" Height="16" />
+                    <TextBlock VerticalAlignment="Center" Text="Save" />
+                </StackPanel>
+            </Button>
+            <Button Margin="4"
+                    Command="{Binding StartCommand}"
+                    ToolTip="Start the game (F5)"
+                    Focusable="False">
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <Canvas Width="16" Height="16">
+                        <Polygon Points="2,16 14,8 2,0"
+                                 Fill="#008000" />
+                    </Canvas>
+                    <Border Width="4" />
+                    <TextBlock VerticalAlignment="Center" Text="Start" />
+                </StackPanel>
+            </Button>
         </ToolBar>
+        <Border DockPanel.Dock="Top" Height="1" Background="{x:Static SystemColors.ActiveBorderBrush}" />
+
         <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Visible">
-            <local:ItemEditor Item="{Binding ModItem}" />
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MaxWidth="800" Width="1*" />
+                    <ColumnDefinition Width="0*" />
+                </Grid.ColumnDefinitions>
+                <local:ItemEditor Item="{Binding ModItem}" />
+            </Grid>
         </ScrollViewer>
     </DockPanel>
 </Window>

@@ -22,130 +22,161 @@
                                 <DataTemplate DataType="{x:Type editormodel:StringItem}">
                                     <TextBox Text="{Binding Value}"
                                              TextWrapping="Wrap"
-                                             AcceptsReturn="True" />
+                                             AcceptsReturn="True"
+                                             FontFamily="Consolas"
+                                             Margin="0,5,0,2" />
                                 </DataTemplate>
 
                                 <!-- FloatItem -->
                                 <DataTemplate DataType="{x:Type editormodel:FloatItem}">
-                                    <TextBox Text="{Binding Value}" />
+                                    <TextBox Text="{Binding Value}" FontFamily="Consolas"
+                                             Margin="0,5,0,2" />
                                 </DataTemplate>
 
                                 <!-- DoubleItem -->
                                 <DataTemplate DataType="{x:Type editormodel:DoubleItem}">
-                                    <TextBox Text="{Binding Value}" />
+                                    <TextBox Text="{Binding Value}" FontFamily="Consolas"
+                                             Margin="0,5,0,2" />
                                 </DataTemplate>
 
                                 <!-- ObjectItem -->
                                 <DataTemplate DataType="{x:Type editormodel:ObjectItem}">
-                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                    <Expander IsExpanded="{Binding IsExpanded}" Margin="-2,0,0,-5">
                                         <Expander.Header>
-                                            <TextBlock Text="{Binding TypeName}" />
+                                            <TextBlock Text="{Binding TypeName}" FontStyle="Italic" Foreground="{x:Static SystemColors.HotTrackBrush}" />
                                         </Expander.Header>
 
-                                        <ItemsControl ItemsSource="{Binding Properties}"
+                                        <Border BorderThickness="1,0,0,0"
+                                                BorderBrush="{x:Static SystemColors.ControlDarkBrush}"
+                                                Margin="10,0,0,5"
+                                                Padding="13,0,0,0">
+                                            <ItemsControl ItemsSource="{Binding Properties}"
                                                       Focusable="False"
                                                       Grid.IsSharedSizeScope="True"
-                                                      Margin="23,0,0,0">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="1">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"
-                                                                              SharedSizeGroup="{Binding SharedSizeGroupName}" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0"
-                                                                   Text="{Binding Name}"
-                                                                   Margin="0,0,4,0"
-                                                                   Foreground="{x:Static SystemColors.GrayTextBrush}" />
-                                                        <local:ItemEditor Grid.Column="1"
+                                                      Margin="0,0,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"
+                                                                                  SharedSizeGroup="{Binding SharedSizeGroupName}" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding Name}"
+                                                                       Margin="0,4,8,0"
+                                                                       FontWeight="Bold" />
+                                                            <local:ItemEditor Grid.Column="1"
                                                                           Item="{Binding Value}" />
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Border>
                                     </Expander>
                                 </DataTemplate>
 
                                 <!-- DictionaryItem -->
                                 <DataTemplate DataType="{x:Type editormodel:DictionaryItem}">
-                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                    <Expander IsExpanded="{Binding IsExpanded}" Margin="-2,0,0,-5">
                                         <Expander.Header>
-                                            <TextBlock>
-                                                <Run Text="{Binding Entries.Count, Mode=OneWay}" />
-                                                <Run Text="entries" />
+                                            <TextBlock FontStyle="Italic" Foreground="{x:Static SystemColors.HotTrackBrush}">
+                                                <Run Text="Dictionary ("
+                                                /><Run Text="{Binding Entries.Count, Mode=OneWay}" />
+                                                <Run Text="entries)" />
                                             </TextBlock>
                                         </Expander.Header>
 
-                                        <StackPanel Margin="23,0,0,0">
-                                            <ItemsControl ItemsSource="{Binding Entries}"
+                                        <Border BorderThickness="1,0,0,0"
+                                                BorderBrush="{x:Static SystemColors.ControlDarkBrush}"
+                                                Margin="10,0,0,5"
+                                                Padding="13,0,0,0">
+                                            <StackPanel>
+                                                <ItemsControl ItemsSource="{Binding Entries}"
                                                           Focusable="False"
                                                           Grid.IsSharedSizeScope="True">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="1">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"
-                                                                                  MinWidth="100"
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="Auto"
+                                                                                  MinWidth="150"
                                                                                   SharedSizeGroup="{Binding SharedSizeGroupName}" />
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel Grid.Column="0">
-                                                                <TextBox Text="{Binding Name}"
-                                                                         Margin="0,0,4,0" />
-                                                            </StackPanel>
-                                                            <local:ItemEditor Grid.Column="1"
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <StackPanel Grid.Column="0">
+                                                                    <Button Command="{Binding RemoveCommand}"
+                                                                            Content="✖"
+                                                                            FontSize="8"
+                                                                            Height="16"
+                                                                            Width="16"
+                                                                            Margin="0,5,4,2" />
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBox Text="{Binding Name}"
+                                                                         Margin="0,5,8,2"
+                                                                         FontFamily="Consolas" />
+                                                                </StackPanel>
+                                                                <local:ItemEditor Grid.Column="2"
                                                                               Item="{Binding Value}" />
-                                                            <StackPanel Grid.Column="2">
-                                                                <Button Command="{Binding RemoveCommand}"
-                                                                        Content="Remove" />
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <StackPanel Orientation="Horizontal">
-                                                <Button Command="{Binding AddEntryCommand}">Add entry</Button>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Command="{Binding AddEntryCommand}" Margin="0,5,0,0">+ entry</Button>
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
+                                        </Border>
                                     </Expander>
                                 </DataTemplate>
 
                                 <!-- ListItem -->
                                 <DataTemplate DataType="{x:Type editormodel:ListItem}">
-                                    <Expander IsExpanded="{Binding IsExpanded}">
+                                    <Expander IsExpanded="{Binding IsExpanded}" Margin="-2,0,0,-5">
                                         <Expander.Header>
-                                            <TextBlock>
-                                                <Run Text="{Binding Entries.Count, Mode=OneWay}" />
-                                                <Run Text="entries" />
+                                            <TextBlock FontStyle="Italic" Foreground="{x:Static SystemColors.HotTrackBrush}">
+                                                <Run Text="List ("
+                                                /><Run Text="{Binding Entries.Count, Mode=OneWay}" />
+                                                <Run Text="entries)" />
                                             </TextBlock>
                                         </Expander.Header>
 
-                                        <StackPanel Margin="23,0,0,0">
-                                            <ItemsControl ItemsSource="{Binding Entries}"
+                                        <Border BorderThickness="1,0,0,0"
+                                                BorderBrush="{x:Static SystemColors.ControlDarkBrush}"
+                                                Margin="10,0,0,5"
+                                                Padding="13,0,0,0">
+                                            <StackPanel>
+                                                <ItemsControl ItemsSource="{Binding Entries}"
                                                           Focusable="False">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="1">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <local:ItemEditor Grid.Column="0"
-                                                                              Item="{Binding Value}" />
-                                                            <StackPanel Grid.Column="1">
-                                                                <Button Command="{Binding RemoveCommand}"
-                                                                        Content="Remove" />
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <StackPanel Orientation="Horizontal">
-                                                <Button Command="{Binding AddEntryCommand}">Add entry</Button>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <StackPanel Grid.Column="0">
+                                                                    <Button Command="{Binding RemoveCommand}"
+                                                                            Content="✖"
+                                                                            FontSize="8"
+                                                                            Height="16"
+                                                                            Width="16"
+                                                                            Margin="0,3,4,4" />
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="1">
+                                                                    <local:ItemEditor Item="{Binding Value}" />
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Command="{Binding AddEntryCommand}" Margin="0,5,0,0">+ entry</Button>
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
+                                        </Border>
                                     </Expander>
                                 </DataTemplate>
                             </ContentControl.Resources>
