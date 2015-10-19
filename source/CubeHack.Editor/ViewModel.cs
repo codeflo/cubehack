@@ -12,6 +12,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace CubeHack.Editor
@@ -28,6 +29,7 @@ namespace CubeHack.Editor
         {
             SaveCommand = new DelegateCommand(Save);
             StartCommand = new DelegateCommand(Start);
+            QuitCommand = new DelegateCommand(Quit);
 
             ModName = "Core";
             ModItem = Item.Create(typeof(CubeHack.Data.Mod));
@@ -40,6 +42,8 @@ namespace CubeHack.Editor
         public ICommand SaveCommand { get; }
 
         public ICommand StartCommand { get; }
+
+        public ICommand QuitCommand { get; }
 
         public bool IsEnabled => _lockCount == 0;
 
@@ -58,6 +62,12 @@ namespace CubeHack.Editor
         private static string GetDirectory()
         {
             return Path.GetDirectoryName(typeof(ViewModel).Assembly.Location);
+        }
+
+        private void Quit()
+        {
+            Save();
+            Application.Current.Shutdown();
         }
 
         private void Load()

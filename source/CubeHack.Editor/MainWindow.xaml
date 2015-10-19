@@ -18,6 +18,8 @@
                     Command="{Binding SaveCommand}" />
         <KeyBinding Key="F5"
                     Command="{Binding StartCommand}" />
+        <KeyBinding Key="F10"
+                    Command="{Binding QuitCommand}" />
     </Window.InputBindings>
     <DockPanel IsEnabled="{Binding IsEnabled}">
         <ToolBar DockPanel.Dock="Top"
