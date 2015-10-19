@@ -9,13 +9,13 @@ namespace CubeHack.Game
 {
     internal static class Ai
     {
-        public static void Control(PhysicsValues physicsValues, double elapsedTime, Entity entity)
+        public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity)
         {
-            if (elapsedTime >= 10.0 * Rng.NextExp())
+            if (elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
             {
                 entity.PositionData.HAngle = Rng.NextFloat() * 360f;
             }
-            else if (elapsedTime > 1.0 * Rng.NextExp())
+            else if (elapsedDuration.Seconds > 1.0 * Rng.NextExp())
             {
                 entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
             }

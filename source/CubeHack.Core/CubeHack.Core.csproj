@@ -92,7 +92,8 @@
     <Compile Include="Util\DelegateDisposable.cs" />
     <Compile Include="Util\Extensions\StreamExtensions.cs" />
     <Compile Include="Util\ExtraMath.cs" />
-    <Compile Include="Util\PrecisionTimer.cs" />
+    <Compile Include="Util\GameTime.cs" />
+    <Compile Include="Util\GameDuration.cs" />
     <Compile Include="Util\PriorityMutex.cs" />
     <Compile Include="Util\Rng.cs" />
   </ItemGroup>

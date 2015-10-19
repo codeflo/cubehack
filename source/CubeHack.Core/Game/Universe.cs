@@ -183,7 +183,7 @@ namespace CubeHack.Game
 
         private void RunUniverse()
         {
-            var timer = new PrecisionTimer();
+            var frameTime = GameTime.Now();
 
             while (!_isDisposed)
             {
@@ -201,7 +201,7 @@ namespace CubeHack.Game
                         }
                     }
 
-                    double elapsedTime = timer.SetZero();
+                    var elapsedDuration = GameTime.Update(ref frameTime);
                     foreach (var entity in _entities)
                     {
                         if (entity.PositionData == null)
@@ -211,14 +211,14 @@ namespace CubeHack.Game
 
                         if (entity.IsAiControlled)
                         {
-                            Ai.Control(_mod.PhysicsValues, elapsedTime, entity);
+                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity);
                         }
 
                         Movement.MoveEntity(
                             _mod.PhysicsValues,
                             _startWorld,
                             entity.PositionData,
-                            elapsedTime,
+                            elapsedDuration,
                             entity.PositionData.Velocity.X,
                             entity.PositionData.Velocity.Y,
                             entity.PositionData.Velocity.Z);

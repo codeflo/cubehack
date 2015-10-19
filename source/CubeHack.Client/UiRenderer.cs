@@ -11,8 +11,9 @@ namespace CubeHack.Client
 {
     internal static class UiRenderer
     {
-        private static readonly PrecisionTimer _frameTimer = new PrecisionTimer();
-        private static readonly Queue<float> _timeMeasurements = new Queue<float>();
+        private static readonly Queue<double> _timeMeasurements = new Queue<double>();
+
+        private static GameTime _frameTime;
 
         public static void Render(float width, float height, bool mouseLookActive, string status)
         {
@@ -74,14 +75,14 @@ namespace CubeHack.Client
 
         private static void DrawFps(float width, float height)
         {
-            float elapsedTime = _frameTimer.SetZero();
+            var frameDuration = GameTime.Update(ref _frameTime);
             if (_timeMeasurements.Count >= 50)
             {
                 _timeMeasurements.Dequeue();
             }
 
-            _timeMeasurements.Enqueue(elapsedTime);
-            float totalTime = 0f;
+            _timeMeasurements.Enqueue(frameDuration.Seconds);
+            double totalTime = 0f;
             foreach (float time in _timeMeasurements)
             {
                 totalTime += time;
@@ -89,7 +90,7 @@ namespace CubeHack.Client
 
             if (totalTime > 0)
             {
-                float fps = _timeMeasurements.Count / totalTime;
+                double fps = _timeMeasurements.Count / totalTime;
 
                 string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0.0} fps", fps);
                 GameApp.Instance.FontRenderer.Draw(-1, 1, 0.04f, 0.04f * width / height, fpsString);

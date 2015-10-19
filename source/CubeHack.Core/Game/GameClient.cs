@@ -17,13 +17,13 @@ namespace CubeHack.Game
         private readonly PriorityMutex _mutex = new PriorityMutex();
         private readonly IChannel _channel;
 
-        private readonly PrecisionTimer _frameTimer = new PrecisionTimer();
-
         private readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
         private readonly IGameController _controller;
-        private double _miningTime = 0;
-        private double _placementCooldown = 0;
+        private GameDuration _miningTime = GameDuration.Zero;
+        private GameDuration _placementCooldown = GameDuration.Zero;
+
+        private GameTime _frameTime;
 
         private List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
@@ -93,15 +93,15 @@ namespace CubeHack.Game
                 return;
             }
 
-            double elapsedTime = _frameTimer.SetZero();
-            MovePlayer(elapsedTime);
+            var elapsedDuration = GameTime.Update(ref _frameTime);
+            MovePlayer(elapsedDuration);
 
             foreach (var entityPosition in EntityPositions)
             {
-                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedTime, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
+                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedDuration, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
             }
 
-            UpdateBuildAction(elapsedTime);
+            UpdateBuildAction(elapsedDuration);
         }
 
         public void Dispose()
@@ -179,11 +179,11 @@ namespace CubeHack.Game
             return playerEvent;
         }
 
-        private void UpdateBuildAction(double elapsedTime)
+        private void UpdateBuildAction(GameDuration elapsedDuration)
         {
-            if (_placementCooldown > 0)
+            if (_placementCooldown > GameDuration.Zero)
             {
-                _placementCooldown -= elapsedTime;
+                _placementCooldown -= elapsedDuration;
             }
 
             double f = Math.PI / 180.0;
@@ -195,16 +195,16 @@ namespace CubeHack.Game
             if (result == null)
             {
                 HighlightedCube = null;
-                _miningTime = 0;
+                _miningTime = GameDuration.Zero;
             }
             else
             {
                 if (RayCastResult.FaceEquals(HighlightedCube, result)
                     && _controller.IsKeyPressed(GameKey.Primary))
                 {
-                    _miningTime += elapsedTime;
+                    _miningTime += elapsedDuration;
 
-                    if (_miningTime >= PhysicsValues.MiningTime)
+                    if (_miningTime.Seconds >= PhysicsValues.MiningTime)
                     {
                         _cubeUpdates.Add(new CubeUpdateData
                         {
@@ -217,11 +217,11 @@ namespace CubeHack.Game
                 }
                 else
                 {
-                    _miningTime = 0;
+                    _miningTime = GameDuration.Zero;
 
-                    if (_placementCooldown <= 0 && _controller.IsKeyPressed(GameKey.Secondary))
+                    if (_placementCooldown <= GameDuration.Zero && _controller.IsKeyPressed(GameKey.Secondary))
                     {
-                        _placementCooldown = PhysicsValues.PlacementCooldown;
+                        _placementCooldown.Seconds = PhysicsValues.PlacementCooldown;
                         _cubeUpdates.Add(new CubeUpdateData
                         {
                             X = result.CubeX + result.NormalX,
@@ -236,7 +236,7 @@ namespace CubeHack.Game
             }
         }
 
-        private void MovePlayer(double elapsedTime)
+        private void MovePlayer(GameDuration elapsedDuration)
         {
             double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
 
@@ -284,7 +284,7 @@ namespace CubeHack.Game
                 vy += GetJumpingSpeed();
             }
 
-            Movement.MoveEntity(PhysicsValues, World, PositionData, elapsedTime, vx, vy, vz);
+            Movement.MoveEntity(PhysicsValues, World, PositionData, elapsedDuration, vx, vy, vz);
         }
 
         private double GetJumpingSpeed()

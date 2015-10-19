@@ -17,10 +17,10 @@ namespace CubeHack.Game
             positionData.CollisionPosition = positionData.Position;
         }
 
-        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionData positionData, double elapsedTime, double vx, double vy, double vz)
+        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionData positionData, GameDuration elapsedDuration, double vx, double vy, double vz)
         {
-            vy -= 0.5 * elapsedTime * physicsValues.Gravity;
-            if (MoveY(physicsValues, world, positionData, vy * elapsedTime))
+            vy -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
+            if (MoveY(physicsValues, world, positionData, vy * elapsedDuration.Seconds))
             {
                 positionData.IsFalling = false;
 
@@ -33,7 +33,7 @@ namespace CubeHack.Game
             }
             else
             {
-                vy -= 0.5 * elapsedTime * physicsValues.Gravity;
+                vy -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
                 positionData.IsFalling = true;
             }
 
@@ -48,8 +48,8 @@ namespace CubeHack.Game
                 }
 
                 Position positionBeforeMovement = positionData.CollisionPosition;
-                double moveX = vx * elapsedTime;
-                double moveZ = vz * elapsedTime;
+                double moveX = vx * elapsedDuration.Seconds;
+                double moveZ = vz * elapsedDuration.Seconds;
 
                 if (vx > vz)
                 {
