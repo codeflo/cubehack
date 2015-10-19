@@ -37,7 +37,7 @@ namespace CubeHack.Client
                 GL.End();
                 GL.Disable(EnableCap.Blend);
 
-                GameApp.Instance.FontRenderer.Draw(-0.15f, 0, 0.06f, 0.06f * width / height, status ?? "Click to play");
+                GameApp.Instance.FontRenderer.Draw(-0.85f, -0.6f, 0.06f, 0.06f * width / height, status ?? "Continue");
             }
 
             DrawFps(width, height);

@@ -20,6 +20,7 @@ namespace CubeHack.Client
         private KeyboardState _keyboardState;
         private MouseState _mouseState;
         private bool _mouseLookActive = true;
+        private string _statusText;
 
         public GameApp()
         {
@@ -132,10 +133,12 @@ namespace CubeHack.Client
         {
             if (string.IsNullOrWhiteSpace(host)) host = "localhost";
 
+            _statusText = "Connecting...";
             var channel = new TcpChannel(host, port);
             await channel.ConnectAsync();
             var gameClient = new GameClient(this, channel);
 
+            _statusText = "Loading textures...";
             foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
             {
                 TextureAtlas.Register(texture);
@@ -144,6 +147,7 @@ namespace CubeHack.Client
             await TextureAtlas.BuildAsync();
 
             _gameClient = gameClient;
+            _statusText = null;
         }
 
         private void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
@@ -221,7 +225,7 @@ namespace CubeHack.Client
             }
             else
             {
-                UiRenderer.Render(renderInfo.Width, renderInfo.Height, false, "Connecting...");
+                UiRenderer.Render(renderInfo.Width, renderInfo.Height, false, _statusText ?? "Not connected");
             }
         }
     }
