@@ -88,7 +88,7 @@ namespace CubeHack.Util
 
         public override int GetHashCode()
         {
-            return Seconds.GetHashCode();
+            return HashCalculator.Value[Seconds];
         }
     }
 }

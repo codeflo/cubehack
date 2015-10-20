@@ -94,6 +94,7 @@
     <Compile Include="Util\ExtraMath.cs" />
     <Compile Include="Util\GameTime.cs" />
     <Compile Include="Util\GameDuration.cs" />
+    <Compile Include="Util\HashCalculator.cs" />
     <Compile Include="Util\PriorityMutex.cs" />
     <Compile Include="Util\Rng.cs" />
   </ItemGroup>

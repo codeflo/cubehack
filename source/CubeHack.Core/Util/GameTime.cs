@@ -91,7 +91,7 @@ namespace CubeHack.Util
 
         public override int GetHashCode()
         {
-            return _elapsedTicks.GetHashCode();
+            return HashCalculator.Value[_elapsedTicks];
         }
     }
 }
