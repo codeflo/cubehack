@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.Geometry;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
@@ -153,10 +154,11 @@ namespace CubeHack.Game
                     {
                         for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                         {
-                            if (!channel.SentChunks[x, y, z])
+                            var chunkPos = new ChunkPos(x, y, z);
+                            if (!channel.SentChunks.ContainsKey(chunkPos))
                             {
-                                channel.SentChunks[x, y, z] = true;
-                                var chunk = _startWorld.GetChunk(x, y, z);
+                                channel.SentChunks[chunkPos] = true;
+                                var chunk = _startWorld.GetChunk(chunkPos);
 
                                 if (chunk != null)
                                 {

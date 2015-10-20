@@ -1,7 +1,9 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using System;
+using System.Collections.Generic;
 
 namespace CubeHack.Game
 {
@@ -11,7 +13,7 @@ namespace CubeHack.Game
 
         private const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
 
-        private readonly Dictionary3D<Chunk> _chunkMap = new Dictionary3D<Chunk>();
+        private readonly Dictionary<ChunkPos, Chunk> _chunkMap = new Dictionary<ChunkPos, Chunk>();
 
         public WorldGenerator Generator { get; set; }
 
@@ -24,7 +26,7 @@ namespace CubeHack.Game
                     return 1;
                 }
 
-                var chunk = PeekChunk(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                var chunk = PeekChunk(new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits));
                 if (chunk == null)
                 {
                     return 0;
@@ -35,19 +37,18 @@ namespace CubeHack.Game
 
             set
             {
-                var chunk = GetChunk(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                var chunk = GetChunk(new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits));
                 chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask] = value;
             }
         }
 
-        public Chunk GetChunk(int x, int y, int z)
+        public Chunk GetChunk(ChunkPos chunkPos)
         {
-            var chunk = _chunkMap[x, y, z];
-
-            if (chunk == null)
+            Chunk chunk;
+            if (!_chunkMap.TryGetValue(chunkPos, out chunk))
             {
-                chunk = new Chunk(x, y, z);
-                _chunkMap[x, y, z] = chunk;
+                chunk = new Chunk(chunkPos);
+                _chunkMap[chunkPos] = chunk;
 
                 if (Generator != null)
                 {
@@ -58,14 +59,16 @@ namespace CubeHack.Game
             return chunk;
         }
 
-        public Chunk PeekChunk(int x, int y, int z)
+        public Chunk PeekChunk(ChunkPos chunkPos)
         {
-            return _chunkMap[x, y, z];
+            Chunk chunk;
+            _chunkMap.TryGetValue(chunkPos, out chunk);
+            return chunk;
         }
 
         public void PasteChunkData(ChunkData chunkData)
         {
-            GetChunk(chunkData.X, chunkData.Y, chunkData.Z).PasteChunkData(chunkData);
+            GetChunk(chunkData.Pos).PasteChunkData(chunkData);
         }
 
         public RayCastResult CastRay(Position position, Offset direction, double max)

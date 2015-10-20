@@ -1,8 +1,10 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CubeHack.Game
@@ -22,12 +24,11 @@ namespace CubeHack.Game
         {
             _universe = universe;
             _player = player;
-            SentChunks = new Dictionary3D<bool>();
         }
 
         public int SentCubeUpdates { get; set; }
 
-        public Dictionary3D<bool> SentChunks { get; private set; }
+        public Dictionary<ChunkPos, bool> SentChunks { get; } = new Dictionary<ChunkPos, bool>();
 
         public Func<GameEvent, Task> OnGameEventAsync
         {

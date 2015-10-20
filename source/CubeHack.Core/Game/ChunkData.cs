@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using ProtoBuf;
 
 namespace CubeHack.Game
@@ -9,13 +10,7 @@ namespace CubeHack.Game
     public class ChunkData
     {
         [ProtoMember(1)]
-        public int X { get; set; }
-
-        [ProtoMember(2)]
-        public int Y { get; set; }
-
-        [ProtoMember(3)]
-        public int Z { get; set; }
+        public ChunkPos Pos { get; set; }
 
         [ProtoMember(4)]
         public byte[] Data { get; set; }

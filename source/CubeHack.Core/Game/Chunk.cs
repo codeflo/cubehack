@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using System;
 using System.IO;
 
@@ -14,20 +15,14 @@ namespace CubeHack.Game
         private ushort[] _data;
         private ChunkData _chunkData;
 
-        public Chunk(int chunkX, int chunkY, int chunkZ)
+        public Chunk(ChunkPos chunkPos)
         {
-            ChunkX = chunkX;
-            ChunkY = chunkY;
-            ChunkZ = chunkZ;
+            Pos = chunkPos;
         }
 
         public ulong ContentHash { get; private set; }
 
-        public int ChunkX { get; set; }
-
-        public int ChunkY { get; set; }
-
-        public int ChunkZ { get; set; }
+        public ChunkPos Pos { get; }
 
         public bool HasData
         {
@@ -72,7 +67,7 @@ namespace CubeHack.Game
         {
             if (_chunkData == null)
             {
-                _chunkData = new ChunkData() { X = ChunkX, Y = ChunkY, Z = ChunkZ };
+                _chunkData = new ChunkData() { Pos = Pos };
 
                 if (_data != null)
                 {

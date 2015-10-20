@@ -2,10 +2,12 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Game;
+using CubeHack.Geometry;
 using CubeHack.Util;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
+using System.Collections.Generic;
 
 namespace CubeHack.Client
 {
@@ -20,7 +22,7 @@ namespace CubeHack.Client
         private readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
         private readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
 
-        private readonly Dictionary3D<Tuple<ulong, int>> _displayLists = new Dictionary3D<Tuple<ulong, int>>();
+        private readonly Dictionary<ChunkPos, DisplayListEntry> _displayLists = new Dictionary<ChunkPos, DisplayListEntry>();
 
         private int _depthBufferWidth;
         private int _depthBufferHeight;
@@ -109,15 +111,17 @@ namespace CubeHack.Client
                 {
                     for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
                     {
+                        var chunkPos = new ChunkPos(x, y, z);
                         if (!IsInViewingFrustum(gameClient, offset, x, y, z)) continue;
 
-                        var chunk = gameClient.World.PeekChunk(x, y, z);
+                        var chunk = gameClient.World.PeekChunk(chunkPos);
                         if (chunk != null && chunk.HasData)
                         {
-                            var entry = _displayLists[x, y, z];
-                            int displayList = entry == null ? 0 : entry.Item2;
+                            DisplayListEntry entry;
+                            _displayLists.TryGetValue(chunkPos, out entry);
+                            int displayList = entry == null ? 0 : entry.DisplayList;
 
-                            if ((displayList == 0 || entry.Item1 != chunk.ContentHash) && chunkUpdates < _maxChunkUpdatesPerFrame)
+                            if ((displayList == 0 || entry.ContentHash != chunk.ContentHash) && chunkUpdates < _maxChunkUpdatesPerFrame)
                             {
                                 ++chunkUpdates;
 
@@ -130,7 +134,7 @@ namespace CubeHack.Client
                                 RenderChunk(chunk, x, y, z);
                                 GL.EndList();
 
-                                _displayLists[x, y, z] = Tuple.Create(chunk.ContentHash, displayList);
+                                _displayLists[chunkPos] = new DisplayListEntry { ContentHash = chunk.ContentHash, DisplayList = displayList };
                             }
 
                             if (displayList != 0)
@@ -399,6 +403,13 @@ namespace CubeHack.Client
             {
                 GL.SecondaryColor3(0f, 0f, 0f);
             }
+        }
+
+        private class DisplayListEntry
+        {
+            public ulong ContentHash;
+
+            public int DisplayList;
         }
     }
 }

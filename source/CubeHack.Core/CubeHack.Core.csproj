@@ -67,7 +67,6 @@
     <Compile Include="Game\ChunkData.cs" />
     <Compile Include="Game\CubeUpdateData.cs" />
     <Compile Include="Game\DataLoader.cs" />
-    <Compile Include="Game\Dictionary3D.cs" />
     <Compile Include="Game\Entity.cs" />
     <Compile Include="Game\GameEvent.cs" />
     <Compile Include="Game\GameKey.cs" />
@@ -83,6 +82,7 @@
     <Compile Include="Game\Universe.cs" />
     <Compile Include="Game\World.cs" />
     <Compile Include="Game\WorldGenerator.cs" />
+    <Compile Include="Geometry\ChunkPos.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SharedAssemblyInfo.cs" />
