@@ -9,6 +9,8 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 
+using static CubeHack.Geometry.GeometryConstants;
+
 namespace CubeHack.Client
 {
     internal class Renderer
@@ -105,11 +107,11 @@ namespace CubeHack.Client
             int displayListCount = 0;
             int chunkUpdates = 0;
 
-            for (int y = chunkY + 3; y >= chunkY - 3; --y)
+            for (int y = chunkY + ChunkViewRadiusY; y >= chunkY - ChunkViewRadiusY; --y)
             {
-                for (int x = chunkX - 5; x <= chunkX + 5; ++x)
+                for (int x = chunkX - ChunkViewRadiusXZ; x <= chunkX + ChunkViewRadiusXZ; ++x)
                 {
-                    for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
+                    for (int z = chunkZ - ChunkViewRadiusXZ; z <= chunkZ + ChunkViewRadiusXZ; ++z)
                     {
                         var chunkPos = new ChunkPos(x, y, z);
                         if (!IsInViewingFrustum(gameClient, offset, x, y, z)) continue;
@@ -152,6 +154,24 @@ namespace CubeHack.Client
                         }
                     }
                 }
+            }
+
+            var keysToRemove = new HashSet<ChunkPos>();
+            foreach (var entry in _displayLists)
+            {
+                var chunkPos = entry.Key;
+                if (chunkPos.X < chunkX - ChunkViewRadiusXZ || chunkPos.X > chunkX + ChunkViewRadiusXZ ||
+                    chunkPos.Y < chunkY - ChunkViewRadiusY || chunkPos.Y > chunkY + ChunkViewRadiusY ||
+                    chunkPos.Z < chunkZ - ChunkViewRadiusXZ || chunkPos.Z > chunkZ + ChunkViewRadiusXZ)
+                {
+                    GL.DeleteLists(entry.Value.DisplayList, 1);
+                    keysToRemove.Add(chunkPos);
+                }
+            }
+
+            foreach (var entry in keysToRemove)
+            {
+                _displayLists.Remove(entry);
             }
 
             if (displayListCount > 0)

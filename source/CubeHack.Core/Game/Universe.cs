@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+using static CubeHack.Geometry.GeometryConstants;
+
 namespace CubeHack.Game
 {
     public sealed class Universe : IDisposable
@@ -158,11 +160,11 @@ namespace CubeHack.Game
                 int chunkY = player.PositionData.Position.ChunkY;
                 int chunkZ = player.PositionData.Position.ChunkZ;
 
-                for (int x = chunkX - 5; x <= chunkX + 5; ++x)
+                for (int x = chunkX - ChunkViewRadiusXZ; x <= chunkX + ChunkViewRadiusXZ; ++x)
                 {
-                    for (int y = chunkY - 5; y <= chunkY + 5; ++y)
+                    for (int y = chunkY - ChunkViewRadiusY; y <= chunkY + ChunkViewRadiusY; ++y)
                     {
-                        for (int z = chunkZ - 5; z <= chunkZ + 5; ++z)
+                        for (int z = chunkZ - ChunkViewRadiusXZ; z <= chunkZ + ChunkViewRadiusXZ; ++z)
                         {
                             var chunkPos = new ChunkPos(x, y, z);
                             if (!channel.SentChunks.ContainsKey(chunkPos))
