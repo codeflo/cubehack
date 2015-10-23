@@ -12,7 +12,10 @@ namespace CubeHack.Game
         [ProtoMember(1)]
         public ChunkPos Pos { get; set; }
 
-        [ProtoMember(4)]
+        [ProtoMember(2)]
+        public bool IsCreated { get; set; }
+
+        [ProtoMember(3)]
         public byte[] Data { get; set; }
     }
 }

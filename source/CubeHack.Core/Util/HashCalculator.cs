@@ -72,6 +72,35 @@ namespace CubeHack.Util
 
         public HashCalculator this[bool k] => this[k ? 0xb0f0c498U : 0x859a53a4U]; // random values
 
+        public HashCalculator this[byte[] bytes]
+        {
+            get
+            {
+                int l = bytes == null ? 0 : bytes.Length;
+                int i;
+                uint h = _hash;
+
+                for (i = 0; i + 3 < l; i += 4)
+                {
+                    uint k = (uint)bytes[i] | ((uint)bytes[i + 1] << 8) | ((uint)bytes[i + 2] << 16) | ((uint)bytes[i + 3] << 24);
+                    h = Mix(h, k);
+                }
+
+                if (i < l)
+                {
+                    uint k = 0;
+                    for (int j = i; j < l; ++j)
+                    {
+                        k = (k << 8) | bytes[j];
+                    }
+
+                    h = Mix(h, k);
+                }
+
+                return new HashCalculator(h);
+            }
+        }
+
         public static implicit operator int (HashCalculator murmurHash)
         {
             uint h = murmurHash._hash;
@@ -93,6 +122,19 @@ namespace CubeHack.Util
         public override bool Equals(object obj)
         {
             return obj is HashCalculator && ((HashCalculator)obj)._hash == _hash;
+        }
+
+        private static uint Mix(uint h, uint k)
+        {
+            k *= c1;
+            k = RotL(k, 15);
+            k *= c2;
+
+            h ^= k;
+            h = RotL(h, 13);
+            h = h * 5 + 0xe6546b64;
+
+            return h;
         }
 
         private static uint RotL(uint v, int r)

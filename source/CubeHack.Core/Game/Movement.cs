@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.Geometry;
 using CubeHack.Util;
 using System;
 
@@ -287,6 +288,10 @@ namespace CubeHack.Game
                 {
                     for (int z = cz0; z <= cz1; ++z)
                     {
+                        var chunkPos = new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                        var chunk = world.PeekChunk(chunkPos);
+                        if (chunk == null) return false;
+
                         if (world[x, y, z] != 0)
                         {
                             return false;

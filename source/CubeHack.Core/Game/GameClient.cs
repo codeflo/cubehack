@@ -31,7 +31,7 @@ namespace CubeHack.Game
 
         public GameClient(IGameController controller, IChannel channel)
         {
-            World = new World();
+            World = new World(null);
 
             _controller = controller;
 

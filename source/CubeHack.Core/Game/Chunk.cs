@@ -14,15 +14,36 @@ namespace CubeHack.Game
 
         private ushort[] _data;
         private ChunkData _chunkData;
+        private bool _isCreated;
 
-        public Chunk(ChunkPos chunkPos)
+        public Chunk(World world, ChunkPos chunkPos)
         {
+            World = world;
             Pos = chunkPos;
         }
 
         public ulong ContentHash { get; private set; }
 
+        public World World { get; }
+
         public ChunkPos Pos { get; }
+
+        public bool IsCreated
+        {
+            get
+            {
+                return _isCreated;
+            }
+
+            set
+            {
+                if (_isCreated != value)
+                {
+                    _isCreated = value;
+                    _chunkData = null;
+                }
+            }
+        }
 
         public bool HasData
         {
@@ -67,7 +88,7 @@ namespace CubeHack.Game
         {
             if (_chunkData == null)
             {
-                _chunkData = new ChunkData() { Pos = Pos };
+                _chunkData = new ChunkData() { Pos = Pos, IsCreated = _isCreated };
 
                 if (_data != null)
                 {
@@ -112,9 +133,15 @@ namespace CubeHack.Game
                 throw new ArgumentNullException("chunkData");
             }
 
+            IsCreated = chunkData.IsCreated;
+            PasteChunkData(chunkData.Data);
+        }
+
+        public void PasteChunkData(byte[] data)
+        {
             ContentHash = 0;
 
-            if (chunkData.Data == null)
+            if (data == null)
             {
                 _data = null;
                 return;
@@ -125,7 +152,7 @@ namespace CubeHack.Game
                 _data = new ushort[Size * Size * Size];
             }
 
-            using (var stream = new MemoryStream(chunkData.Data))
+            using (var stream = new MemoryStream(data))
             {
                 int i = 0;
                 while (i < _data.Length)

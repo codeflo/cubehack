@@ -3,6 +3,7 @@
 
 using CubeHack.Data;
 using CubeHack.Geometry;
+using CubeHack.Storage;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
@@ -21,15 +22,18 @@ namespace CubeHack.Game
         private readonly List<Entity> _entities = new List<Entity>();
         private readonly HashSet<Channel> _channels = new HashSet<Channel>();
 
-        private readonly World _startWorld = new World();
+        private readonly World _startWorld;
 
         private readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
 
         private volatile bool _isDisposed;
 
-        public Universe(Mod mod)
+        public Universe(ISaveFile saveFile, Mod mod)
         {
+            SaveFile = saveFile;
             _mod = mod;
+
+            _startWorld = new World(this);
             _startWorld.Generator = new WorldGenerator(_startWorld);
 
             _modData = new ModData
@@ -64,6 +68,8 @@ namespace CubeHack.Game
             thread.Start();
         }
 
+        public ISaveFile SaveFile { get; }
+
         public Mod Mod
         {
             get
@@ -82,7 +88,11 @@ namespace CubeHack.Game
 
         public void Dispose()
         {
-            _isDisposed = true;
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                SaveFile.Dispose();
+            }
         }
 
         public IChannel ConnectPlayer()

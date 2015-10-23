@@ -41,6 +41,8 @@ namespace CubeHack.Game
                     }
                 }
             }
+
+            chunk.IsCreated = true;
         }
     }
 }

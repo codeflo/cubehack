@@ -2,8 +2,10 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Geometry;
+using CubeHack.Storage;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
@@ -13,7 +15,16 @@ namespace CubeHack.Game
 
         private const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
 
+        private readonly object _mutex = new object();
+
         private readonly Dictionary<ChunkPos, Chunk> _chunkMap = new Dictionary<ChunkPos, Chunk>();
+
+        public World(Universe universe)
+        {
+            Universe = universe;
+        }
+
+        public Universe Universe { get; }
 
         public WorldGenerator Generator { get; set; }
 
@@ -37,26 +48,47 @@ namespace CubeHack.Game
 
             set
             {
-                var chunk = GetChunk(new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits));
+                var chunkPos = new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                var chunk = GetChunk(chunkPos);
                 chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask] = value;
+
+                Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
             }
         }
 
         public Chunk GetChunk(ChunkPos chunkPos)
         {
-            Chunk chunk;
-            if (!_chunkMap.TryGetValue(chunkPos, out chunk))
+            lock (_mutex)
             {
-                chunk = new Chunk(chunkPos);
-                _chunkMap[chunkPos] = chunk;
-
-                if (Generator != null)
+                Chunk chunk;
+                if (!_chunkMap.TryGetValue(chunkPos, out chunk))
                 {
-                    Generator.CreateChunk(chunk);
-                }
-            }
+                    chunk = new Chunk(this, chunkPos);
+                    _chunkMap[chunkPos] = chunk;
 
-            return chunk;
+                    /* TODO: Figure out how to load/generate chunks asynchronously without breaking the game. */
+                    Task.Run(
+                        async () =>
+                        {
+                            var savedValueTask = Universe?.SaveFile?.ReadAsync(StorageKey.Get("ChunkData", chunkPos));
+                            StorageValue savedValue = savedValueTask == null ? null : await savedValueTask;
+                            if (savedValue != null)
+                            {
+                                var chunkData = savedValue.Deserialize<ChunkData>();
+                                if (chunkData != null)
+                                {
+                                    chunk.PasteChunkData(savedValue.Deserialize<ChunkData>());
+                                }
+                            }
+                            else if (Generator != null)
+                            {
+                                Generator.CreateChunk(chunk);
+                            }
+                        }).Wait();
+                }
+
+                return chunk;
+            }
         }
 
         public Chunk PeekChunk(ChunkPos chunkPos)

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Game;
+using CubeHack.Storage;
 using CubeHack.Tcp;
 
 namespace CubeHack.Client
@@ -17,7 +18,8 @@ namespace CubeHack.Client
             TcpServer server = null;
             if (string.IsNullOrWhiteSpace(host))
             {
-                server = new TcpServer(new Universe(DataLoader.LoadMod("Core")), false);
+                var saveFile = SaveDirectory.OpenFileAsync(SaveDirectory.DebugGame).Result;
+                server = new TcpServer(new Universe(saveFile, DataLoader.LoadMod("Core")), false);
                 port = server.Port;
             }
 
