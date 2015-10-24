@@ -11,20 +11,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Core", "CubeHack.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Server", "CubeHack.Server\CubeHack.Server.csproj", "{86E96E16-B4BC-4A27-9971-BD5A08AFCFC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Tests", "CubeHack.Tests\CubeHack.Tests.csproj", "{6F8D7F78-D29A-4C05-98C8-BC4E354B6230}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Release|Mixed Platforms = Release|Mixed Platforms
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{58777CFB-F70C-4C01-85C2-7B24827F91E7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{58777CFB-F70C-4C01-85C2-7B24827F91E7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{58777CFB-F70C-4C01-85C2-7B24827F91E7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{58777CFB-F70C-4C01-85C2-7B24827F91E7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A78B2211-B103-42F5-9006-5B234A6ED481}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{A78B2211-B103-42F5-9006-5B234A6ED481}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{A78B2211-B103-42F5-9006-5B234A6ED481}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -33,6 +35,10 @@ Global
 		{86E96E16-B4BC-4A27-9971-BD5A08AFCFC0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{86E96E16-B4BC-4A27-9971-BD5A08AFCFC0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{86E96E16-B4BC-4A27-9971-BD5A08AFCFC0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6F8D7F78-D29A-4C05-98C8-BC4E354B6230}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6F8D7F78-D29A-4C05-98C8-BC4E354B6230}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6F8D7F78-D29A-4C05-98C8-BC4E354B6230}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6F8D7F78-D29A-4C05-98C8-BC4E354B6230}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
