@@ -102,9 +102,9 @@
       <Project>{a78b2211-b103-42f5-9006-5b234a6ed481}</Project>
       <Name>CubeHack.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CubeHack.Client\CubeHack.Client.csproj">
-      <Project>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</Project>
-      <Name>CubeHack.Client</Name>
+    <ProjectReference Include="..\CubeHack.FrontEnd\CubeHack.FrontEnd.csproj">
+      <Project>{58777CFB-F70C-4C01-85C2-7B24827F91E7}</Project>
+      <Name>CubeHack.FrontEnd</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

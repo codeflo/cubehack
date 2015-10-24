@@ -7,7 +7,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal static class TextureGenerator
     {

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using CubeHack.Client.UiFramework;
 using CubeHack.Data;
+using CubeHack.FrontEnd.UiFramework;
 using CubeHack.Util;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal static class UiRenderer
     {

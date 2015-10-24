@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 using static CubeHack.Geometry.GeometryConstants;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal class Renderer
     {
@@ -20,8 +20,8 @@ namespace CubeHack.Client
 
         private readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
 
-        private readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.Cube"));
-        private readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.Client.Shaders.PostProcess"));
+        private readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.FrontEnd.Shaders.Cube"));
+        private readonly Lazy<Shader> _postProcessShader = new Lazy<Shader>(() => Shader.Load("CubeHack.FrontEnd.Shaders.PostProcess"));
         private readonly Lazy<int> _depthBufferTexture = new Lazy<int>(() => GL.GenTexture());
 
         private readonly Dictionary<ChunkPos, DisplayListEntry> _displayLists = new Dictionary<ChunkPos, DisplayListEntry>();

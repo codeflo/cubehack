@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Text;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal class Shader
     {

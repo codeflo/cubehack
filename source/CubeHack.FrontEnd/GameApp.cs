@@ -1,7 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using CubeHack.Client.UiFramework;
+using CubeHack.FrontEnd.UiFramework;
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
@@ -11,7 +11,7 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     public sealed class GameApp : IGameController
     {

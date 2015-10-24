@@ -7,7 +7,7 @@
     <ProjectGuid>{58777CFB-F70C-4C01-85C2-7B24827F91E7}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CubeHack.Client</RootNamespace>
+    <RootNamespace>CubeHack.FrontEnd</RootNamespace>
     <AssemblyName>CubeHack</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

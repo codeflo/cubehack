@@ -1,8 +1,8 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using CubeHack.Client;
 using CubeHack.EditorModel;
+using CubeHack.FrontEnd;
 using CubeHack.Game;
 using CubeHack.Storage;
 using CubeHack.Util;

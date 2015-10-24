@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     /// <summary>
     /// <para>

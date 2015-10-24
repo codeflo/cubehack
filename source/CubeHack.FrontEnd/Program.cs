@@ -5,7 +5,7 @@ using CubeHack.Game;
 using CubeHack.Storage;
 using CubeHack.Tcp;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal static class Program
     {

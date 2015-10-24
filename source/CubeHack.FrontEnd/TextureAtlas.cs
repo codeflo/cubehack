@@ -6,7 +6,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CubeHack.Client
+namespace CubeHack.FrontEnd
 {
     internal class TextureAtlas
     {

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Editor", "CubeHack.Editor\CubeHack.Editor.csproj", "{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.FrontEnd", "CubeHack.FrontEnd\CubeHack.FrontEnd.csproj", "{58777CFB-F70C-4C01-85C2-7B24827F91E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Client", "CubeHack.Client\CubeHack.Client.csproj", "{58777CFB-F70C-4C01-85C2-7B24827F91E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Editor", "CubeHack.Editor\CubeHack.Editor.csproj", "{836DD8C4-3EBB-4B69-BFF1-FAC3A95165EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeHack.Core", "CubeHack.Core\CubeHack.Core.csproj", "{A78B2211-B103-42F5-9006-5B234A6ED481}"
 EndProject
