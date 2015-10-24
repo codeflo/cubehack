@@ -1,9 +1,9 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Client.UiFramework;
+using CubeHack.Data;
 using CubeHack.Util;
-using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -15,65 +15,46 @@ namespace CubeHack.Client
 
         private static GameTime _frameTime;
 
-        public static void Render(float width, float height, bool mouseLookActive, string status)
+        public static void Render(RenderInfo renderInfo, bool mouseLookActive, string status)
         {
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-
-            GL.Disable(EnableCap.DepthTest);
-
-            if (!mouseLookActive)
+            using (var canvas = new Canvas(renderInfo))
             {
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                GL.Color4(0, 0, 0, 0.5f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(-1f, -1f);
-                GL.Vertex2(1f, -1f);
-                GL.Vertex2(1f, 1f);
-                GL.Vertex2(-1f, 1f);
-                GL.End();
-                GL.Disable(EnableCap.Blend);
+                if (mouseLookActive)
+                {
+                    DrawCrossHair(canvas);
+                }
+                else
+                {
+                    if (!mouseLookActive || status != null)
+                    {
+                        canvas.DrawRectangle(new Color(0, 0, 0, 0.5f), 0, 0, canvas.Width, canvas.Height);
+                        DrawStatus(canvas, status ?? "Continue");
+                    }
+                }
 
-                GameApp.Instance.FontRenderer.Draw(-0.85f, -0.6f, 0.06f, 0.06f * width / height, status ?? "Continue");
-            }
-
-            DrawFps(width, height);
-
-            if (mouseLookActive)
-            {
-                DrawCrossHair(width, height);
+                DrawFps(canvas);
             }
         }
 
-        private static void DrawCrossHair(float width, float height)
+        private static void DrawCrossHair(Canvas canvas)
         {
-            float d = (float)Math.Sqrt(width * width + height * height);
-            float w = (float)height / d;
-            float h = (float)width / d;
-            float dwh = d / (width * height);
+            var color = new Color(1, 1, 1);
+            var x = canvas.Width * 0.5f;
+            var y = canvas.Height * 0.5f;
 
-            float n = 4 * dwh;
-            float m = 24 * dwh;
+            var l = 4;
+            var w = 0.7f;
 
-            GL.Color3(1f, 1f, 1f);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(-m * w, -n * h);
-            GL.Vertex2(m * w, -n * h);
-            GL.Vertex2(m * w, n * h);
-            GL.Vertex2(-m * w, n * h);
-
-            GL.Vertex2(-n * w, -m * h);
-            GL.Vertex2(n * w, -m * h);
-            GL.Vertex2(n * w, m * h);
-            GL.Vertex2(-n * w, m * h);
-            GL.End();
+            canvas.DrawRectangle(color, x - w, y - l, x + w, y + l);
+            canvas.DrawRectangle(color, x - l, y - w, x + l, y + w);
         }
 
-        private static void DrawFps(float width, float height)
+        private static void DrawStatus(Canvas canvas, string status)
+        {
+            canvas.Print(new Color(1, 1, 1), 20, 0.5f * (canvas.Width - canvas.MeasureText(20, status)), canvas.Height - 100, status);
+        }
+
+        private static void DrawFps(Canvas canvas)
         {
             var frameDuration = GameTime.Update(ref _frameTime);
             if (_timeMeasurements.Count >= 50)
@@ -92,8 +73,9 @@ namespace CubeHack.Client
             {
                 double fps = _timeMeasurements.Count / totalTime;
 
-                string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0.0} fps", fps);
-                GameApp.Instance.FontRenderer.Draw(-1, 1, 0.04f, 0.04f * width / height, fpsString);
+                string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0}FPS", fps);
+
+                canvas.Print(new Color(1, 1, 1), 15, 5, 5, fpsString);
             }
         }
     }

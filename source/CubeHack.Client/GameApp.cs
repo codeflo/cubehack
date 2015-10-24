@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Client.UiFramework;
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
@@ -25,14 +26,14 @@ namespace CubeHack.Client
         public GameApp()
         {
             GameLoop.Reset();
-            FontRenderer = new FontRenderer();
+            CharMap = new CharMap();
             TextureAtlas = new TextureAtlas();
             Renderer = new Renderer();
         }
 
         public static GameApp Instance => _instance;
 
-        internal FontRenderer FontRenderer { get; }
+        internal CharMap CharMap { get; }
 
         internal TextureAtlas TextureAtlas { get; }
 
@@ -232,12 +233,12 @@ namespace CubeHack.Client
                     _gameClient.UpdateState();
 
                     Renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
-                    UiRenderer.Render(renderInfo.Width, renderInfo.Height, _mouseLookActive, null);
+                    UiRenderer.Render(renderInfo, _mouseLookActive, null);
                 }
             }
             else
             {
-                UiRenderer.Render(renderInfo.Width, renderInfo.Height, false, _statusText ?? "Not connected");
+                UiRenderer.Render(renderInfo, false, _statusText ?? "Not connected");
             }
         }
     }

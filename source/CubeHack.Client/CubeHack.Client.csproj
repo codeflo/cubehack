@@ -55,7 +55,7 @@
     <Compile Include="..\CubeHack.Core\Properties\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="FontRenderer.cs" />
+    <Compile Include="UiFramework\CharMap.cs" />
     <Compile Include="GameLoop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +65,7 @@
     <Compile Include="TextureAtlas.cs" />
     <Compile Include="TextureGenerator.cs" />
     <Compile Include="TextureHelper.cs" />
+    <Compile Include="UiFramework\Canvas.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
   </ItemGroup>

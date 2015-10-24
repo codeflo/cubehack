@@ -26,6 +26,7 @@ namespace CubeHack.Data
                     R = FromHex(s.Substring(1, 2)) / 255f;
                     G = FromHex(s.Substring(3, 2)) / 255f;
                     B = FromHex(s.Substring(5, 2)) / 255f;
+                    A = 1f;
                     return;
                 }
                 else if (s.Length == 4)
@@ -33,11 +34,24 @@ namespace CubeHack.Data
                     R = FromHex(s.Substring(1, 1)) / 15f;
                     G = FromHex(s.Substring(2, 1)) / 15f;
                     B = FromHex(s.Substring(3, 1)) / 15f;
+                    A = 1f;
                     return;
                 }
             }
 
             throw new ArgumentException();
+        }
+
+        public Color(float r, float g, float b) : this(r, g, b, 1f)
+        {
+        }
+
+        public Color(float r, float g, float b, float a)
+        {
+            R = r;
+            G = g;
+            B = b;
+            A = a;
         }
 
         [ProtoMember(1)]
@@ -48,6 +62,9 @@ namespace CubeHack.Data
 
         [ProtoMember(3)]
         public float B { get; set; }
+
+        [ProtoMember(4)]
+        public float A { get; set; }
 
         private float FromHex(string s)
         {
