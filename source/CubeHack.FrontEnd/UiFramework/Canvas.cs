@@ -25,8 +25,13 @@ namespace CubeHack.FrontEnd.UiFramework
     {
         private const float _uiDiagonal = 1024f;
 
+        private static readonly GameTime _start = GameTime.Now();
+        private readonly GameTime _time;
+
         public Canvas(RenderInfo renderInfo)
         {
+            _time = GameTime.Now();
+
             SetUpScreen(renderInfo);
 
             GL.Disable(EnableCap.DepthTest);
@@ -44,20 +49,20 @@ namespace CubeHack.FrontEnd.UiFramework
             GL.Enable(EnableCap.DepthTest);
         }
 
-        public float MeasureText(float lineHeight, string text)
+        public float MeasureText(FontStyle style, string text)
         {
             if (text == null) return 0;
 
             float x = 0;
             foreach (var c in text)
             {
-                x += GameApp.Instance.CharMap.GetCharWidth(lineHeight, c);
+                x += GameApp.Instance.CharMap.GetCharWidth(style.Size, c, style.IsBold);
             }
 
             return x;
         }
 
-        public void Print(Color color, float lineHeight, float x, float y, string text)
+        public void Print(FontStyle style, float x, float y, string text)
         {
             if (text == null) return;
 
@@ -66,11 +71,37 @@ namespace CubeHack.FrontEnd.UiFramework
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.LinearMipmapLinear);
 
-            GL.Color4(color.R, color.G, color.B, color.A);
+            GL.Color4(style.Color.R, style.Color.G, style.Color.B, style.Color.A);
+
+            float lineHeight = style.Size;
 
             foreach (var c in text)
             {
-                x += GameApp.Instance.CharMap.PrintChar(lineHeight, x, y, c);
+                float x2, y2, lineHeight2;
+                switch (style.Animation)
+                {
+                    case FontAnimation.None:
+                        x2 = x;
+                        y2 = y;
+                        lineHeight2 = lineHeight;
+                        break;
+
+                    case FontAnimation.Wave:
+                        double tx = ((_time - _start).Seconds * 0.435 + 0.113 * (Width - x) / lineHeight) % 1 * 2 * Math.PI;
+                        x2 = x + (float)Math.Sin(tx) * lineHeight * 0.125f;
+
+                        double ty = ((_time - _start).Seconds * 0.521 + 0.137 * x / lineHeight) % 1 * 2 * Math.PI;
+                        y2 = y + (float)Math.Sin(ty) * lineHeight * 0.125f;
+
+                        lineHeight2 = lineHeight - (float)Math.Cos(tx) * lineHeight * 0.125f;
+                        break;
+
+                    default:
+                        throw new NotImplementedException();
+                }
+
+                GameApp.Instance.CharMap.PrintChar(lineHeight2, x2, y2, c, style.IsBold);
+                x += GameApp.Instance.CharMap.GetCharWidth(lineHeight, c, style.IsBold);
             }
 
             GL.Disable(EnableCap.Texture2D);

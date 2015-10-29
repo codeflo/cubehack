@@ -238,6 +238,8 @@ namespace CubeHack.FrontEnd
             }
             else
             {
+                GL.ClearColor(0f, 0f, 0f, 1f);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
                 UiRenderer.Render(renderInfo, false, _statusText ?? "Not connected");
             }
         }

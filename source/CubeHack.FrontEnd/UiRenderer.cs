@@ -28,7 +28,7 @@ namespace CubeHack.FrontEnd
                     if (!mouseLookActive || status != null)
                     {
                         canvas.DrawRectangle(new Color(0, 0, 0, 0.5f), 0, 0, canvas.Width, canvas.Height);
-                        DrawStatus(canvas, status ?? "Continue");
+                        DrawStatus(canvas, status);
                     }
                 }
 
@@ -51,7 +51,10 @@ namespace CubeHack.FrontEnd
 
         private static void DrawStatus(Canvas canvas, string status)
         {
-            canvas.Print(new Color(1, 1, 1), 20, 0.5f * (canvas.Width - canvas.MeasureText(20, status)), canvas.Height - 100, status);
+            var style = new FontStyle(30, new Color(1, 1, 1)) { Animation = FontAnimation.Wave };
+            canvas.Print(
+                style,
+                0.5f * (canvas.Width - canvas.MeasureText(style, status)), canvas.Height * 0.5f - 15, status);
         }
 
         private static void DrawFps(Canvas canvas)
@@ -75,7 +78,7 @@ namespace CubeHack.FrontEnd
 
                 string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0}FPS", fps);
 
-                canvas.Print(new Color(1, 1, 1), 15, 5, 5, fpsString);
+                canvas.Print(new FontStyle(15, new Color(1, 1, 1)) { IsBold = true }, 5, 5, fpsString);
             }
         }
     }

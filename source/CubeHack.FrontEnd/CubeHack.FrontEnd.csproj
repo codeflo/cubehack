@@ -66,6 +66,8 @@
     <Compile Include="TextureGenerator.cs" />
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UiFramework\Canvas.cs" />
+    <Compile Include="UiFramework\FontAnimation.cs" />
+    <Compile Include="UiFramework\FontStyle.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
   </ItemGroup>

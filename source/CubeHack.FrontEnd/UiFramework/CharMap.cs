@@ -1,7 +1,9 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Util;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
@@ -15,36 +17,38 @@ namespace CubeHack.FrontEnd.UiFramework
     /// </summary>
     internal class CharMap
     {
-        private const string _fontName = "AndikaNewBasic-R.ttf";
+        private const string _fontNameRegular = "AndikaNewBasic-R.ttf";
+        private const string _fontNameBold = "AndikaNewBasic-B.ttf";
 
         private static readonly string _fontDir = Path.Combine(
                     Path.GetDirectoryName(typeof(CharMap).Assembly.Location),
             "fonts");
 
         private static readonly PrivateFontCollection _fontCollection = new PrivateFontCollection();
-        private readonly Dictionary<char, CharEntry> _charEntries = new Dictionary<char, CharEntry>();
+        private readonly Dictionary<CharKey, CharEntry> _charEntries = new Dictionary<CharKey, CharEntry>();
         private bool _isInitializing;
         private bool _isInitialized;
         private int _fontTextureId;
 
         public int TextureId => _fontTextureId;
 
-        public float GetCharWidth(float lineHeight, char c)
+        public float GetCharWidth(float lineHeight, char c, bool isBold)
         {
             Initialize();
             if (!_isInitialized) return 0;
 
-            return GetCharEntry(c).InnerWidth * lineHeight;
+            return GetCharEntry(new CharKey(c, isBold)).InnerWidth * lineHeight;
         }
 
-        public float PrintChar(float lineHeight, float x, float y, char c)
+        public float PrintChar(float lineHeight, float x, float y, char c, bool isBold)
         {
             Initialize();
             if (!_isInitialized) return 0;
 
             GL.Begin(PrimitiveType.Quads);
 
-            var e = GetCharEntry(c);
+            var charKey = new CharKey(c, isBold);
+            var e = GetCharEntry(charKey);
 
             if (!char.IsWhiteSpace(c))
             {
@@ -68,7 +72,13 @@ namespace CubeHack.FrontEnd.UiFramework
 
         private static void LoadFonts()
         {
-            string fontPath = Path.Combine(_fontDir, _fontName);
+            LoadFont(_fontNameRegular);
+            LoadFont(_fontNameBold);
+        }
+
+        private static void LoadFont(string fontName)
+        {
+            string fontPath = Path.Combine(_fontDir, fontName);
             using (var fontStream = File.Open(fontPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 System.IntPtr data = Marshal.AllocCoTaskMem((int)fontStream.Length);
@@ -95,12 +105,12 @@ namespace CubeHack.FrontEnd.UiFramework
             return rect;
         }
 
-        private CharEntry GetCharEntry(char c)
+        private CharEntry GetCharEntry(CharKey c)
         {
             CharEntry e;
             if (!_charEntries.TryGetValue(c, out e))
             {
-                e = _charEntries['?'];
+                e = _charEntries[new CharKey('?', c.IsBold)];
             }
 
             return e;
@@ -117,12 +127,11 @@ namespace CubeHack.FrontEnd.UiFramework
             GL.BindTexture(TextureTarget.Texture2D, _fontTextureId);
 
             const int fontSize = 64;
-            var font = new Font(_fontCollection.Families[0], fontSize);
+            var regularFont = new Font(_fontCollection.Families[0], fontSize, System.Drawing.FontStyle.Regular);
+            var boldFont = new Font(_fontCollection.Families[0], fontSize, System.Drawing.FontStyle.Bold);
 
-            int bitmapWidth = 2048;
-            int bitmapHeight = 2048;
-            float currentX = 0;
-            float currentY = 0;
+            int bitmapWidth = 4096;
+            int bitmapHeight = 4096;
 
             await TextureHelper.DrawTextureAsync(
                 _fontTextureId,
@@ -133,60 +142,78 @@ namespace CubeHack.FrontEnd.UiFramework
                     graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
                     graphics.FillRectangle(Brushes.Transparent, 0, 0, bitmapWidth, bitmapHeight);
 
-                    var xRectangle = MeasureRectangle(graphics, fontSize, font, "x");
-                    float xWidth = xRectangle.Width;
-                    float xHeight = xRectangle.Height;
+                    var regularXRectangle = MeasureRectangle(graphics, fontSize, regularFont, "x");
+                    float regularXWidth = regularXRectangle.Width;
+
+                    var boldXRectangle = MeasureRectangle(graphics, fontSize, boldFont, "x");
+                    float boldXWidth = regularXRectangle.Width;
+
+                    float xHeight = Math.Max(regularXRectangle.Height, boldXRectangle.Height);
+
+                    float currentX = 0;
+                    float currentY = 0;
 
                     foreach (char c in GetPrintableChars())
                     {
-                        string s = new string(c, 1);
-
-                        if (char.IsWhiteSpace(c))
+                        if (!InitializeChar(graphics, bitmapWidth, bitmapHeight, regularFont, fontSize, regularXWidth, xHeight, c, false, ref currentX, ref currentY) ||
+                            !InitializeChar(graphics, bitmapWidth, bitmapHeight, boldFont, fontSize, boldXWidth, xHeight, c, true, ref currentX, ref currentY))
                         {
-                            _charEntries[c] = new CharEntry { TextureWidth = graphics.MeasureString("X" + s + "X", font).Width - graphics.MeasureString("xx", font).Width };
-                            continue;
+                            break;
                         }
-
-                        RectangleF charRectangle = MeasureRectangle(graphics, fontSize, font, s);
-                        float charWidth = charRectangle.Width, charHeight = charRectangle.Height;
-
-                        if (currentX + charWidth + xWidth > bitmapWidth)
-                        {
-                            currentX = 0;
-                            currentY += xHeight;
-
-                            if (currentY + xHeight > bitmapHeight)
-                            {
-                                // We have run out of space in our image for further characters. This means we need a larger image texture --
-                                // though on the other hand, we can't properly handle most Unicode characters anyway, so the whole approach
-                                // might need rethinking.
-                                break;
-                            }
-                        }
-
-                        graphics.DrawString(s, font, Brushes.White, currentX + 0.5f * xWidth - charRectangle.Left, currentY);
-
-                        float measuredCharWidth = graphics.MeasureString("X" + s + "X", font).Width - graphics.MeasureString("XX", font).Width;
-
-                        _charEntries[c] = new CharEntry
-                        {
-                            TextureX = currentX / bitmapWidth,
-                            TextureY = currentY / bitmapHeight,
-                            TextureWidth = (charWidth + xWidth) / bitmapWidth,
-                            TextureHeight = charHeight / bitmapHeight,
-
-                            BoxLeft = 0.5f * xWidth / xHeight,
-                            BoxRight = (charWidth + 0.5f * xWidth) / xHeight,
-                            InnerWidth = measuredCharWidth / xHeight,
-                        };
-
-                        currentX += charWidth + xWidth;
                     }
                 },
                 null);
 
             _isInitialized = true;
             _isInitializing = false;
+        }
+
+        private bool InitializeChar(Graphics graphics, int bitmapWidth, int bitmapHeight, Font font, int fontSize, float xWidth, float xHeight, char c, bool isBold, ref float currentX, ref float currentY)
+        {
+            var charKey = new CharKey(c, isBold);
+            string s = new string(c, 1);
+
+            if (char.IsWhiteSpace(c))
+            {
+                _charEntries[charKey] = new CharEntry { TextureWidth = graphics.MeasureString("X" + s + "X", font).Width - graphics.MeasureString("xx", font).Width };
+                return true;
+            }
+
+            RectangleF charRectangle = MeasureRectangle(graphics, fontSize, font, s);
+            float charWidth = charRectangle.Width, charHeight = charRectangle.Height;
+
+            if (currentX + charWidth + xWidth > bitmapWidth)
+            {
+                currentX = 0;
+                currentY += xHeight;
+
+                if (currentY + xHeight > bitmapHeight)
+                {
+                    // We have run out of space in our image for further characters. This means we need a larger image texture --
+                    // though on the other hand, we can't properly handle most Unicode characters anyway, so the whole approach
+                    // might need rethinking.
+                    return false;
+                }
+            }
+
+            graphics.DrawString(s, font, Brushes.White, currentX + 0.5f * xWidth - charRectangle.Left, currentY);
+
+            float measuredCharWidth = graphics.MeasureString("X" + s + "X", font).Width - graphics.MeasureString("XX", font).Width;
+
+            _charEntries[charKey] = new CharEntry
+            {
+                TextureX = currentX / bitmapWidth,
+                TextureY = currentY / bitmapHeight,
+                TextureWidth = (charWidth + xWidth) / bitmapWidth,
+                TextureHeight = charHeight / bitmapHeight,
+
+                BoxLeft = 0.5f * xWidth / xHeight,
+                BoxRight = (charWidth + 0.5f * xWidth) / xHeight,
+                InnerWidth = measuredCharWidth / xHeight,
+            };
+
+            currentX += charWidth + xWidth;
+            return true;
         }
 
         private IEnumerable<char> GetPrintableChars()
@@ -199,6 +226,30 @@ namespace CubeHack.FrontEnd.UiFramework
                 {
                     yield return c;
                 }
+            }
+        }
+
+        private struct CharKey
+        {
+            public char Char;
+            public bool IsBold;
+
+            public CharKey(char c, bool isBold)
+            {
+                Char = c;
+                IsBold = isBold;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is CharKey)) return false;
+                var other = (CharKey)obj;
+                return Char == other.Char && IsBold == other.IsBold;
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCalculator.Value[Char][IsBold];
             }
         }
 
