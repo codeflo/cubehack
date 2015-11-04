@@ -3,6 +3,7 @@
 
 namespace CubeHack.Geometry
 {
+    using Game;
     using ProtoBuf;
     using Util;
 
@@ -13,20 +14,22 @@ namespace CubeHack.Geometry
     public struct ChunkPos
     {
         [ProtoMember(1)]
-        public int X;
+        public int X; 
 
         [ProtoMember(2)]
         public int Y;
 
         [ProtoMember(3)]
         public int Z;
-
+        
         public ChunkPos(int x, int y, int z)
         {
             X = x;
             Y = y;
             Z = z;
         }
+
+        public ChunkPos(BlockPos p) : this(p.X >> Chunk.Bits, p.Y >> Chunk.Bits, p.Z >> Chunk.Bits) { }
 
         public static bool operator ==(ChunkPos a, ChunkPos b)
         {

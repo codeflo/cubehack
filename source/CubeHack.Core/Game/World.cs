@@ -28,16 +28,16 @@ namespace CubeHack.Game
 
         public WorldGenerator Generator { get; set; }
 
-        public ushort this[int x, int y, int z]
+        public ushort this[BlockPos p]
         {
             get
             {
-                if (y < -200)
+                if (p.Y < -200)
                 {
                     return 1;
                 }
 
-                var chunk = PeekChunk(new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits));
+                var chunk = PeekChunk(new ChunkPos(p));
                 if (chunk == null)
                 {
                     return 0;
