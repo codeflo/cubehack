@@ -135,11 +135,11 @@ namespace CubeHack.Game
 
         private static double GetWeightedOffset(World world, Position p)
         {
-            if (world[p.CubeX, p.CubeY - 1, p.CubeZ] == 0)
+            if (world[new BlockPos(p.CubeX, p.CubeY - 1, p.CubeZ)] == 0)
             {
-                if (world[p.CubeX, p.CubeY - 2, p.CubeZ] == 0)
+                if (world[new BlockPos(p.CubeX, p.CubeY - 2, p.CubeZ)] == 0)
                 {
-                    if (world[p.CubeX, p.CubeY - 3, p.CubeZ] != 0)
+                    if (world[new BlockPos(p.CubeX, p.CubeY - 3, p.CubeZ)] != 0)
                     {
                         return 2;
                     }
@@ -292,7 +292,7 @@ namespace CubeHack.Game
                         var chunk = world.PeekChunk(chunkPos);
                         if (chunk == null) return false;
 
-                        if (world[x, y, z] != 0)
+                        if (world[new BlockPos(x, y, z)] != 0)
                         {
                             return false;
                         }

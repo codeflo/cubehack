@@ -136,7 +136,7 @@ namespace CubeHack.Game
 
                 foreach (var cubeUpdate in cubeUpdates)
                 {
-                    _startWorld[cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z] = cubeUpdate.Material;
+                    _startWorld[new BlockPos(cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z)] = cubeUpdate.Material;
                 }
             }
         }

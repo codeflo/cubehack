@@ -43,14 +43,14 @@ namespace CubeHack.Game
                     return 0;
                 }
 
-                return chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask];
+                return chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask];
             }
 
             set
             {
-                var chunkPos = new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                var chunkPos = new ChunkPos(p);
                 var chunk = GetChunk(chunkPos);
-                chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask] = value;
+                chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
 
                 Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
             }
@@ -124,7 +124,7 @@ namespace CubeHack.Game
             int cy = (int)(y >> 32);
             int cz = (int)(z >> 32);
 
-            if (this[cx, cy, cz] != 0)
+            if (this[new BlockPos(cx, cy, cz)] != 0)
             {
                 return new RayCastResult { Position = position, CubeX = cx, CubeY = cy, CubeZ = cz };
             }
@@ -181,7 +181,7 @@ namespace CubeHack.Game
                     max -= tx;
 
                     cx += sdx;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
                         return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
                     }
@@ -194,7 +194,7 @@ namespace CubeHack.Game
                     max -= ty;
 
                     cy += sdy;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
                         return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
                     }
@@ -207,7 +207,7 @@ namespace CubeHack.Game
                     max -= tz;
 
                     cz += sdz;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
                         return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
                     }

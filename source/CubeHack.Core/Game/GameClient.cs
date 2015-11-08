@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.Geometry;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
@@ -146,7 +147,7 @@ namespace CubeHack.Game
                 {
                     foreach (var chunkUpdate in gameEvent.CubeUpdates)
                     {
-                        World[chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z] = chunkUpdate.Material;
+                        World[new BlockPos(chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z)] = chunkUpdate.Material;
                     }
                 }
             }

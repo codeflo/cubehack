@@ -41,6 +41,16 @@ namespace CubeHack.Geometry
             return !(a == b);
         }
 
+        public static ChunkOffset operator -(ChunkPos a, ChunkPos b)
+        {
+            return new ChunkOffset(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static ChunkPos operator +(ChunkPos p, ChunkOffset o)
+        {
+            return new ChunkPos(p.X + o.X, p.Y + o.Y, p.Z + o.Z);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is ChunkPos && (ChunkPos)obj == this;
