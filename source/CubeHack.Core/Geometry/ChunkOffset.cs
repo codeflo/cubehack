@@ -25,5 +25,10 @@ namespace CubeHack.Geometry
             this.Y = y;
             this.Z = z;
         }
+
+        public static ChunkOffset operator -(ChunkOffset o)
+        {
+            return new ChunkOffset(-o.X, -o.Y, -o.Z);
+        }
     }
 }

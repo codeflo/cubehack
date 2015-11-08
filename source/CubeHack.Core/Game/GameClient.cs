@@ -191,7 +191,7 @@ namespace CubeHack.Game
             double lookX = -Math.Sin(PositionData.HAngle * f) * Math.Cos(-PositionData.VAngle * f);
             double lookY = Math.Sin(-PositionData.VAngle * f);
 
-            var result = World.CastRay(PositionData.Position + new Offset(0, PhysicsValues.PlayerEyeHeight, 0), new Offset(lookX, lookY, lookZ), PhysicsValues.MiningDistance);
+            var result = World.CastRay(PositionData.Position + new EntityOffset(0, PhysicsValues.PlayerEyeHeight, 0), new EntityOffset(lookX, lookY, lookZ), PhysicsValues.MiningDistance);
             if (result == null)
             {
                 HighlightedCube = null;
@@ -294,7 +294,7 @@ namespace CubeHack.Game
 
         private int GetCurrentCubeCoordinate(long position, long direction)
         {
-            return Position.GetCubeCoordinate(position + (1L << 31) * direction);
+            return EntityPos.GetCubeCoordinate(position + (1L << 31) * direction);
         }
     }
 }

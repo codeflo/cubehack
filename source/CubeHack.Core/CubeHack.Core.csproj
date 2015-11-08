@@ -76,9 +76,9 @@
     <Compile Include="Game\IGameController.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\Movement.cs" />
-    <Compile Include="Game\Offset.cs" />
+    <Compile Include="Geometry\EntityOffset.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
-    <Compile Include="Game\Position.cs" />
+    <Compile Include="Geometry\EntityPos.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\RayCastResult.cs" />
     <Compile Include="Game\Universe.cs" />

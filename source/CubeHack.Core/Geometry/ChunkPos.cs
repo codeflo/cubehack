@@ -29,8 +29,6 @@ namespace CubeHack.Geometry
             Z = z;
         }
 
-        public ChunkPos(BlockPos p) : this(p.X >> Chunk.Bits, p.Y >> Chunk.Bits, p.Z >> Chunk.Bits) { }
-
         public static bool operator ==(ChunkPos a, ChunkPos b)
         {
             return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
@@ -49,6 +47,11 @@ namespace CubeHack.Geometry
         public static ChunkPos operator +(ChunkPos p, ChunkOffset o)
         {
             return new ChunkPos(p.X + o.X, p.Y + o.Y, p.Z + o.Z);
+        }
+
+        public static ChunkPos operator -(ChunkPos p, ChunkOffset o)
+        {
+            return p + (-o);
         }
 
         public override bool Equals(object obj)

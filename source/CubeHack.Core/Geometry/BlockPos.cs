@@ -5,6 +5,7 @@ namespace CubeHack.Geometry
 {
     using Util;
     using ProtoBuf;
+    using Game;
 
     /// <summary>
     /// Represents the coordinates of a single block in the game.
@@ -20,6 +21,13 @@ namespace CubeHack.Geometry
 
         [ProtoMember(3)]
         public int Z;
+
+        public ChunkPos ChunkPos{
+            get
+            {
+                return new ChunkPos(X >> Chunk.Bits, Y >> Chunk.Bits, Z >> Chunk.Bits);
+            }
+        }
 
         public BlockPos(int x, int y, int z)
         {
@@ -46,6 +54,11 @@ namespace CubeHack.Geometry
         public static BlockPos operator +(BlockPos p, BlockOffset o)
         {
             return new BlockPos(p.X + o.X, p.Y + o.Y, p.Z + o.Z);
+        }
+
+        public static BlockPos operator -(BlockPos p, BlockOffset o)
+        {
+            return p + (-o);
         }
 
         public override bool Equals(object obj)

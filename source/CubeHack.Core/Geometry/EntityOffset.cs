@@ -4,14 +4,14 @@
 using ProtoBuf;
 using System;
 
-namespace CubeHack.Game
+namespace CubeHack.Geometry
 {
     [ProtoContract]
-    public struct Offset
+    public struct EntityOffset
     {
         public const double Epsilon = 1.0 / (1L << 32);
 
-        public Offset(double x, double y, double z)
+        public EntityOffset(double x, double y, double z)
             : this()
         {
             X = x;
@@ -36,25 +36,25 @@ namespace CubeHack.Game
             }
         }
 
-        public static Offset operator +(Offset o, Offset p)
+        public static EntityOffset operator +(EntityOffset o, EntityOffset p)
         {
-            return new Offset(o.X + p.X, o.Y + p.Y, o.Z + p.Z);
+            return new EntityOffset(o.X + p.X, o.Y + p.Y, o.Z + p.Z);
         }
 
-        public static Offset operator *(double f, Offset o)
+        public static EntityOffset operator *(double f, EntityOffset o)
         {
-            return new Offset(f * o.X, f * o.Y, f * o.Z);
+            return new EntityOffset(f * o.X, f * o.Y, f * o.Z);
         }
 
-        public static Offset operator *(Offset o, double f)
+        public static EntityOffset operator *(EntityOffset o, double f)
         {
-            return new Offset(f * o.X, f * o.Y, f * o.Z);
+            return new EntityOffset(f * o.X, f * o.Y, f * o.Z);
         }
 
-        public static Offset operator /(Offset o, double d)
+        public static EntityOffset operator /(EntityOffset o, double d)
         {
             double f = 1.0 / d;
-            return new Offset(f * o.X, f * o.Y, f * o.Z);
+            return new EntityOffset(f * o.X, f * o.Y, f * o.Z);
         }
     }
 }

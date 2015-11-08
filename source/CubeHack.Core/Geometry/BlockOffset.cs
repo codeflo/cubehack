@@ -25,5 +25,10 @@ namespace CubeHack.Geometry
             this.Y = y;
             this.Z = z;
         }
+
+        public static BlockOffset operator -(BlockOffset o)
+        {
+            return new BlockOffset(-o.X, -o.Y, -o.Z);
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace CubeHack.Game
                     return 1;
                 }
 
-                var chunk = PeekChunk(new ChunkPos(p));
+                var chunk = PeekChunk(p.ChunkPos);
                 if (chunk == null)
                 {
                     return 0;
@@ -48,7 +48,7 @@ namespace CubeHack.Game
 
             set
             {
-                var chunkPos = new ChunkPos(p);
+                var chunkPos = p.ChunkPos;
                 var chunk = GetChunk(chunkPos);
                 chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
 
@@ -103,7 +103,7 @@ namespace CubeHack.Game
             GetChunk(chunkData.Pos).PasteChunkData(chunkData);
         }
 
-        public RayCastResult CastRay(Position position, Offset direction, double max)
+        public RayCastResult CastRay(EntityPos position, EntityOffset direction, double max)
         {
             long x = position.X, y = position.Y, z = position.Z;
             double dx = direction.X, dy = direction.Y, dz = direction.Z;
@@ -183,7 +183,7 @@ namespace CubeHack.Game
                     cx += sdx;
                     if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
                     }
                 }
                 else if (IsNumber(ty) && (ty <= tz || !IsNumber(tz)))
@@ -196,7 +196,7 @@ namespace CubeHack.Game
                     cy += sdy;
                     if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
                     }
                 }
                 else if (IsNumber(tz))
@@ -209,7 +209,7 @@ namespace CubeHack.Game
                     cz += sdz;
                     if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
                     }
                 }
                 else

@@ -1,17 +1,18 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Game;
 using ProtoBuf;
 
-namespace CubeHack.Game
+namespace CubeHack.Geometry
 {
     [ProtoContract]
-    public struct Position
+    public struct EntityPos
     {
         private const double _scaleFactor = (double)(1L << 32);
         private const double _inverseScaleFactor = 1.0 / _scaleFactor;
 
-        public Position(long x, long y, long z)
+        public EntityPos(long x, long y, long z)
             : this()
         {
             X = x;
@@ -76,19 +77,19 @@ namespace CubeHack.Game
             }
         }
 
-        public static Offset operator -(Position a, Position b)
+        public static EntityOffset operator -(EntityPos a, EntityPos b)
         {
-            return new Offset((a.X - b.X) * _inverseScaleFactor, (a.Y - b.Y) * _inverseScaleFactor, (a.Z - b.Z) * _inverseScaleFactor);
+            return new EntityOffset((a.X - b.X) * _inverseScaleFactor, (a.Y - b.Y) * _inverseScaleFactor, (a.Z - b.Z) * _inverseScaleFactor);
         }
 
-        public static Position operator +(Position a, Offset b)
+        public static EntityPos operator +(EntityPos a, EntityOffset b)
         {
-            return new Position(a.X + (long)(_scaleFactor * b.X), a.Y + (long)(_scaleFactor * b.Y), a.Z + (long)(_scaleFactor * b.Z));
+            return new EntityPos(a.X + (long)(_scaleFactor * b.X), a.Y + (long)(_scaleFactor * b.Y), a.Z + (long)(_scaleFactor * b.Z));
         }
 
-        public static Position operator -(Position a, Offset b)
+        public static EntityPos operator -(EntityPos a, EntityOffset b)
         {
-            return new Position(a.X - (long)(_scaleFactor * b.X), a.Y - (long)(_scaleFactor * b.Y), a.Z - (long)(_scaleFactor * b.Z));
+            return new EntityPos(a.X - (long)(_scaleFactor * b.X), a.Y - (long)(_scaleFactor * b.Y), a.Z - (long)(_scaleFactor * b.Z));
         }
 
         public static int GetCubeCoordinate(long coordinate)
