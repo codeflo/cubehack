@@ -62,6 +62,7 @@
     <Compile Include="Data\ModMetaData.cs" />
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
+    <Compile Include="Game\Behavior.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Game\IGameController.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\Movement.cs" />
+    <Compile Include="Game\RandomWalkBehavior.cs" />
     <Compile Include="Geometry\EntityOffset.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
     <Compile Include="Geometry\EntityPos.cs" />

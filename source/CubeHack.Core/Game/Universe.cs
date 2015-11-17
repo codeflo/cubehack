@@ -226,7 +226,7 @@ namespace CubeHack.Game
 
                         if (entity.IsAiControlled)
                         {
-                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity);
+                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity, _entities.FindAll(e => !e.Equals(entity)));
                         }
 
                         Movement.MoveEntity(

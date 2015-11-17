@@ -4,27 +4,53 @@
 using CubeHack.Data;
 using CubeHack.Util;
 using System;
+using System.Collections.Generic;
 
 namespace CubeHack.Game
 {
     internal static class Ai
     {
-        public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity)
+        private static Dictionary<Entity, Behavior> _activeBehavior = new Dictionary<Entity, Behavior>();
+
+        private static Dictionary<Entity, List<Behavior>> _possibleBehaviors = new Dictionary<Entity, List<Behavior>>();
+
+        public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        {            
+            if(!_activeBehavior.ContainsKey(entity))
+            {
+                Behavior defaultBehavior = InitializeBehaviors(entity);
+
+                _activeBehavior.Add(entity, defaultBehavior);
+            }
+
+            Behavior current = _activeBehavior[entity];
+
+            current.UpdateDuration(elapsedDuration);
+
+            if(current.BehaviorDuration > current.GetMinimumDuration())
+            {
+                foreach(Behavior b in _possibleBehaviors[entity])
+                {
+                    if (!current.Equals(b) && b.CanBehave(physicsValues, elapsedDuration, entity, otherEntities))
+                    {
+                        current.Reset();
+                        _activeBehavior.Add(entity, b);
+
+                        current = b;
+                        
+                    }
+                }
+            }
+
+            current.Behave(physicsValues, elapsedDuration, entity, otherEntities);
+        }
+
+        private static Behavior InitializeBehaviors(Entity entity)
         {
-            if (elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
-            {
-                entity.PositionData.HAngle = Rng.NextFloat() * 360f;
-            }
-            else if (elapsedDuration.Seconds > 1.0 * Rng.NextExp())
-            {
-                entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
-            }
+            var list = new List<Behavior>() { new RandomWalkBehavior() };
+            _possibleBehaviors.Add(entity, list);
 
-            double vz = -0.125 * physicsValues.PlayerMovementSpeed * Math.Cos(entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
-            double vx = -0.125 * physicsValues.PlayerMovementSpeed * Math.Sin(entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
-
-            entity.PositionData.Velocity.X = vx;
-            entity.PositionData.Velocity.Z = vz;
+            return list[0];
         }
     }
 }
