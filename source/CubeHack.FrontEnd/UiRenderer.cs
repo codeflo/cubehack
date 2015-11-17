@@ -2,7 +2,8 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
-using CubeHack.FrontEnd.UiFramework;
+using CubeHack.FrontEnd.Ui.Framework;
+using CubeHack.FrontEnd.Ui.Menu;
 using CubeHack.Util;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,6 +16,8 @@ namespace CubeHack.FrontEnd
 
         private static GameTime _frameTime;
 
+        private static MainMenu _mainMenu = new MainMenu();
+
         public static void Render(RenderInfo renderInfo, bool mouseLookActive, string status)
         {
             using (var canvas = new Canvas(renderInfo))
@@ -23,13 +26,13 @@ namespace CubeHack.FrontEnd
                 {
                     DrawCrossHair(canvas);
                 }
-                else
+
+                _mainMenu.IsVisible = !mouseLookActive && status == null;
+                _mainMenu.Render(canvas);
+
+                if (!mouseLookActive || status != null)
                 {
-                    if (!mouseLookActive || status != null)
-                    {
-                        canvas.DrawRectangle(new Color(0, 0, 0, 0.5f), 0, 0, canvas.Width, canvas.Height);
-                        DrawStatus(canvas, status);
-                    }
+                    DrawStatus(canvas, status);
                 }
 
                 DrawFps(canvas);

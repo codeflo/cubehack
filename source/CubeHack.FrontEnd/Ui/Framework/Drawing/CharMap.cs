@@ -10,7 +10,7 @@ using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace CubeHack.FrontEnd.UiFramework
+namespace CubeHack.FrontEnd.Ui.Framework
 {
     /// <summary>
     /// Manages the font texture.

@@ -3,7 +3,7 @@
 
 using CubeHack.Data;
 
-namespace CubeHack.FrontEnd.UiFramework
+namespace CubeHack.FrontEnd.Ui.Framework
 {
     internal class FontStyle
     {

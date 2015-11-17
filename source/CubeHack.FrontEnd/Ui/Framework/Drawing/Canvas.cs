@@ -7,7 +7,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 
-namespace CubeHack.FrontEnd.UiFramework
+namespace CubeHack.FrontEnd.Ui.Framework
 {
     /// <summary>
     /// A canvas is used to perform 2D (user interface) drawing.
