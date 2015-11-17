@@ -33,7 +33,7 @@ namespace CubeHack.Game
             return true;
         }
 
-        public override GameDuration GetMinimumDuration()
+        public override GameDuration MinimumDuration()
         {
             return new GameDuration(0);
         }

@@ -12,17 +12,27 @@ namespace CubeHack.Game
     {
         public override void Behave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
         {
-            throw new NotImplementedException();
+            entity.PositionData.Velocity.X = 0;
+            entity.PositionData.Velocity.Z = 0;
         }
 
         public override bool CanBehave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
         {
-            throw new NotImplementedException();
+            foreach(Entity other in otherEntities)
+            {
+                if (other.IsAiControlled) continue;
+
+                var offset = entity.PositionData.Position - other.PositionData.Position;
+
+                if (Math.Abs(offset.Length) < 4) return true;
+            }
+
+            return false;
         }
 
-        public override GameDuration GetMinimumDuration()
+        public override GameDuration MinimumDuration()
         {
-            throw new NotImplementedException();
+            return new GameDuration(2);
         }
     }
 }
