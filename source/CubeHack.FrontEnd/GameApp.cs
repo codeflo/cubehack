@@ -1,7 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using CubeHack.FrontEnd.UiFramework;
+using CubeHack.FrontEnd.Ui.Framework;
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
@@ -22,6 +22,8 @@ namespace CubeHack.FrontEnd
         private KeyboardState _keyboardState;
         private MouseState _mouseState;
         private bool _mouseLookActive = true;
+        private bool _wasWindowGrabbed = false;
+        private System.Drawing.Point _nonGrabbedMousePosition;
         private string _statusText;
 
         public GameApp()
@@ -195,8 +197,17 @@ namespace CubeHack.FrontEnd
 
         private void UpdateMouse()
         {
-            if (_mouseLookActive && _gameWindow.Focused && _gameClient != null)
+            bool isWindowGrabbed = _mouseLookActive && _gameWindow.Focused && _gameClient != null;
+            System.Drawing.Point point;
+            GetCursorPos(out point);
+
+            if (isWindowGrabbed)
             {
+                if (!_wasWindowGrabbed)
+                {
+                    _nonGrabbedMousePosition = point;
+                }
+
                 var center = _gameWindow.PointToScreen(new System.Drawing.Point(_gameWindow.Width / 2, _gameWindow.Height / 2));
 
                 // Use Win32 GetCursorPos/SetCursorPos to "grab" the mouse cursor and get "infinite" mouse movement.
@@ -208,21 +219,21 @@ namespace CubeHack.FrontEnd
                 }
                 else
                 {
-                    System.Drawing.Point point;
-                    if (GetCursorPos(out point))
-                    {
-                        var x = point.X - center.X;
-                        var y = point.Y - center.Y;
-                        _gameClient.MouseLook(x, y);
-                    }
+                    var x = point.X - center.X;
+                    var y = point.Y - center.Y;
+                    _gameClient.MouseLook(x, y);
                 }
 
                 SetCursorPos(center.X, center.Y);
             }
-            else
+            else if (_wasWindowGrabbed)
             {
+                SetCursorPos(_nonGrabbedMousePosition.X, _nonGrabbedMousePosition.Y);
+
                 _gameWindow.CursorVisible = true;
             }
+
+            _wasWindowGrabbed = isWindowGrabbed;
         }
 
         private void RenderFrame(RenderInfo renderInfo)
@@ -244,6 +255,8 @@ namespace CubeHack.FrontEnd
             }
             else
             {
+                GL.ClearColor(0f, 0f, 0f, 1f);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
                 UiRenderer.Render(renderInfo, false, _statusText ?? "Not connected");
             }
         }

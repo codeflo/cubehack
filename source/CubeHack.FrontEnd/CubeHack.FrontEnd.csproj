@@ -55,7 +55,9 @@
     <Compile Include="..\CubeHack.Core\Properties\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="UiFramework\CharMap.cs" />
+    <Compile Include="Ui\Framework\Properties\AnimatedProperty.cs" />
+    <Compile Include="Ui\Framework\Controls\Button.cs" />
+    <Compile Include="Ui\Framework\Drawing\CharMap.cs" />
     <Compile Include="GameLoop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,9 +67,18 @@
     <Compile Include="TextureAtlas.cs" />
     <Compile Include="TextureGenerator.cs" />
     <Compile Include="TextureHelper.cs" />
-    <Compile Include="UiFramework\Canvas.cs" />
+    <Compile Include="Ui\Framework\Drawing\Canvas.cs" />
+    <Compile Include="Ui\Framework\Controls\Control.cs" />
+    <Compile Include="Ui\Framework\Properties\DelegateProperty.cs" />
+    <Compile Include="Ui\Framework\Properties\DelegateProperty`1.cs" />
+    <Compile Include="Ui\Framework\Drawing\FontAnimation.cs" />
+    <Compile Include="Ui\Framework\Drawing\FontStyle.cs" />
+    <Compile Include="Ui\Framework\Properties\IProperty.cs" />
+    <Compile Include="Ui\Framework\Properties\Property.cs" />
+    <Compile Include="Ui\Framework\Properties\Property`1.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
+    <Compile Include="Ui\Menu\MainMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
