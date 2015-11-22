@@ -10,27 +10,29 @@ namespace CubeHack.Game
 {
     internal class RandomWalkBehavior : Behavior
     {
-        public override void Behave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        public RandomWalkBehavior(Entity entity) : base(entity) { }
+
+        public override void Behave(BehaviorContext context)
         {
-            if (elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
+            if (context.elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
             {
-                entity.PositionData.HAngle = Rng.NextFloat() * 360f;
+                Entity.PositionData.HAngle = Rng.NextFloat() * 360f;
             }
-            else if (elapsedDuration.Seconds > 1.0 * Rng.NextExp())
+            else if (context.elapsedDuration.Seconds > 1.0 * Rng.NextExp())
             {
-                entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
+                Entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
             }
 
-            double vz = -0.125 * physicsValues.PlayerMovementSpeed * Math.Cos(entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
-            double vx = -0.125 * physicsValues.PlayerMovementSpeed * Math.Sin(entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
+            double vz = -0.125 * context.physicsValues.PlayerMovementSpeed * Math.Cos(Entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
+            double vx = -0.125 * context.physicsValues.PlayerMovementSpeed * Math.Sin(Entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
 
-            entity.PositionData.Velocity.X = vx;
-            entity.PositionData.Velocity.Z = vz;
+            Entity.PositionData.Velocity.X = vx;
+            Entity.PositionData.Velocity.Z = vz;
         }
 
-        public override bool CanBehave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        public override BehaviorPriority DeterminePriority(BehaviorContext context)
         {
-            return true;
+            return BehaviorPriority.Min;
         }
 
         public override GameDuration MinimumDuration()

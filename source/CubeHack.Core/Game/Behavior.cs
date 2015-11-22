@@ -13,18 +13,30 @@ namespace CubeHack.Game
     /// </summary>
     internal abstract class Behavior
     {
+        private Entity _entity;
         private GameDuration _behaviorDuration;
 
         /// <summary>
+        /// The Entity controlled by this Behavior.
+        /// </summary>
+        public Entity Entity
+        {
+            get { return _entity; }
+        }
+        /// <summary>
         /// The duration this Behavior has been active.
         /// </summary>
-        public GameDuration ActiveDuration{ get { return _behaviorDuration; } }
+        public GameDuration ActiveDuration
+        {
+            get { return _behaviorDuration; }
+        }
 
         /// <summary>
         /// Constructs a new Behavior.
         /// </summary>
-        public Behavior()
+        public Behavior(Entity entity)
         {
+            _entity = entity;
             _behaviorDuration = new GameDuration(0);
         }
 
@@ -52,23 +64,23 @@ namespace CubeHack.Game
         public abstract GameDuration MinimumDuration();
 
         /// <summary>
-        /// Determines whether this Behavior is currently applicable for the controlled entity depending on the game's state.
+        /// Determines this Behavior's priority.
+        /// 
+        /// Values may be:
+        /// BehaviorPriority.NA if this Behavior is currently not applicable
+        /// BehaviorPriority.Min if this Behavior is applicable, but least important of all Behaviors
+        /// BehaviorPriority.Max if this Behavior should be applied in any case
+        /// BehaviorPriority.Value(...) if this Behavior should be applied with a given priority value
         /// </summary>
-        /// <param name="physicsValues">The game's physics settings</param>
-        /// <param name="elapsedDuration">The elapsed duration since the last control update</param>
-        /// <param name="entity">The controlled entity</param>
-        /// <param name="otherEntities">The other entities in the game</param>
-        /// <returns></returns>
-        public abstract bool CanBehave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities);
+        /// <param name="context">Information related to game and Behavior state</param>
+        /// <returns>The Behavior's priority</returns>
+        public abstract BehaviorPriority DeterminePriority(BehaviorContext context);
 
         /// <summary>
         /// Controls a certain entity depending on the game's state.
         /// </summary>
-        /// <param name="physicsValues">The game's physics settings</param>
-        /// <param name="elapsedDuration">The elapsed duration since the last control update</param>
-        /// <param name="entity">The controlled entity</param>
-        /// <param name="otherEntities">The other entities in the game</param>
-        public abstract void Behave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities);
+        /// <param name="context">Information related to game and Behavior state</param>
+        public abstract void Behave(BehaviorContext context);
         
     }
 }

@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.Game.Behaviors;
 using CubeHack.Util;
-using System;
 using System.Collections.Generic;
 
 namespace CubeHack.Game
@@ -35,13 +35,31 @@ namespace CubeHack.Game
             // update the duration the active Behavior has been running
             current.AddToActiveDuration(elapsedDuration);
 
+            // store all relevant data in BehaviorContext
+            var context = new BehaviorContext(physicsValues, elapsedDuration, otherEntities);
+
             // if the minimum running duration of the current Behavior has passed, look for another applicable Behavior
             if(current.ActiveDuration > current.MinimumDuration())
             {
                 foreach(Behavior b in _possibleBehaviors[entity])
                 {
-                    // look for *other* Behaviors that are currently applicable
-                    if (!current.Equals(b) && b.CanBehave(physicsValues, elapsedDuration, entity, otherEntities))
+                    // we only look for *other* Behaviors
+                    if(current.Equals(b))
+                    {
+                        continue;
+                    }
+
+                    // determine the other Behavior's current priority
+                    var prio = b.DeterminePriority(context);
+
+                    // only consider other Behavior if it's applicable
+                    if(prio == BehaviorPriority.NA)
+                    {
+                        continue;
+                    }
+
+                    // switch to other Behavior if its priority is higher than that of the current Behavior
+                    if (prio > current.DeterminePriority(context))
                     {
                         // reset the current Behavior, as it might become active again later
                         current.Reset();
@@ -56,7 +74,7 @@ namespace CubeHack.Game
             }
 
             // let the active Behavior control the entity
-            current.Behave(physicsValues, elapsedDuration, entity, otherEntities);
+            current.Behave(context);
         }
 
         /// <summary>
@@ -66,7 +84,7 @@ namespace CubeHack.Game
         /// <returns>Initial Behavior the Entity should have</returns>
         private static Behavior InitializeBehaviors(Entity entity)
         {
-            var list = new List<Behavior>() { new RandomWalkBehavior(), new StopNearPlayerBehavior() };
+            var list = new List<Behavior>() { new RandomWalkBehavior(entity), new StopNearPlayerBehavior(entity), new RunAwayFromPlayerBehavior(entity) };
             _possibleBehaviors.Add(entity, list);
 
             return list[0];

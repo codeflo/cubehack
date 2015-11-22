@@ -63,7 +63,10 @@
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
     <Compile Include="Game\Behavior.cs" />
+    <Compile Include="Game\BehaviorContext.cs" />
+    <Compile Include="Game\Behaviors\RunAwayFromPlayerBehavior.cs" />
     <Compile Include="Game\Behaviors\StopNearPlayerBehavior.cs" />
+    <Compile Include="Game\BehaviorPriority.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />

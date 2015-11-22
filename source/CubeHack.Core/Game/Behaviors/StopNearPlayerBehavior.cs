@@ -10,24 +10,29 @@ namespace CubeHack.Game
 {
     class StopNearPlayerBehavior : Behavior
     {
-        public override void Behave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        public StopNearPlayerBehavior(Entity entity) : base(entity) { }
+
+        public override void Behave(BehaviorContext context)
         {
-            entity.PositionData.Velocity.X = 0;
-            entity.PositionData.Velocity.Z = 0;
+            Entity.PositionData.Velocity.X = 0;
+            Entity.PositionData.Velocity.Z = 0;
         }
 
-        public override bool CanBehave(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        public override BehaviorPriority DeterminePriority(BehaviorContext context)
         {
-            foreach(Entity other in otherEntities)
+            foreach(Entity other in context.otherEntities)
             {
                 if (other.IsAiControlled) continue;
 
-                var offset = entity.PositionData.Position - other.PositionData.Position;
+                var offset = Entity.PositionData.Position - other.PositionData.Position;
 
-                if (Math.Abs(offset.Length) < 4) return true;
+                if (Math.Abs(offset.Length) < 4)
+                {
+                    return BehaviorPriority.Value(10);
+                }
             }
 
-            return false;
+            return BehaviorPriority.NA;
         }
 
         public override GameDuration MinimumDuration()
