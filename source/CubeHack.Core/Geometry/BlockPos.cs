@@ -3,9 +3,9 @@
 
 namespace CubeHack.Geometry
 {
-    using Util;
-    using ProtoBuf;
     using Game;
+    using ProtoBuf;
+    using Util;
 
     /// <summary>
     /// Represents the coordinates of a single block in the game.
@@ -22,18 +22,19 @@ namespace CubeHack.Geometry
         [ProtoMember(3)]
         public int Z;
 
-        public ChunkPos ChunkPos{
-            get
-            {
-                return new ChunkPos(X >> Chunk.Bits, Y >> Chunk.Bits, Z >> Chunk.Bits);
-            }
-        }
-
         public BlockPos(int x, int y, int z)
         {
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public ChunkPos ChunkPos
+        {
+            get
+            {
+                return new ChunkPos(X >> Chunk.Bits, Y >> Chunk.Bits, Z >> Chunk.Bits);
+            }
         }
 
         public static bool operator ==(BlockPos a, BlockPos b)

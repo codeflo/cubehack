@@ -1,10 +1,7 @@
-﻿using CubeHack.Data;
+﻿// Copyright (c) the CubeHack authors. All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt in the project root.
+
 using CubeHack.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
@@ -17,27 +14,28 @@ namespace CubeHack.Game
         private GameDuration _behaviorDuration;
 
         /// <summary>
-        /// The Entity controlled by this Behavior.
-        /// </summary>
-        public Entity Entity
-        {
-            get { return _entity; }
-        }
-        /// <summary>
-        /// The duration this Behavior has been active.
-        /// </summary>
-        public GameDuration ActiveDuration
-        {
-            get { return _behaviorDuration; }
-        }
-
-        /// <summary>
         /// Constructs a new Behavior.
         /// </summary>
         public Behavior(Entity entity)
         {
             _entity = entity;
             _behaviorDuration = new GameDuration(0);
+        }
+
+        /// <summary>
+        /// The Entity controlled by this Behavior.
+        /// </summary>
+        public Entity Entity
+        {
+            get { return _entity; }
+        }
+
+        /// <summary>
+        /// The duration this Behavior has been active.
+        /// </summary>
+        public GameDuration ActiveDuration
+        {
+            get { return _behaviorDuration; }
         }
 
         /// <summary>
@@ -65,7 +63,7 @@ namespace CubeHack.Game
 
         /// <summary>
         /// Determines this Behavior's priority.
-        /// 
+        ///
         /// Values may be:
         /// BehaviorPriority.NA if this Behavior is currently not applicable
         /// BehaviorPriority.Min if this Behavior is applicable, but least important of all Behaviors
@@ -81,6 +79,5 @@ namespace CubeHack.Game
         /// </summary>
         /// <param name="context">Information related to game and Behavior state</param>
         public abstract void Behave(BehaviorContext context);
-        
     }
 }

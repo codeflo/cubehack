@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CubeHack.Data;
-using CubeHack.Util;
+﻿// Copyright (c) the CubeHack authors. All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt in the project root.
 
-namespace CubeHack.Game
+using CubeHack.Util;
+using System;
+
+namespace CubeHack.Game.Behaviors
 {
     internal class RandomWalkBehavior : Behavior
     {
-        public RandomWalkBehavior(Entity entity) : base(entity) { }
+        public RandomWalkBehavior(Entity entity) : base(entity)
+        {
+        }
 
         public override void Behave(BehaviorContext context)
         {

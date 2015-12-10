@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) the CubeHack authors. All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt in the project root.
+
+using System;
 
 namespace CubeHack.Game
 {
     internal struct BehaviorPriority
     {
         private int _priority;
-    
+
         private BehaviorPriority(int priority)
         {
             if (priority < -1)
@@ -43,20 +42,6 @@ namespace CubeHack.Game
             }
         }
 
-        public override bool Equals(Object other)
-        {
-            if(!(other is BehaviorPriority))
-            {
-                return false;
-            }
-            return this == ((BehaviorPriority)other);
-        }
-
-        public override int GetHashCode()
-        {
-            return _priority;
-        }
-
         public static BehaviorPriority Value(int priority)
         {
             return new BehaviorPriority(priority);
@@ -81,7 +66,19 @@ namespace CubeHack.Game
         {
             return prio1._priority > prio2._priority;
         }
-               
 
+        public override bool Equals(Object other)
+        {
+            if (!(other is BehaviorPriority))
+            {
+                return false;
+            }
+            return this == ((BehaviorPriority)other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _priority;
+        }
     }
 }

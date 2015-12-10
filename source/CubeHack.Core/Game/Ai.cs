@@ -21,9 +21,9 @@ namespace CubeHack.Game
         private static Dictionary<Entity, List<Behavior>> _possibleBehaviors = new Dictionary<Entity, List<Behavior>>();
 
         public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
-        {   
-            // initialize Behavior stores if necessary         
-            if(!_activeBehavior.ContainsKey(entity))
+        {
+            // initialize Behavior stores if necessary
+            if (!_activeBehavior.ContainsKey(entity))
             {
                 Behavior defaultBehavior = InitializeBehaviors(entity);
 
@@ -39,12 +39,12 @@ namespace CubeHack.Game
             var context = new BehaviorContext(physicsValues, elapsedDuration, otherEntities);
 
             // if the minimum running duration of the current Behavior has passed, look for another applicable Behavior
-            if(current.ActiveDuration > current.MinimumDuration())
+            if (current.ActiveDuration > current.MinimumDuration())
             {
-                foreach(Behavior b in _possibleBehaviors[entity])
+                foreach (Behavior b in _possibleBehaviors[entity])
                 {
                     // we only look for *other* Behaviors
-                    if(current.Equals(b))
+                    if (current.Equals(b))
                     {
                         continue;
                     }
@@ -53,7 +53,7 @@ namespace CubeHack.Game
                     var prio = b.DeterminePriority(context);
 
                     // only consider other Behavior if it's applicable
-                    if(prio == BehaviorPriority.NA)
+                    if (prio == BehaviorPriority.NA)
                     {
                         continue;
                     }
@@ -84,7 +84,7 @@ namespace CubeHack.Game
         /// <returns>Initial Behavior the Entity should have</returns>
         private static Behavior InitializeBehaviors(Entity entity)
         {
-            var list = new List<Behavior>() { new RandomWalkBehavior(entity), new StopNearPlayerBehavior(entity), new RunAwayFromPlayerBehavior(entity) };
+            var list = new List<Behavior>() { new RandomWalkBehavior(entity), new StopNearPlayerBehavior(entity) };
             _possibleBehaviors.Add(entity, list);
 
             return list[0];

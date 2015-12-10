@@ -1,10 +1,9 @@
-﻿using CubeHack.Data;
+﻿// Copyright (c) the CubeHack authors. All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt in the project root.
+
+using CubeHack.Data;
 using CubeHack.Util;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
