@@ -35,6 +35,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
     <Reference Include="System.Xaml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.XML" />
@@ -60,6 +62,11 @@
     <Compile Include="Data\ModMetaData.cs" />
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
+    <Compile Include="Game\Behavior.cs" />
+    <Compile Include="Game\BehaviorContext.cs" />
+    <Compile Include="Game\Behaviors\RunAwayFromPlayerBehavior.cs" />
+    <Compile Include="Game\Behaviors\StopNearPlayerBehavior.cs" />
+    <Compile Include="Game\BehaviorPriority.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />
@@ -74,14 +81,18 @@
     <Compile Include="Game\IGameController.cs" />
     <Compile Include="Game\ModData.cs" />
     <Compile Include="Game\Movement.cs" />
-    <Compile Include="Game\Offset.cs" />
+    <Compile Include="Game\Behaviors\RandomWalkBehavior.cs" />
+    <Compile Include="Geometry\EntityOffset.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
-    <Compile Include="Game\Position.cs" />
+    <Compile Include="Geometry\EntityPos.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\RayCastResult.cs" />
     <Compile Include="Game\Universe.cs" />
     <Compile Include="Game\World.cs" />
     <Compile Include="Game\WorldGenerator.cs" />
+    <Compile Include="Geometry\BlockOffset.cs" />
+    <Compile Include="Geometry\BlockPos.cs" />
+    <Compile Include="Geometry\ChunkOffset.cs" />
     <Compile Include="Geometry\ChunkPos.cs" />
     <Compile Include="Geometry\GeometryConstants.cs" />
     <Compile Include="Log.cs" />

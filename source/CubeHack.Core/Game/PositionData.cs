@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using ProtoBuf;
 
 namespace CubeHack.Game
@@ -9,10 +10,10 @@ namespace CubeHack.Game
     public class PositionData
     {
         [ProtoMember(1)]
-        public Position Position;
+        public EntityPos Position;
 
         [ProtoMember(2)]
-        public Offset Velocity;
+        public EntityOffset Velocity;
 
         [ProtoMember(3)]
         public float HAngle;
@@ -24,6 +25,6 @@ namespace CubeHack.Game
         public bool IsFalling;
 
         [ProtoMember(6)]
-        public Position CollisionPosition;
+        public EntityPos CollisionPosition;
     }
 }

@@ -3,6 +3,7 @@
 
 namespace CubeHack.Geometry
 {
+    using Game;
     using ProtoBuf;
     using Util;
 
@@ -13,14 +14,14 @@ namespace CubeHack.Geometry
     public struct ChunkPos
     {
         [ProtoMember(1)]
-        public int X;
+        public int X; 
 
         [ProtoMember(2)]
         public int Y;
 
         [ProtoMember(3)]
         public int Z;
-
+        
         public ChunkPos(int x, int y, int z)
         {
             X = x;
@@ -36,6 +37,21 @@ namespace CubeHack.Geometry
         public static bool operator !=(ChunkPos a, ChunkPos b)
         {
             return !(a == b);
+        }
+
+        public static ChunkOffset operator -(ChunkPos a, ChunkPos b)
+        {
+            return new ChunkOffset(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static ChunkPos operator +(ChunkPos p, ChunkOffset o)
+        {
+            return new ChunkPos(p.X + o.X, p.Y + o.Y, p.Z + o.Z);
+        }
+
+        public static ChunkPos operator -(ChunkPos p, ChunkOffset o)
+        {
+            return p + (-o);
         }
 
         public override bool Equals(object obj)

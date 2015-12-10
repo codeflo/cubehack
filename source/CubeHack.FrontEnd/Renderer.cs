@@ -45,7 +45,7 @@ namespace CubeHack.FrontEnd
             GL.Rotate(gameClient.PositionData.VAngle, 1, 0, 0);
             GL.Rotate(gameClient.PositionData.HAngle, 0, -1, 0);
 
-            var offset = gameClient.PositionData.Position - new Position();
+            var offset = gameClient.PositionData.Position - new EntityPos();
             GL.Translate(-offset.X, -offset.Y - gameClient.PhysicsValues.PlayerEyeHeight, -offset.Z);
 
             GL.Disable(EnableCap.Texture2D);
@@ -55,7 +55,7 @@ namespace CubeHack.FrontEnd
                 foreach (var position in gameClient.EntityPositions)
                 {
                     GL.PushMatrix();
-                    var offset2 = position.Position - new Position();
+                    var offset2 = position.Position - new EntityPos();
                     GL.Translate(offset2.X, offset2.Y, offset2.Z);
                     GL.Rotate(position.HAngle + 180, 0, 1, 0);
                     DrawEntity(0, 0, 0, 0.5f * gameClient.PhysicsValues.PlayerWidth, gameClient.PhysicsValues.PlayerHeight);
@@ -77,7 +77,7 @@ namespace CubeHack.FrontEnd
                 GL.UseProgram(_cubeShader.Value.Id);
                 GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
                 GL.Begin(PrimitiveType.Quads);
-                var textureEntry = GameApp.Instance.TextureAtlas.GetTextureEntry(gameClient.World[highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ] - 1);
+                var textureEntry = GameApp.Instance.TextureAtlas.GetTextureEntry(gameClient.World[new BlockPos(highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ)] - 1);
                 if (highlightedCube.NormalX < 0) DrawCubeLeft(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalX > 0) DrawCubeRight(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalY < 0) DrawCubeBottom(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
@@ -102,7 +102,7 @@ namespace CubeHack.FrontEnd
             int chunkY = gameClient.PositionData.Position.CubeY >> Chunk.Bits;
             int chunkZ = gameClient.PositionData.Position.CubeZ >> Chunk.Bits;
 
-            var offset = (gameClient.PositionData.Position - new Position()) + new Offset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
+            var offset = (gameClient.PositionData.Position - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
             int displayListCount = 0;
             int chunkUpdates = 0;
@@ -182,7 +182,7 @@ namespace CubeHack.FrontEnd
             GL.UseProgram(0);
         }
 
-        private bool IsInViewingFrustum(GameClient gameClient, Offset offset, int x, int y, int z)
+        private bool IsInViewingFrustum(GameClient gameClient, EntityOffset offset, int x, int y, int z)
         {
             // Check if the bounding sphere of the chunk is in the viewing frustum.
 

@@ -1,11 +1,13 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
+
 namespace CubeHack.Game
 {
     public class RayCastResult
     {
-        public Position Position { get; set; }
+        public EntityPos Position { get; set; }
 
         public int CubeX { get; set; }
 

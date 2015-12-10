@@ -28,29 +28,29 @@ namespace CubeHack.Game
 
         public WorldGenerator Generator { get; set; }
 
-        public ushort this[int x, int y, int z]
+        public ushort this[BlockPos p]
         {
             get
             {
-                if (y < -200)
+                if (p.Y < -200)
                 {
                     return 1;
                 }
 
-                var chunk = PeekChunk(new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits));
+                var chunk = PeekChunk(p.ChunkPos);
                 if (chunk == null)
                 {
                     return 0;
                 }
 
-                return chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask];
+                return chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask];
             }
 
             set
             {
-                var chunkPos = new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
+                var chunkPos = p.ChunkPos;
                 var chunk = GetChunk(chunkPos);
-                chunk[x & _chunkMask, y & _chunkMask, z & _chunkMask] = value;
+                chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
 
                 Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
             }
@@ -103,7 +103,7 @@ namespace CubeHack.Game
             GetChunk(chunkData.Pos).PasteChunkData(chunkData);
         }
 
-        public RayCastResult CastRay(Position position, Offset direction, double max)
+        public RayCastResult CastRay(EntityPos position, EntityOffset direction, double max)
         {
             long x = position.X, y = position.Y, z = position.Z;
             double dx = direction.X, dy = direction.Y, dz = direction.Z;
@@ -124,7 +124,7 @@ namespace CubeHack.Game
             int cy = (int)(y >> 32);
             int cz = (int)(z >> 32);
 
-            if (this[cx, cy, cz] != 0)
+            if (this[new BlockPos(cx, cy, cz)] != 0)
             {
                 return new RayCastResult { Position = position, CubeX = cx, CubeY = cy, CubeZ = cz };
             }
@@ -181,9 +181,9 @@ namespace CubeHack.Game
                     max -= tx;
 
                     cx += sdx;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
                     }
                 }
                 else if (IsNumber(ty) && (ty <= tz || !IsNumber(tz)))
@@ -194,9 +194,9 @@ namespace CubeHack.Game
                     max -= ty;
 
                     cy += sdy;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
                     }
                 }
                 else if (IsNumber(tz))
@@ -207,9 +207,9 @@ namespace CubeHack.Game
                     max -= tz;
 
                     cz += sdz;
-                    if (max >= 0 && this[cx, cy, cz] != 0)
+                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
                     {
-                        return new RayCastResult { Position = new Position(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
+                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
                     }
                 }
                 else

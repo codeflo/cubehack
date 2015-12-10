@@ -136,7 +136,7 @@ namespace CubeHack.Game
 
                 foreach (var cubeUpdate in cubeUpdates)
                 {
-                    _startWorld[cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z] = cubeUpdate.Material;
+                    _startWorld[new BlockPos(cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z)] = cubeUpdate.Material;
                 }
             }
         }
@@ -226,7 +226,7 @@ namespace CubeHack.Game
 
                         if (entity.IsAiControlled)
                         {
-                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity);
+                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity, _entities.FindAll(e => !e.Equals(entity)));
                         }
 
                         Movement.MoveEntity(

@@ -11,6 +11,7 @@ using OpenTK.Input;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CubeHack.FrontEnd
 {
@@ -102,11 +103,16 @@ namespace CubeHack.FrontEnd
             GameLoop.Post(
                 async () =>
                 {
-                    _statusText = "Connecting...";
-                    var channel = new TcpChannel(host, port);
-                    await channel.ConnectAsync();
-                    ConnectInternal(channel);
+                    await OpenChannel(host, port);
                 });
+        }
+
+        private async Task OpenChannel(string host, int port)
+        {
+            _statusText = "Connecting...";
+            var channel = new TcpChannel(host, port);
+            await channel.ConnectAsync();
+            ConnectInternal(channel);
         }
 
         public void Connect(IChannel channel)
