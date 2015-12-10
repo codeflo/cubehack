@@ -101,6 +101,8 @@ namespace CubeHack.Util
             }
         }
 
+        public HashCalculator this[string s] => this[s.GetHashCode()];
+
         public static implicit operator int (HashCalculator murmurHash)
         {
             uint h = murmurHash._hash;

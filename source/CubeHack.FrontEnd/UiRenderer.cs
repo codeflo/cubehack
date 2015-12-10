@@ -3,6 +3,8 @@
 
 using CubeHack.Data;
 using CubeHack.FrontEnd.Ui.Framework;
+using CubeHack.FrontEnd.Ui.Framework.Controls;
+using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.FrontEnd.Ui.Menu;
 using CubeHack.Util;
 using System.Collections.Generic;
@@ -18,19 +20,23 @@ namespace CubeHack.FrontEnd
 
         private static MainMenu _mainMenu = new MainMenu();
 
-        public static void Render(RenderInfo renderInfo, bool mouseLookActive, string status)
+        public static void Render(RenderInfo renderInfo, Control control, string status, InputState inputState)
         {
             using (var canvas = new Canvas(renderInfo))
             {
-                if (mouseLookActive)
+                if (inputState.Mouse != null)
                 {
-                    DrawCrossHair(canvas);
+                    /* Convert the screen coordinates into virtual canvas coordinates. */
+                    inputState.Mouse.Position.X *= canvas.Width / renderInfo.Width;
+                    inputState.Mouse.Position.Y *= canvas.Height / renderInfo.Height;
                 }
 
-                _mainMenu.IsVisible = !mouseLookActive && status == null;
-                _mainMenu.Render(canvas);
+                DrawCrossHair(canvas);
 
-                if (!mouseLookActive || status != null)
+                control.HandleInput(inputState);
+                control.Render(canvas);
+
+                if (status != null)
                 {
                     DrawStatus(canvas, status);
                 }

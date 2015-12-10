@@ -4,6 +4,7 @@
 using CubeHack.Data;
 using CubeHack.FrontEnd.Ui.Framework;
 using CubeHack.FrontEnd.Ui.Framework.Controls;
+using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.FrontEnd.Ui.Framework.Properties;
 using System.Collections.Generic;
 
@@ -35,9 +36,27 @@ namespace CubeHack.FrontEnd.Ui.Menu
                 Left = buttonLeft,
                 Top = Property.Get(100f),
             };
+
+            _continueButton.Click += () =>
+            {
+                IsVisible = false;
+            };
         }
 
-        public bool IsVisible { get; set; }
+        public bool IsVisible { get; private set; }
+
+        protected override MouseMode OnGetMouseMode()
+        {
+            return IsVisible ? MouseMode.Free : MouseMode.Any;
+        }
+
+        protected override void OnKeyPress(KeyPress keyPress)
+        {
+            if (keyPress.Key == Key.Escape)
+            {
+                IsVisible = !IsVisible;
+            }
+        }
 
         protected override void RenderBackground(Canvas canvas)
         {

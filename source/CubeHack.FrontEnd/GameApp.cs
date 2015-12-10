@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.FrontEnd.Ui.Framework;
+using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
@@ -16,11 +17,14 @@ namespace CubeHack.FrontEnd
     public sealed class GameApp : IGameController
     {
         private static GameApp _instance;
+
+        private readonly Ui.Framework.Input.KeyboardState _uiKeyboardState = new Ui.Framework.Input.KeyboardState();
+        private readonly GameControl _gameControl = new GameControl();
+
         private GameWindow _gameWindow;
         private GameClient _gameClient;
-        private KeyboardState _keyboardState;
-        private MouseState _mouseState;
-        private bool _mouseLookActive = true;
+        private OpenTK.Input.KeyboardState _keyboardState;
+        private OpenTK.Input.MouseState _mouseState;
         private bool _wasWindowGrabbed = false;
         private System.Drawing.Point _nonGrabbedMousePosition;
         private string _statusText;
@@ -64,7 +68,7 @@ namespace CubeHack.FrontEnd
                     _gameWindow.WindowState = WindowState.Maximized;
 
                     _gameWindow.KeyDown += OnKeyDown;
-                    _gameWindow.Mouse.ButtonDown += OnMouseButtonDown;
+                    _gameWindow.KeyUp += OnKeyUp;
 
                     GameLoop.RenderFrame += RenderFrame;
                     try
@@ -117,19 +121,19 @@ namespace CubeHack.FrontEnd
             switch (gameKey)
             {
                 case GameKey.Jump:
-                    return _keyboardState.IsKeyDown(Key.Space);
+                    return _keyboardState.IsKeyDown(OpenTK.Input.Key.Space);
 
                 case GameKey.Forwards:
-                    return _keyboardState.IsKeyDown(Key.W);
+                    return _keyboardState.IsKeyDown(OpenTK.Input.Key.W);
 
                 case GameKey.Left:
-                    return _keyboardState.IsKeyDown(Key.A);
+                    return _keyboardState.IsKeyDown(OpenTK.Input.Key.A);
 
                 case GameKey.Backwards:
-                    return _keyboardState.IsKeyDown(Key.S);
+                    return _keyboardState.IsKeyDown(OpenTK.Input.Key.S);
 
                 case GameKey.Right:
-                    return _keyboardState.IsKeyDown(Key.D);
+                    return _keyboardState.IsKeyDown(OpenTK.Input.Key.D);
 
                 case GameKey.Primary:
                     return _mouseState.LeftButton == ButtonState.Pressed;
@@ -171,27 +175,23 @@ namespace CubeHack.FrontEnd
             {
                 GameLoop.Quit();
             }
-
-            if (e.Key == OpenTK.Input.Key.Escape)
+            else
             {
-                _mouseLookActive = !_mouseLookActive;
+                var key = new Ui.Framework.Input.Key(e.Key.ToString());
+                _uiKeyboardState[key] = true;
+                _gameControl.HandleKeyPress(new KeyPress(key, null));
             }
         }
 
-        private void OnMouseButtonDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        private void OnKeyUp(object sender, KeyboardKeyEventArgs e)
         {
-            if (e.Button == OpenTK.Input.MouseButton.Left)
-            {
-                if (!_mouseLookActive)
-                {
-                    _mouseLookActive = true;
-                }
-            }
+            _uiKeyboardState[new Ui.Framework.Input.Key(e.Key.ToString())] = false;
         }
 
         private void UpdateMouse()
         {
-            bool isWindowGrabbed = _mouseLookActive && _gameWindow.Focused && _gameClient != null;
+            bool isWindowGrabbed = _gameWindow.Focused && _gameControl.HandleGetMouseMode() == MouseMode.Grabbed;
+
             System.Drawing.Point point;
             GetCursorPos(out point);
 
@@ -215,7 +215,7 @@ namespace CubeHack.FrontEnd
                 {
                     var x = point.X - center.X;
                     var y = point.Y - center.Y;
-                    _gameClient.MouseLook(x, y);
+                    _gameClient?.MouseLook(x, y);
                 }
 
                 SetCursorPos(center.X, center.Y);
@@ -235,24 +235,43 @@ namespace CubeHack.FrontEnd
             UpdateMouse();
             GL.Viewport(0, 0, renderInfo.Width, renderInfo.Height);
 
+            _keyboardState = Keyboard.GetState();
+            _mouseState = Mouse.GetState();
+
             if (_gameClient != null)
             {
                 using (_gameClient.TakeRenderLock())
                 {
-                    _keyboardState = Keyboard.GetState();
-                    _mouseState = Mouse.GetState();
                     _gameClient.UpdateState();
 
                     Renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
-                    UiRenderer.Render(renderInfo, _mouseLookActive, null);
+                    UiRenderer.Render(renderInfo, _gameControl, null, GetInputState());
                 }
             }
             else
             {
                 GL.ClearColor(0f, 0f, 0f, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
-                UiRenderer.Render(renderInfo, false, _statusText ?? "Not connected");
+                UiRenderer.Render(renderInfo, _gameControl, _statusText ?? "Not connected", GetInputState());
             }
+        }
+
+        private InputState GetInputState()
+        {
+            System.Drawing.Point mousePoint;
+            GetCursorPos(out mousePoint);
+            mousePoint = _gameWindow.PointToClient(mousePoint);
+
+            var inputState = new InputState();
+            inputState.Mouse = new Ui.Framework.Input.MouseState()
+            {
+                Position = new Point(mousePoint.X, mousePoint.Y),
+                LeftButtonPressed = _mouseState.LeftButton == ButtonState.Pressed,
+            };
+
+            inputState.Keyboard = new Ui.Framework.Input.KeyboardState(_uiKeyboardState);
+
+            return inputState;
         }
     }
 }

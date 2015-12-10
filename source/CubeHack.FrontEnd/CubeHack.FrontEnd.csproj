@@ -55,6 +55,14 @@
     <Compile Include="..\CubeHack.Core\Properties\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="GameControl.cs" />
+    <Compile Include="Ui\Framework\Input\InputState.cs" />
+    <Compile Include="Ui\Framework\Input\Key.cs" />
+    <Compile Include="Ui\Framework\Input\KeyboardState.cs" />
+    <Compile Include="Ui\Framework\Input\KeyPress.cs" />
+    <Compile Include="Ui\Framework\Input\MouseMode.cs" />
+    <Compile Include="Ui\Framework\Input\MouseState.cs" />
+    <Compile Include="Ui\Framework\Point.cs" />
     <Compile Include="Ui\Framework\Properties\AnimatedProperty.cs" />
     <Compile Include="Ui\Framework\Controls\Button.cs" />
     <Compile Include="Ui\Framework\Drawing\CharMap.cs" />
@@ -78,6 +86,7 @@
     <Compile Include="Ui\Framework\Properties\Property`1.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
+    <Compile Include="Ui\Framework\Rectangle.cs" />
     <Compile Include="Ui\Menu\MainMenu.cs" />
   </ItemGroup>
   <ItemGroup>
