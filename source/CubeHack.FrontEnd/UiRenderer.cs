@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
-using CubeHack.FrontEnd.Ui.Framework;
 using CubeHack.FrontEnd.Ui.Framework.Controls;
+using CubeHack.FrontEnd.Ui.Framework.Drawing;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.FrontEnd.Ui.Menu;
 using CubeHack.Util;
@@ -60,7 +60,7 @@ namespace CubeHack.FrontEnd
 
         private static void DrawStatus(Canvas canvas, string status)
         {
-            var style = new FontStyle(30, new Color(1, 1, 1)) { Animation = FontAnimation.Wave };
+            var style = new Font(30, new Color(1, 1, 1)) { Animation = FontAnimation.Wave };
             canvas.Print(
                 style,
                 0.5f * (canvas.Width - canvas.MeasureText(style, status)), canvas.Height * 0.5f - 15, status);
@@ -87,7 +87,7 @@ namespace CubeHack.FrontEnd
 
                 string fpsString = string.Format(CultureInfo.InvariantCulture, "{0:0}FPS", fps);
 
-                canvas.Print(new FontStyle(15, new Color(1, 1, 1)) { IsBold = true }, 5, 5, fpsString);
+                canvas.Print(new Font(15, new Color(1, 1, 1)), 5, 5, fpsString);
             }
         }
     }

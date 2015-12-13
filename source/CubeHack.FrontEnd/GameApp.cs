@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.FrontEnd.Ui.Framework;
+using CubeHack.FrontEnd.Ui.Framework.Drawing;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Game;
 using CubeHack.Tcp;

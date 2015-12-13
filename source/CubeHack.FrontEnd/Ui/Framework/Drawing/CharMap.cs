@@ -3,22 +3,20 @@
 
 using CubeHack.Util;
 using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace CubeHack.FrontEnd.Ui.Framework
+namespace CubeHack.FrontEnd.Ui.Framework.Drawing
 {
     /// <summary>
     /// Manages the font texture.
     /// </summary>
     internal class CharMap
     {
-        private const string _fontNameRegular = "AndikaNewBasic-R.ttf";
-        private const string _fontNameBold = "AndikaNewBasic-B.ttf";
+        private const string _fontNameRegular = "Boogaloo/Boogaloo-Regular.otf";
 
         private static readonly string _fontDir = Path.Combine(
                     Path.GetDirectoryName(typeof(CharMap).Assembly.Location),
@@ -32,22 +30,22 @@ namespace CubeHack.FrontEnd.Ui.Framework
 
         public int TextureId => _fontTextureId;
 
-        public float GetCharWidth(float lineHeight, char c, bool isBold)
+        public float GetCharWidth(float lineHeight, char c, FontStyle style)
         {
             Initialize();
             if (!_isInitialized) return 0;
 
-            return GetCharEntry(new CharKey(c, isBold)).InnerWidth * lineHeight;
+            return GetCharEntry(new CharKey(c, style)).InnerWidth * lineHeight;
         }
 
-        public float PrintChar(float lineHeight, float x, float y, char c, bool isBold)
+        public float PrintChar(float lineHeight, float x, float y, char c, FontStyle style)
         {
             Initialize();
             if (!_isInitialized) return 0;
 
             GL.Begin(PrimitiveType.Quads);
 
-            var charKey = new CharKey(c, isBold);
+            var charKey = new CharKey(c, style);
             var e = GetCharEntry(charKey);
 
             if (!char.IsWhiteSpace(c))
@@ -73,7 +71,6 @@ namespace CubeHack.FrontEnd.Ui.Framework
         private static void LoadFonts()
         {
             LoadFont(_fontNameRegular);
-            LoadFont(_fontNameBold);
         }
 
         private static void LoadFont(string fontName)
@@ -96,7 +93,7 @@ namespace CubeHack.FrontEnd.Ui.Framework
             }
         }
 
-        private static RectangleF MeasureRectangle(Graphics graphics, int fontSize, Font font, string s)
+        private static RectangleF MeasureRectangle(Graphics graphics, int fontSize, System.Drawing.Font font, string s)
         {
             var stringFormat = new StringFormat(StringFormatFlags.NoWrap);
             stringFormat.SetMeasurableCharacterRanges(new[] { new CharacterRange(0, 1) });
@@ -110,7 +107,7 @@ namespace CubeHack.FrontEnd.Ui.Framework
             CharEntry e;
             if (!_charEntries.TryGetValue(c, out e))
             {
-                e = _charEntries[new CharKey('?', c.IsBold)];
+                e = _charEntries[new CharKey('?', c.Style)];
             }
 
             return e;
@@ -127,8 +124,7 @@ namespace CubeHack.FrontEnd.Ui.Framework
             GL.BindTexture(TextureTarget.Texture2D, _fontTextureId);
 
             const int fontSize = 64;
-            var regularFont = new Font(_fontCollection.Families[0], fontSize, System.Drawing.FontStyle.Regular);
-            var boldFont = new Font(_fontCollection.Families[0], fontSize, System.Drawing.FontStyle.Bold);
+            var regularFont = new System.Drawing.Font(_fontCollection.Families[0], fontSize, System.Drawing.FontStyle.Regular);
 
             int bitmapWidth = 4096;
             int bitmapHeight = 4096;
@@ -145,18 +141,14 @@ namespace CubeHack.FrontEnd.Ui.Framework
                     var regularXRectangle = MeasureRectangle(graphics, fontSize, regularFont, "x");
                     float regularXWidth = regularXRectangle.Width;
 
-                    var boldXRectangle = MeasureRectangle(graphics, fontSize, boldFont, "x");
-                    float boldXWidth = regularXRectangle.Width;
-
-                    float xHeight = Math.Max(regularXRectangle.Height, boldXRectangle.Height);
+                    float xHeight = regularXRectangle.Height;
 
                     float currentX = 0;
                     float currentY = 0;
 
                     foreach (char c in GetPrintableChars())
                     {
-                        if (!InitializeChar(graphics, bitmapWidth, bitmapHeight, regularFont, fontSize, regularXWidth, xHeight, c, false, ref currentX, ref currentY) ||
-                            !InitializeChar(graphics, bitmapWidth, bitmapHeight, boldFont, fontSize, boldXWidth, xHeight, c, true, ref currentX, ref currentY))
+                        if (!InitializeChar(graphics, bitmapWidth, bitmapHeight, regularFont, fontSize, regularXWidth, xHeight, c, FontStyle.Regular, ref currentX, ref currentY))
                         {
                             break;
                         }
@@ -168,9 +160,9 @@ namespace CubeHack.FrontEnd.Ui.Framework
             _isInitializing = false;
         }
 
-        private bool InitializeChar(Graphics graphics, int bitmapWidth, int bitmapHeight, Font font, int fontSize, float xWidth, float xHeight, char c, bool isBold, ref float currentX, ref float currentY)
+        private bool InitializeChar(Graphics graphics, int bitmapWidth, int bitmapHeight, System.Drawing.Font font, int fontSize, float xWidth, float xHeight, char c, FontStyle style, ref float currentX, ref float currentY)
         {
-            var charKey = new CharKey(c, isBold);
+            var charKey = new CharKey(c, style);
             string s = new string(c, 1);
 
             if (char.IsWhiteSpace(c))
@@ -231,25 +223,25 @@ namespace CubeHack.FrontEnd.Ui.Framework
 
         private struct CharKey
         {
-            public char Char;
-            public bool IsBold;
+            public readonly char Char;
+            public readonly FontStyle Style;
 
-            public CharKey(char c, bool isBold)
+            public CharKey(char c, FontStyle style)
             {
                 Char = c;
-                IsBold = isBold;
+                Style = style;
             }
 
             public override bool Equals(object obj)
             {
                 if (!(obj is CharKey)) return false;
                 var other = (CharKey)obj;
-                return Char == other.Char && IsBold == other.IsBold;
+                return Char == other.Char && Style == other.Style;
             }
 
             public override int GetHashCode()
             {
-                return HashCalculator.Value[Char][IsBold];
+                return HashCalculator.Value[Char][(int)Style];
             }
         }
 

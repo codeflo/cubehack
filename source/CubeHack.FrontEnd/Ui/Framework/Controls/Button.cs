@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.FrontEnd.Ui.Framework.Drawing;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.FrontEnd.Ui.Framework.Properties;
 using System;
@@ -89,7 +90,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Controls
             var top = Top?.Value ?? 0;
             var text = Text?.Value;
 
-            var style = new FontStyle(_fonstSize) { IsBold = true };
+            var style = new Font(_fonstSize);
 
             style.Color = new Color(0, 0, 0, 0.5f);
             canvas.Print(style, left + _shadowOffset + 0.5f * (Width - canvas.MeasureText(style, text)), top + _marginTop + _shadowOffset, text);

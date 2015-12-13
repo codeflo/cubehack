@@ -7,7 +7,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 
-namespace CubeHack.FrontEnd.Ui.Framework
+namespace CubeHack.FrontEnd.Ui.Framework.Drawing
 {
     /// <summary>
     /// A canvas is used to perform 2D (user interface) drawing.
@@ -49,20 +49,20 @@ namespace CubeHack.FrontEnd.Ui.Framework
             GL.Enable(EnableCap.DepthTest);
         }
 
-        public float MeasureText(FontStyle style, string text)
+        public float MeasureText(Font font, string text)
         {
             if (text == null) return 0;
 
             float x = 0;
             foreach (var c in text)
             {
-                x += GameApp.Instance.CharMap.GetCharWidth(style.Size, c, style.IsBold);
+                x += GameApp.Instance.CharMap.GetCharWidth(font.Size, c, font.Style);
             }
 
             return x;
         }
 
-        public void Print(FontStyle style, float x, float y, string text)
+        public void Print(Font font, float x, float y, string text)
         {
             if (text == null) return;
 
@@ -71,14 +71,14 @@ namespace CubeHack.FrontEnd.Ui.Framework
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.LinearMipmapLinear);
 
-            GL.Color4(style.Color.R, style.Color.G, style.Color.B, style.Color.A);
+            GL.Color4(font.Color.R, font.Color.G, font.Color.B, font.Color.A);
 
-            float lineHeight = style.Size;
+            float lineHeight = font.Size;
 
             foreach (var c in text)
             {
                 float x2, y2, lineHeight2;
-                switch (style.Animation)
+                switch (font.Animation)
                 {
                     case FontAnimation.None:
                         x2 = x;
@@ -100,8 +100,8 @@ namespace CubeHack.FrontEnd.Ui.Framework
                         throw new NotImplementedException();
                 }
 
-                GameApp.Instance.CharMap.PrintChar(lineHeight2, x2, y2, c, style.IsBold);
-                x += GameApp.Instance.CharMap.GetCharWidth(lineHeight, c, style.IsBold);
+                GameApp.Instance.CharMap.PrintChar(lineHeight2, x2, y2, c, font.Style);
+                x += GameApp.Instance.CharMap.GetCharWidth(lineHeight, c, font.Style);
             }
 
             GL.Disable(EnableCap.Texture2D);
