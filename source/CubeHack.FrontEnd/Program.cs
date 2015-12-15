@@ -4,6 +4,7 @@
 using CubeHack.Game;
 using CubeHack.Storage;
 using CubeHack.Tcp;
+using CubeHack.Util;
 
 namespace CubeHack.FrontEnd
 {
@@ -25,9 +26,12 @@ namespace CubeHack.FrontEnd
 
             using (server)
             {
-                var gameApp = new GameApp();
-                gameApp.Connect(host, port);
-                gameApp.Run();
+                using (var container = new DependencyInjectionContainer())
+                {
+                    var gameApp = container.Resolve<GameApp>();
+                    gameApp.Connect(host, port);
+                    gameApp.Run();
+                }
             }
         }
     }

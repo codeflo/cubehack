@@ -2,25 +2,26 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.FrontEnd.Ui.Framework;
-using CubeHack.FrontEnd.Ui.Framework.Drawing;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Game;
 using CubeHack.Tcp;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using System;
 using System.Linq;
-using System.Threading;
 
 namespace CubeHack.FrontEnd
 {
     public sealed class GameApp : IGameController
     {
-        private static GameApp _instance;
-
         private readonly Ui.Framework.Input.KeyboardState _uiKeyboardState = new Ui.Framework.Input.KeyboardState();
-        private readonly GameControl _gameControl = new GameControl();
+
+        private readonly GameLoop _gameLoop;
+        private readonly TextureAtlas _textureAtlas;
+        private readonly Renderer _renderer;
+        private readonly UiRenderer _uiRenderer;
+
+        private readonly GameControl _gameControl;
 
         private GameWindow _gameWindow;
         private GameClient _gameClient;
@@ -30,69 +31,52 @@ namespace CubeHack.FrontEnd
         private System.Drawing.Point _nonGrabbedMousePosition;
         private string _statusText;
 
-        public GameApp()
+        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, Renderer renderer, UiRenderer uiRenderer, GameControl gameControl)
         {
-            GameLoop.Reset();
-            CharMap = new CharMap();
-            TextureAtlas = new TextureAtlas();
-            Renderer = new Renderer();
+            _gameLoop = gameLoop;
+            _textureAtlas = textureAtlas;
+            _renderer = renderer;
+            _uiRenderer = uiRenderer;
+            _gameControl = gameControl;
+
+            _gameLoop.Reset();
         }
-
-        public static GameApp Instance => _instance;
-
-        internal CharMap CharMap { get; }
-
-        internal TextureAtlas TextureAtlas { get; }
-
-        internal Renderer Renderer { get; }
 
         public void Run()
         {
-            if (Interlocked.CompareExchange(ref _instance, this, null) != null)
-            {
-                throw new InvalidOperationException();
-            }
+            _gameWindow = new GameWindow(1280, 720);
 
             try
             {
-                _gameWindow = new GameWindow(1280, 720);
+                _gameWindow.Title = "CubeHack";
+                _gameWindow.VSync = VSyncMode.Adaptive;
 
+                /* This sequence seems necessary to bring the window to the front reliably. */
+                _gameWindow.WindowState = WindowState.Maximized;
+                _gameWindow.WindowState = WindowState.Minimized;
+                _gameWindow.Visible = true;
+                _gameWindow.WindowState = WindowState.Maximized;
+
+                _gameWindow.KeyDown += OnKeyDown;
+                _gameWindow.KeyUp += OnKeyUp;
+
+                _gameLoop.RenderFrame += RenderFrame;
                 try
                 {
-                    _gameWindow.Title = "CubeHack";
-                    _gameWindow.VSync = VSyncMode.Adaptive;
-
-                    /* This sequence seems necessary to bring the window to the front reliably. */
-                    _gameWindow.WindowState = WindowState.Maximized;
-                    _gameWindow.WindowState = WindowState.Minimized;
-                    _gameWindow.Visible = true;
-                    _gameWindow.WindowState = WindowState.Maximized;
-
-                    _gameWindow.KeyDown += OnKeyDown;
-                    _gameWindow.KeyUp += OnKeyUp;
-
-                    GameLoop.RenderFrame += RenderFrame;
-                    try
-                    {
-                        GameLoop.Run(_gameWindow);
-                    }
-                    finally
-                    {
-                        GameLoop.RenderFrame -= RenderFrame;
-                    }
+                    _gameLoop.Run(_gameWindow);
                 }
                 finally
                 {
-                    _gameWindow.Dispose();
-                    _gameWindow = null;
-
-                    _gameClient?.Dispose();
-                    _gameClient = null;
+                    _gameLoop.RenderFrame -= RenderFrame;
                 }
             }
             finally
             {
-                Volatile.Write(ref _instance, null);
+                _gameWindow.Dispose();
+                _gameWindow = null;
+
+                _gameClient?.Dispose();
+                _gameClient = null;
             }
         }
 
@@ -100,7 +84,7 @@ namespace CubeHack.FrontEnd
         {
             if (string.IsNullOrWhiteSpace(host)) host = "localhost";
 
-            GameLoop.Post(
+            _gameLoop.Post(
                 async () =>
                 {
                     _statusText = "Connecting...";
@@ -112,7 +96,7 @@ namespace CubeHack.FrontEnd
 
         public void Connect(IChannel channel)
         {
-            GameLoop.Post(() => ConnectInternal(channel));
+            _gameLoop.Post(() => ConnectInternal(channel));
         }
 
         public bool IsKeyPressed(GameKey gameKey)
@@ -161,10 +145,10 @@ namespace CubeHack.FrontEnd
             _statusText = "Loading textures...";
             foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
             {
-                TextureAtlas.Register(texture);
+                _textureAtlas.Register(texture);
             }
 
-            await TextureAtlas.BuildAsync();
+            await _textureAtlas.BuildAsync();
 
             _gameClient = gameClient;
             _statusText = null;
@@ -174,7 +158,7 @@ namespace CubeHack.FrontEnd
         {
             if (e.Key == OpenTK.Input.Key.F10)
             {
-                GameLoop.Quit();
+                _gameLoop.Quit();
             }
             else
             {
@@ -245,15 +229,15 @@ namespace CubeHack.FrontEnd
                 {
                     _gameClient.UpdateState();
 
-                    Renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
-                    UiRenderer.Render(renderInfo, _gameControl, null, GetInputState());
+                    _renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
+                    _uiRenderer.Render(renderInfo, _gameControl, null, GetInputState());
                 }
             }
             else
             {
                 GL.ClearColor(0f, 0f, 0f, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
-                UiRenderer.Render(renderInfo, _gameControl, _statusText ?? "Not connected", GetInputState());
+                _uiRenderer.Render(renderInfo, _gameControl, _statusText ?? "Not connected", GetInputState());
             }
         }
 

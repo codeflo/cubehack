@@ -26,10 +26,16 @@ namespace CubeHack.FrontEnd
 
         private readonly Dictionary<ChunkPos, DisplayListEntry> _displayLists = new Dictionary<ChunkPos, DisplayListEntry>();
 
+        private readonly TextureAtlas _textureAtlas;
         private int _depthBufferWidth;
         private int _depthBufferHeight;
 
         private int[] _displayListsToRender = new int[16];
+
+        public Renderer(TextureAtlas textureAtlas)
+        {
+            _textureAtlas = textureAtlas;
+        }
 
         public void Render(GameClient gameClient, int width, int height)
         {
@@ -64,7 +70,7 @@ namespace CubeHack.FrontEnd
             }
 
             GL.Enable(EnableCap.Texture2D);
-            GameApp.Instance.TextureAtlas.Bind();
+            _textureAtlas.Bind();
 
             RenderCubes(gameClient);
 
@@ -77,7 +83,7 @@ namespace CubeHack.FrontEnd
                 GL.UseProgram(_cubeShader.Value.Id);
                 GL.SecondaryColor3(0.2f, 0.2f, 0.2f);
                 GL.Begin(PrimitiveType.Quads);
-                var textureEntry = GameApp.Instance.TextureAtlas.GetTextureEntry(gameClient.World[new BlockPos(highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ)] - 1);
+                var textureEntry = _textureAtlas.GetTextureEntry(gameClient.World[new BlockPos(highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ)] - 1);
                 if (highlightedCube.NormalX < 0) DrawCubeLeft(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalX > 0) DrawCubeRight(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
                 if (highlightedCube.NormalY < 0) DrawCubeBottom(textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f);
@@ -228,7 +234,7 @@ namespace CubeHack.FrontEnd
                         ushort cube = chunk[x, y, z];
                         if (cube != 0)
                         {
-                            var textureEntry = GameApp.Instance.TextureAtlas.GetTextureEntry((int)cube - 1);
+                            var textureEntry = _textureAtlas.GetTextureEntry((int)cube - 1);
 
                             float x1 = x + xOffset, y1 = y + yOffset, z1 = z + zOffset;
 

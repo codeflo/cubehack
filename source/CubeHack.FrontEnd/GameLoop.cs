@@ -19,23 +19,23 @@ namespace CubeHack.FrontEnd
     /// while connecting to the server, loading data, etc.
     /// </para>
     /// </summary>
-    internal static class GameLoop
+    internal class GameLoop
     {
-        private static readonly object _mutex = new object();
-        private static readonly Queue<QueuedAction> _queuedActions = new Queue<QueuedAction>();
-        private static Thread _loopThread;
-        private static bool _shouldQuit;
-        private static bool _isRunning;
+        private readonly object _mutex = new object();
+        private readonly Queue<QueuedAction> _queuedActions = new Queue<QueuedAction>();
+        private Thread _loopThread;
+        private bool _shouldQuit;
+        private bool _isRunning;
 
         /// <summary>
         /// Raised when the next frame should be rendered.
         /// </summary>
-        public static event Action<RenderInfo> RenderFrame;
+        public event Action<RenderInfo> RenderFrame;
 
         /// <summary>
         /// Resets the game loop to its initial state.
         /// </summary>
-        public static void Reset()
+        public void Reset()
         {
             lock (_mutex)
             {
@@ -46,7 +46,7 @@ namespace CubeHack.FrontEnd
         /// <summary>
         /// Quits the game loop. This call always terminates with a GameLoopExitException.
         /// </summary>
-        public static void Quit()
+        public void Quit()
         {
             lock (_mutex)
             {
@@ -60,7 +60,7 @@ namespace CubeHack.FrontEnd
         /// Adds a new action to the end of the event queue, to be run asynchronously.
         /// </summary>
         /// <param name="action">The action to enqueue.</param>
-        public static void Post(Action action)
+        public void Post(Action action)
         {
             if (action == null) return;
             PostInternal(new QueuedAction(action));
@@ -70,7 +70,7 @@ namespace CubeHack.FrontEnd
         /// Runs the game loop, until the window receives a quit event or GameLoop.Quit() is called.
         /// </summary>
         /// <param name="window">The window for which to run the game loop.</param>
-        public static void Run(GameWindow window)
+        public void Run(GameWindow window)
         {
             lock (_mutex)
             {
@@ -82,7 +82,7 @@ namespace CubeHack.FrontEnd
             }
 
             var oldSynchronizationContext = SynchronizationContext.Current;
-            SynchronizationContext.SetSynchronizationContext(new GameSynchronizationContext());
+            SynchronizationContext.SetSynchronizationContext(new GameSynchronizationContext(this));
             try
             {
                 while (true)
@@ -94,6 +94,9 @@ namespace CubeHack.FrontEnd
                 }
             }
             catch (GameLoopExitException)
+            {
+            }
+            catch (Exception)
             {
             }
             finally
@@ -121,12 +124,12 @@ namespace CubeHack.FrontEnd
         /// Adds a new action to the end of the event queue, and waits until the action is processed.
         /// </summary>
         /// <param name="action">The action to enqueue.</param>
-        public static void Send(Action action)
+        public void Send(Action action)
         {
             SendInternal(new QueuedAction(action));
         }
 
-        private static void PostInternal(QueuedAction queuedAction)
+        private void PostInternal(QueuedAction queuedAction)
         {
             lock (_mutex)
             {
@@ -135,7 +138,7 @@ namespace CubeHack.FrontEnd
             }
         }
 
-        private static void ProcessWindowEvents(GameWindow window)
+        private void ProcessWindowEvents(GameWindow window)
         {
             if (window.IsExiting) throw new GameLoopExitException();
             window.ProcessEvents();
@@ -143,7 +146,7 @@ namespace CubeHack.FrontEnd
             if (window.IsExiting) throw new GameLoopExitException();
         }
 
-        private static bool ProcessSingleQueuedAction()
+        private bool ProcessSingleQueuedAction()
         {
             QueuedAction nextAction;
             lock (_mutex)
@@ -157,7 +160,7 @@ namespace CubeHack.FrontEnd
             return true;
         }
 
-        private static void SendInternal(QueuedAction queuedAction)
+        private void SendInternal(QueuedAction queuedAction)
         {
             ManualResetEventSlim completedEvent = null;
 
@@ -203,15 +206,22 @@ namespace CubeHack.FrontEnd
 
         private class GameSynchronizationContext : SynchronizationContext
         {
+            private readonly GameLoop _gameLoop;
+
+            public GameSynchronizationContext(GameLoop gameLoop)
+            {
+                _gameLoop = gameLoop;
+            }
+
             public override void Post(SendOrPostCallback d, object state)
             {
                 if (d == null) return;
-                PostInternal(new QueuedAction(d, state));
+                _gameLoop.PostInternal(new QueuedAction(d, state));
             }
 
             public override void Send(SendOrPostCallback d, object state)
             {
-                SendInternal(new QueuedAction(d, state));
+                _gameLoop.SendInternal(new QueuedAction(d, state));
             }
         }
 

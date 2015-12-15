@@ -94,11 +94,20 @@ namespace CubeHack.Editor
                 await Task.Run(
                     () =>
                     {
-                        using (var universe = new Universe(NullSaveFile.Instance, DataLoader.LoadMod(_modName)))
+                        try
                         {
-                            var gameApp = new GameApp();
-                            gameApp.Connect(universe.ConnectPlayer());
-                            gameApp.Run();
+                            using (var universe = new Universe(NullSaveFile.Instance, DataLoader.LoadMod(_modName)))
+                            {
+                                using (var container = new DependencyInjectionContainer())
+                                {
+                                    var gameApp = container.Resolve<GameApp>();
+                                    gameApp.Connect(universe.ConnectPlayer());
+                                    gameApp.Run();
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
                         }
                     });
             }

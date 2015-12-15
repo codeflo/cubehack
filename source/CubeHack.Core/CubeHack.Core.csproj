@@ -109,6 +109,7 @@
     <Compile Include="Tcp\TcpConstants.cs" />
     <Compile Include="Tcp\TcpServer.cs" />
     <Compile Include="Util\DelegateDisposable.cs" />
+    <Compile Include="Util\DependencyInjectionContainer.cs" />
     <Compile Include="Util\Extensions\StreamExtensions.cs" />
     <Compile Include="Util\ExtraMath.cs" />
     <Compile Include="Util\GameTime.cs" />

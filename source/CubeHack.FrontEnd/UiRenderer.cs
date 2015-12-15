@@ -5,43 +5,47 @@ using CubeHack.Data;
 using CubeHack.FrontEnd.Ui.Framework.Controls;
 using CubeHack.FrontEnd.Ui.Framework.Drawing;
 using CubeHack.FrontEnd.Ui.Framework.Input;
-using CubeHack.FrontEnd.Ui.Menu;
 using CubeHack.Util;
 using System.Collections.Generic;
 using System.Globalization;
 
 namespace CubeHack.FrontEnd
 {
-    internal static class UiRenderer
+    internal class UiRenderer
     {
-        private static readonly Queue<double> _timeMeasurements = new Queue<double>();
+        private readonly Queue<double> _timeMeasurements = new Queue<double>();
 
-        private static GameTime _frameTime;
+        private readonly Canvas _canvas;
 
-        private static MainMenu _mainMenu = new MainMenu();
+        private GameTime _frameTime;
 
-        public static void Render(RenderInfo renderInfo, Control control, string status, InputState inputState)
+        private UiRenderer(Canvas canvas)
         {
-            using (var canvas = new Canvas(renderInfo))
+            _canvas = canvas;
+        }
+
+        public void Render(RenderInfo renderInfo, Control control, string status, InputState inputState)
+        {
+            using (_canvas.SetUpFrame(renderInfo))
             {
                 if (inputState.Mouse != null)
                 {
                     /* Convert the screen coordinates into virtual canvas coordinates. */
-                    inputState.Mouse.Position.X *= canvas.Width / renderInfo.Width;
-                    inputState.Mouse.Position.Y *= canvas.Height / renderInfo.Height;
+                    inputState.Mouse.Position.X *= _canvas.Width / renderInfo.Width;
+                    inputState.Mouse.Position.Y *= _canvas.Height / renderInfo.Height;
                 }
 
-                DrawCrossHair(canvas);
+                DrawCrossHair(_canvas);
 
                 control.HandleInput(inputState);
-                control.Render(canvas);
+                control.Render(_canvas);
 
                 if (status != null)
                 {
-                    DrawStatus(canvas, status);
+                    DrawStatus(_canvas, status);
                 }
 
-                DrawFps(canvas);
+                DrawFps(_canvas);
             }
         }
 
@@ -66,7 +70,7 @@ namespace CubeHack.FrontEnd
                 0.5f * (canvas.Width - canvas.MeasureText(style, status)), canvas.Height * 0.5f - 15, status);
         }
 
-        private static void DrawFps(Canvas canvas)
+        private void DrawFps(Canvas canvas)
         {
             var frameDuration = GameTime.Update(ref _frameTime);
             if (_timeMeasurements.Count >= 50)

@@ -10,7 +10,12 @@ namespace CubeHack.FrontEnd
 {
     internal sealed class GameControl : Control
     {
-        private readonly MainMenu _mainMenu = new MainMenu();
+        private readonly MainMenu _mainMenu;
+
+        public GameControl(MainMenu mainMenu)
+        {
+            _mainMenu = mainMenu;
+        }
 
         protected override IEnumerable<Control> GetChildren()
         {

@@ -21,14 +21,26 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
     /// virtual screen size of 800*600 (depending on the aspect ratio).
     /// </para>
     /// </summary>
-    internal class Canvas : IDisposable
+    internal class Canvas
     {
         private const float _uiDiagonal = 1024f;
 
-        private static readonly GameTime _start = GameTime.Now();
-        private readonly GameTime _time;
+        private readonly CharMap _charMap;
 
-        public Canvas(RenderInfo renderInfo)
+        private readonly GameTime _start = GameTime.Now();
+
+        private GameTime _time;
+
+        public Canvas(CharMap charMap)
+        {
+            _charMap = charMap;
+        }
+
+        public float Width { get; private set; }
+
+        public float Height { get; private set; }
+
+        public IDisposable SetUpFrame(RenderInfo renderInfo)
         {
             _time = GameTime.Now();
 
@@ -37,16 +49,8 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-        }
 
-        public float Width { get; private set; }
-
-        public float Height { get; private set; }
-
-        public void Dispose()
-        {
-            GL.Disable(EnableCap.Blend);
-            GL.Enable(EnableCap.DepthTest);
+            return new DelegateDisposable(TearDownFrame);
         }
 
         public float MeasureText(Font font, string text)
@@ -56,7 +60,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             float x = 0;
             foreach (var c in text)
             {
-                x += GameApp.Instance.CharMap.GetCharWidth(font.Size, c, font.Style);
+                x += _charMap.GetCharWidth(font.Size, c, font.Style);
             }
 
             return x;
@@ -67,7 +71,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             if (text == null) return;
 
             GL.Enable(EnableCap.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, GameApp.Instance.CharMap.TextureId);
+            GL.BindTexture(TextureTarget.Texture2D, _charMap.TextureId);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.LinearMipmapLinear);
 
@@ -100,8 +104,8 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
                         throw new NotImplementedException();
                 }
 
-                GameApp.Instance.CharMap.PrintChar(lineHeight2, x2, y2, c, font.Style);
-                x += GameApp.Instance.CharMap.GetCharWidth(lineHeight, c, font.Style);
+                _charMap.PrintChar(lineHeight2, x2, y2, c, font.Style);
+                x += _charMap.GetCharWidth(lineHeight, c, font.Style);
             }
 
             GL.Disable(EnableCap.Texture2D);
@@ -116,6 +120,12 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             GL.Vertex2(x1, y0);
             GL.Vertex2(x0, y0);
             GL.End();
+        }
+
+        private void TearDownFrame()
+        {
+            GL.Disable(EnableCap.Blend);
+            GL.Enable(EnableCap.DepthTest);
         }
 
         private void SetUpScreen(RenderInfo renderInfo)
