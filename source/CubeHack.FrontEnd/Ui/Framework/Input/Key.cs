@@ -7,7 +7,14 @@ namespace CubeHack.FrontEnd.Ui.Framework.Input
 {
     public sealed class Key
     {
+        /*
+         * Only list the keys we really need *in code*.
+         * The key rebinding dialog will also work with any key not listed here.
+         */
+
         public static readonly Key Escape = new Key("Escape");
+        public static readonly Key BackSpace = new Key("BackSpace");
+        public static readonly Key Enter = new Key("Enter");
 
         public Key(string name)
         {
@@ -43,6 +50,11 @@ namespace CubeHack.FrontEnd.Ui.Framework.Input
         public override int GetHashCode()
         {
             return Name.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

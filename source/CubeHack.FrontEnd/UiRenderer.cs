@@ -24,9 +24,9 @@ namespace CubeHack.FrontEnd
             _canvas = canvas;
         }
 
-        public void Render(RenderInfo renderInfo, Control control, string status, InputState inputState)
+        public void Render(RenderInfo renderInfo, MouseMode mouseMode, Control control, InputState inputState)
         {
-            using (_canvas.SetUpFrame(renderInfo))
+            using (_canvas.SetUpFrame(renderInfo, mouseMode))
             {
                 if (inputState.Mouse != null)
                 {
@@ -35,39 +35,11 @@ namespace CubeHack.FrontEnd
                     inputState.Mouse.Position.Y *= _canvas.Height / renderInfo.Height;
                 }
 
-                DrawCrossHair(_canvas);
-
                 control.HandleInput(inputState);
                 control.Render(_canvas);
 
-                if (status != null)
-                {
-                    DrawStatus(_canvas, status);
-                }
-
                 DrawFps(_canvas);
             }
-        }
-
-        private static void DrawCrossHair(Canvas canvas)
-        {
-            var color = new Color(1, 1, 1);
-            var x = canvas.Width * 0.5f;
-            var y = canvas.Height * 0.5f;
-
-            var l = 4;
-            var w = 0.7f;
-
-            canvas.DrawRectangle(color, x - w, y - l, x + w, y + l);
-            canvas.DrawRectangle(color, x - l, y - w, x + l, y + w);
-        }
-
-        private static void DrawStatus(Canvas canvas, string status)
-        {
-            var style = new Font(30, new Color(1, 1, 1)) { Animation = FontAnimation.Wave };
-            canvas.Print(
-                style,
-                0.5f * (canvas.Width - canvas.MeasureText(style, status)), canvas.Height * 0.5f - 15, status);
         }
 
         private void DrawFps(Canvas canvas)

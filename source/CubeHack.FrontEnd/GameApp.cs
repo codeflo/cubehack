@@ -4,15 +4,13 @@
 using CubeHack.FrontEnd.Ui.Framework;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Game;
-using CubeHack.Tcp;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using System.Linq;
 
 namespace CubeHack.FrontEnd
 {
-    public sealed class GameApp : IGameController
+    public sealed class GameApp
     {
         private readonly Ui.Framework.Input.KeyboardState _uiKeyboardState = new Ui.Framework.Input.KeyboardState();
 
@@ -20,24 +18,27 @@ namespace CubeHack.FrontEnd
         private readonly TextureAtlas _textureAtlas;
         private readonly Renderer _renderer;
         private readonly UiRenderer _uiRenderer;
-
         private readonly GameControl _gameControl;
+        private readonly GameController _gameController;
+        private readonly GameConnectionManager _connectionManager;
 
         private GameWindow _gameWindow;
-        private GameClient _gameClient;
         private OpenTK.Input.KeyboardState _keyboardState;
         private OpenTK.Input.MouseState _mouseState;
         private bool _wasWindowGrabbed = false;
         private System.Drawing.Point _nonGrabbedMousePosition;
-        private string _statusText;
 
-        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, Renderer renderer, UiRenderer uiRenderer, GameControl gameControl)
+        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, Renderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
         {
             _gameLoop = gameLoop;
             _textureAtlas = textureAtlas;
             _renderer = renderer;
             _uiRenderer = uiRenderer;
             _gameControl = gameControl;
+            _gameController = gameController;
+            _connectionManager = connectionManager;
+
+            _gameController.IsKeyPressedCallback = IsKeyPressed;
 
             _gameLoop.Reset();
         }
@@ -58,6 +59,7 @@ namespace CubeHack.FrontEnd
                 _gameWindow.WindowState = WindowState.Maximized;
 
                 _gameWindow.KeyDown += OnKeyDown;
+                _gameWindow.KeyPress += OnKeyPress;
                 _gameWindow.KeyUp += OnKeyUp;
 
                 _gameLoop.RenderFrame += RenderFrame;
@@ -74,32 +76,17 @@ namespace CubeHack.FrontEnd
             {
                 _gameWindow.Dispose();
                 _gameWindow = null;
-
-                _gameClient?.Dispose();
-                _gameClient = null;
             }
         }
 
-        public void Connect(string host, int port)
-        {
-            if (string.IsNullOrWhiteSpace(host)) host = "localhost";
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
 
-            _gameLoop.Post(
-                async () =>
-                {
-                    _statusText = "Connecting...";
-                    var channel = new TcpChannel(host, port);
-                    await channel.ConnectAsync();
-                    ConnectInternal(channel);
-                });
-        }
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(out System.Drawing.Point point);
 
-        public void Connect(IChannel channel)
-        {
-            _gameLoop.Post(() => ConnectInternal(channel));
-        }
-
-        public bool IsKeyPressed(GameKey gameKey)
+        private bool IsKeyPressed(GameKey gameKey)
         {
             if (!_gameWindow.Focused) return false;
 
@@ -131,29 +118,6 @@ namespace CubeHack.FrontEnd
             }
         }
 
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern bool SetCursorPos(int x, int y);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        private static extern bool GetCursorPos(out System.Drawing.Point point);
-
-        private async void ConnectInternal(IChannel channel)
-        {
-            var gameClient = new GameClient(this, channel);
-
-            _statusText = "Loading textures...";
-            foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
-            {
-                _textureAtlas.Register(texture);
-            }
-
-            await _textureAtlas.BuildAsync();
-
-            _gameClient = gameClient;
-            _statusText = null;
-        }
-
         private void OnKeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             if (e.Key == OpenTK.Input.Key.F10)
@@ -164,8 +128,13 @@ namespace CubeHack.FrontEnd
             {
                 var key = new Ui.Framework.Input.Key(e.Key.ToString());
                 _uiKeyboardState[key] = true;
-                _gameControl.HandleKeyPress(new KeyPress(key, null));
+                _gameControl.HandleKeyDown(key);
             }
+        }
+
+        private void OnKeyPress(object sender, KeyPressEventArgs e)
+        {
+            _gameControl.HandleTextInput(new string(e.KeyChar, 1));
         }
 
         private void OnKeyUp(object sender, KeyboardKeyEventArgs e)
@@ -200,7 +169,7 @@ namespace CubeHack.FrontEnd
                 {
                     var x = point.X - center.X;
                     var y = point.Y - center.Y;
-                    _gameClient?.MouseLook(x, y);
+                    _connectionManager.Client?.MouseLook(x, y);
                 }
 
                 SetCursorPos(center.X, center.Y);
@@ -223,22 +192,22 @@ namespace CubeHack.FrontEnd
             _keyboardState = Keyboard.GetState();
             _mouseState = Mouse.GetState();
 
-            if (_gameClient != null)
+            var client = _connectionManager.Client;
+            if (client != null && client.IsConnected)
             {
-                using (_gameClient.TakeRenderLock())
+                using (client.TakeRenderLock())
                 {
-                    _gameClient.UpdateState();
-
-                    _renderer.Render(_gameClient, renderInfo.Width, renderInfo.Height);
-                    _uiRenderer.Render(renderInfo, _gameControl, null, GetInputState());
+                    client.UpdateState();
+                    _renderer.Render(client, renderInfo.Width, renderInfo.Height);
                 }
             }
             else
             {
                 GL.ClearColor(0f, 0f, 0f, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
-                _uiRenderer.Render(renderInfo, _gameControl, _statusText ?? "Not connected", GetInputState());
             }
+
+            _uiRenderer.Render(renderInfo, _wasWindowGrabbed ? MouseMode.Grabbed : MouseMode.Free, _gameControl, GetInputState());
         }
 
         private InputState GetInputState()

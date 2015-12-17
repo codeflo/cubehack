@@ -19,7 +19,7 @@ namespace CubeHack.FrontEnd
     /// while connecting to the server, loading data, etc.
     /// </para>
     /// </summary>
-    internal class GameLoop
+    public class GameLoop
     {
         private readonly object _mutex = new object();
         private readonly Queue<QueuedAction> _queuedActions = new Queue<QueuedAction>();
@@ -30,7 +30,7 @@ namespace CubeHack.FrontEnd
         /// <summary>
         /// Raised when the next frame should be rendered.
         /// </summary>
-        public event Action<RenderInfo> RenderFrame;
+        internal event Action<RenderInfo> RenderFrame;
 
         /// <summary>
         /// Resets the game loop to its initial state.
@@ -133,7 +133,7 @@ namespace CubeHack.FrontEnd
         {
             lock (_mutex)
             {
-                if (_shouldQuit) throw new GameLoopExitException();
+                if (_shouldQuit) return;
                 _queuedActions.Enqueue(queuedAction);
             }
         }

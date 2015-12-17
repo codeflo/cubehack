@@ -16,22 +16,36 @@ namespace CubeHack.FrontEnd.Ui.Framework.Controls
             RenderForeground(canvas);
         }
 
-        public void HandleKeyPress(KeyPress keyPress)
+        public bool HandleKeyDown(Key key)
         {
-            OnPreKeyPress(keyPress);
-            if (keyPress.IsHandled) return;
+            if (OnPreKeyDown(key)) return true;
 
             var children = GetChildren();
             if (children != null)
             {
                 foreach (var child in children)
                 {
-                    child?.HandleKeyPress(keyPress);
-                    if (keyPress.IsHandled) return;
+                    if (child?.HandleKeyDown(key) ?? false) return true;
                 }
             }
 
-            OnKeyPress(keyPress);
+            return OnKeyDown(key);
+        }
+
+        public bool HandleTextInput(string text)
+        {
+            if (OnPreTextInput(text)) return true;
+
+            var children = GetChildren();
+            if (children != null)
+            {
+                foreach (var child in children)
+                {
+                    if (child?.HandleTextInput(text) ?? false) return true;
+                }
+            }
+
+            return OnTextInput(text);
         }
 
         public void HandleInput(InputState input)
@@ -78,12 +92,24 @@ namespace CubeHack.FrontEnd.Ui.Framework.Controls
             return MouseMode.Any;
         }
 
-        protected virtual void OnPreKeyPress(KeyPress keyPress)
+        protected virtual bool OnPreKeyDown(Key key)
         {
+            return false;
         }
 
-        protected virtual void OnKeyPress(KeyPress keyPress)
+        protected virtual bool OnKeyDown(Key key)
         {
+            return false;
+        }
+
+        protected virtual bool OnPreTextInput(string text)
+        {
+            return false;
+        }
+
+        protected virtual bool OnTextInput(string text)
+        {
+            return false;
         }
 
         protected virtual void OnPreInput(InputState input)

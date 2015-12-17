@@ -100,8 +100,11 @@ namespace CubeHack.Editor
                             {
                                 using (var container = new DependencyInjectionContainer())
                                 {
+                                    var gameLoop = container.Resolve<GameLoop>();
+                                    var connectionManager = container.Resolve<GameConnectionManager>();
+                                    gameLoop.Post(() => { var notAwaited = connectionManager.ConnectUniverseAsync(universe); });
+
                                     var gameApp = container.Resolve<GameApp>();
-                                    gameApp.Connect(universe.ConnectPlayer());
                                     gameApp.Run();
                                 }
                             }

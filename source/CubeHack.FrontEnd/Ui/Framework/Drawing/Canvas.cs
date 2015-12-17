@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Util;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -40,9 +41,12 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
 
         public float Height { get; private set; }
 
-        public IDisposable SetUpFrame(RenderInfo renderInfo)
+        public MouseMode MouseMode { get; private set; }
+
+        public IDisposable SetUpFrame(RenderInfo renderInfo, MouseMode mouseMode)
         {
             _time = GameTime.Now();
+            MouseMode = mouseMode;
 
             SetUpScreen(renderInfo);
 

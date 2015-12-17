@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace CubeHack.Game
 {
     [ProtoContract]
-    public class GameEvent
+    public sealed class GameEvent
     {
         [ProtoMember(1)]
         public List<PositionData> EntityPositions { get; set; }
@@ -21,5 +21,8 @@ namespace CubeHack.Game
 
         [ProtoMember(4)]
         public List<CubeUpdateData> CubeUpdates { get; set; }
+
+        [ProtoMember(5)]
+        public bool IsDisconnected { get; set; }
     }
 }

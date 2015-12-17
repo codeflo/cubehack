@@ -37,6 +37,8 @@ namespace CubeHack.Game
             _controller = controller;
 
             _channel = channel;
+            IsConnected = true;
+
             channel.OnGameEventAsync = HandleGameEventAsync;
             QueueSendingPlayerEvent();
         }
@@ -44,6 +46,8 @@ namespace CubeHack.Game
         public World World { get; private set; }
 
         public RayCastResult HighlightedCube { get; private set; }
+
+        public bool IsConnected { get; private set; }
 
         public IDisposable TakeRenderLock()
         {
@@ -123,8 +127,16 @@ namespace CubeHack.Game
 
         private Task HandleGameEventAsync(GameEvent gameEvent)
         {
+            if (gameEvent == null) return Task.CompletedTask;
+
             using (_mutex.TakeLock())
             {
+                if (gameEvent.IsDisconnected)
+                {
+                    IsConnected = false;
+                    return Task.CompletedTask;
+                }
+
                 if (gameEvent.EntityPositions != null)
                 {
                     EntityPositions = gameEvent.EntityPositions;

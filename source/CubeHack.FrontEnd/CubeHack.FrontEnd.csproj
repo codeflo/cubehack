@@ -33,7 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -55,12 +54,13 @@
     <Compile Include="..\CubeHack.Core\Properties\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="GameConnectionManager.cs" />
     <Compile Include="GameControl.cs" />
+    <Compile Include="GameController.cs" />
     <Compile Include="Ui\Framework\Drawing\FontStyle.cs" />
     <Compile Include="Ui\Framework\Input\InputState.cs" />
     <Compile Include="Ui\Framework\Input\Key.cs" />
     <Compile Include="Ui\Framework\Input\KeyboardState.cs" />
-    <Compile Include="Ui\Framework\Input\KeyPress.cs" />
     <Compile Include="Ui\Framework\Input\MouseMode.cs" />
     <Compile Include="Ui\Framework\Input\MouseState.cs" />
     <Compile Include="Ui\Framework\Point.cs" />
@@ -88,7 +88,11 @@
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
     <Compile Include="Ui\Framework\Rectangle.cs" />
+    <Compile Include="Ui\Hud\HudControl.cs" />
+    <Compile Include="Ui\Menu\ConnectScreen.cs" />
     <Compile Include="Ui\Menu\MainMenu.cs" />
+    <Compile Include="Ui\Menu\OutOfGameMenu.cs" />
+    <Compile Include="Ui\Menu\PauseMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

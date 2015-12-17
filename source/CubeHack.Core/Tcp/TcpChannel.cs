@@ -51,25 +51,17 @@ namespace CubeHack.Tcp
 
         public async Task ConnectAsync()
         {
-            try
-            {
-                _tcpClient.NoDelay = true;
-                await _tcpClient.ConnectAsync(_host, _port);
+            _tcpClient.NoDelay = true;
+            await _tcpClient.ConnectAsync(_host, _port);
 
-                _stream = _tcpClient.GetStream();
-                await _stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
-                await _stream.FlushAsync();
+            _stream = _tcpClient.GetStream();
+            await _stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
+            await _stream.FlushAsync();
 
-                ModData = await _stream.ReadObjectAsync<ModData>();
+            ModData = await _stream.ReadObjectAsync<ModData>();
 
-                _isConnected = true;
-                var spawnedTask = Task.Run(() => RunChannel());
-            }
-            catch (Exception)
-            {
-                // TODO: Drop to the main menu or something. For now, any disconnect terminates the application.
-                Environment.Exit(0);
-            }
+            _isConnected = true;
+            var spawnedTask = Task.Run(() => RunChannel());
         }
 
         public async Task SendPlayerEventAsync(PlayerEvent playerEvent)
@@ -101,14 +93,21 @@ namespace CubeHack.Tcp
                         onGameEventAsync = _onGameEventAsync;
                     }
 
-                    if (onGameEventAsync != null)
-                    {
-                        await onGameEventAsync(gameEvent);
-                    }
+                    if (onGameEventAsync != null) await onGameEventAsync(gameEvent);
                 }
             }
             catch (Exception)
             {
+            }
+            finally
+            {
+                Func<GameEvent, Task> onGameEventAsync;
+                lock (_mutex)
+                {
+                    onGameEventAsync = _onGameEventAsync;
+                }
+
+                if (onGameEventAsync != null) await onGameEventAsync(new GameEvent { IsDisconnected = true });
             }
         }
     }

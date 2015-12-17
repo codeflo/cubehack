@@ -34,6 +34,19 @@ namespace CubeHack.FrontEnd
             return _textureEntries[index];
         }
 
+        public void Clear()
+        {
+            if (_textureId != 0)
+            {
+                GL.DeleteTexture(_textureId);
+            }
+
+            _textureEntries = null;
+            _count = 0;
+            _size = 0;
+            _textures.Clear();
+        }
+
         public void Bind()
         {
             if (_textureId == 0)
