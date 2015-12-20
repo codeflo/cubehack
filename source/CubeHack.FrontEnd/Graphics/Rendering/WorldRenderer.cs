@@ -9,7 +9,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using static CubeHack.Geometry.GeometryConstants;
 
 namespace CubeHack.FrontEnd.Graphics.Rendering
@@ -148,8 +148,6 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             var offset = (gameClient.PositionData.Position - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
-            int chunkUpdates = 0;
-
             for (int y = chunkY + ChunkViewRadiusY; y >= chunkY - ChunkViewRadiusY; --y)
             {
                 for (int x = chunkX - ChunkViewRadiusXZ; x <= chunkX + ChunkViewRadiusXZ; ++x)
@@ -169,29 +167,41 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
                         var chunk = gameClient.World.PeekChunk(chunkPos);
                         if (chunk != null && chunk.HasData)
                         {
-                            if (entry == null || (entry.ContentHash != chunk.ContentHash))
+                            if (entry == null)
                             {
-                                ++chunkUpdates;
-
-                                VertexArray vertexArray;
-                                if (entry == null)
-                                {
-                                    vertexArray = new VertexArray(_cubeVertexSpecification);
-                                    entry = new ChunkBufferEntry { ContentHash = chunk.ContentHash, VertexArray = vertexArray, LastAccess = _currentFrameTime };
-                                    _chunkBuffers[chunkPos] = entry;
-                                }
-                                else
-                                {
-                                    vertexArray = entry.VertexArray;
-                                    entry.ContentHash = chunk.ContentHash;
-                                }
-
-                                _tempTriangles.Clear();
-                                RenderChunk(_tempTriangles, chunk, x, y, z);
-                                vertexArray.SetData(_tempTriangles, BufferUsageHint.StaticDraw);
+                                entry = new ChunkBufferEntry { LastAccess = _currentFrameTime };
+                                _chunkBuffers[chunkPos] = entry;
                             }
 
-                            entry.VertexArray.Draw();
+                            if (entry.ContentHash != chunk.ContentHash)
+                            {
+                                if (entry.TriangleTask != null && entry.TriangleTask.IsCompleted)
+                                {
+                                    var triangles = entry.TriangleTask.Result;
+
+                                    if (entry.TriangleTaskContentHash == chunk.ContentHash)
+                                    {
+                                        if (entry.VertexArray == null) entry.VertexArray = new VertexArray(_cubeVertexSpecification);
+                                        entry.VertexArray.SetData(triangles, BufferUsageHint.StaticDraw);
+                                        entry.ContentHash = chunk.ContentHash;
+                                    }
+
+                                    triangles.Dispose();
+                                    entry.TriangleTask = null;
+                                    entry.TriangleTaskContentHash = 0;
+                                }
+
+                                if (entry.ContentHash != chunk.ContentHash && entry.TriangleTask == null)
+                                {
+                                    var triangleBuffer = new TriangleBuffer(_cubeVertexSpecification);
+
+                                    var localChunk = chunk;
+                                    entry.TriangleTask = Task.Run(() => { RenderChunk(triangleBuffer, localChunk); return triangleBuffer; });
+                                    entry.TriangleTaskContentHash = chunk.ContentHash;
+                                }
+                            }
+
+                            entry.VertexArray?.Draw();
                         }
                     }
                 }
@@ -209,7 +219,11 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             {
                 if (_currentFrameTime - entry.Value.LastAccess > _chunkCacheExpiration)
                 {
-                    entry.Value.VertexArray.Dispose();
+                    entry.Value.VertexArray?.Dispose();
+
+                    /* If the task has completed, dispose the triangles here. If not, they are garbage collected anyway. */
+                    if (entry.Value.TriangleTask != null && entry.Value.TriangleTask.IsCompleted) entry.Value.TriangleTask.Result.Dispose();
+
                     if (keysToRemove == null) keysToRemove = new HashSet<ChunkPos>();
                     keysToRemove.Add(entry.Key);
                 }
@@ -254,11 +268,11 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             return true;
         }
 
-        private void RenderChunk(TriangleBuffer buffer, Chunk chunk, int chunkX, int chunkY, int chunkZ)
+        private void RenderChunk(TriangleBuffer buffer, Chunk chunk)
         {
-            float xOffset = (chunkX << Chunk.Bits) + 0.5f;
-            float yOffset = (chunkY << Chunk.Bits) + 0.5f;
-            float zOffset = (chunkZ << Chunk.Bits) + 0.5f;
+            float xOffset = (chunk.Pos.X << Chunk.Bits) + 0.5f;
+            float yOffset = (chunk.Pos.Y << Chunk.Bits) + 0.5f;
+            float zOffset = (chunk.Pos.Z << Chunk.Bits) + 0.5f;
 
             for (int y = Chunk.Size - 1; y >= 0; --y)
             {
@@ -426,8 +440,10 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
         private class ChunkBufferEntry
         {
             public ulong ContentHash;
-
             public VertexArray VertexArray;
+
+            public ulong TriangleTaskContentHash;
+            public Task<TriangleBuffer> TriangleTask;
 
             public GameTime LastAccess;
         }
