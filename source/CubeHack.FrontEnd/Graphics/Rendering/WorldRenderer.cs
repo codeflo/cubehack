@@ -28,7 +28,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             { 2, 4, VertexAttribPointerType.UnsignedByte, true },
         };
 
-        private readonly TextureAtlas _textureAtlas;
+        private readonly WorldTextureAtlas _textureAtlas;
         private readonly OutlineRenderer _outlineRenderer;
 
         private readonly Lazy<Shader> _cubeShader = new Lazy<Shader>(() => Shader.Load("CubeHack.FrontEnd.Shaders.Cube"));
@@ -41,7 +41,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private GameTime _currentFrameTime;
 
-        public WorldRenderer(TextureAtlas textureAtlas, OutlineRenderer outlineRenderer)
+        public WorldRenderer(WorldTextureAtlas textureAtlas, OutlineRenderer outlineRenderer)
         {
             _textureAtlas = textureAtlas;
             _outlineRenderer = outlineRenderer;
@@ -316,111 +316,111 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(217, 217, 217, 0); buffer.EndVertex();
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(178, 204, 230, 0); buffer.EndVertex();
 
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
-            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
-            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
-            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z + xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
+            buffer.VertexFloat(x + xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
+            buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
         }
 
-        private void DrawCubeFront(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeFront(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeRight(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeRight(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeBack(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeBack(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeLeft(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeLeft(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeTop(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeTop(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeBottom(TriangleBuffer buffer, TextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawCubeBottom(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
 
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y0S); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0S, textureEntry.Y1S); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y1S); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
-            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1S, textureEntry.Y0S); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y0); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x - 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y1); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
+            buffer.VertexFloat(x + 0.5f, y - 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X1, textureEntry.Y0); buffer.VertexColorBytes(0.33f, 0.33f, 0.33f, highlight); buffer.EndVertex();
         }
 
         private class ChunkBufferEntry

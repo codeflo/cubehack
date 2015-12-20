@@ -16,7 +16,6 @@ namespace CubeHack.FrontEnd
         private readonly Ui.Framework.Input.KeyboardState _uiKeyboardState = new Ui.Framework.Input.KeyboardState();
 
         private readonly GameLoop _gameLoop;
-        private readonly TextureAtlas _textureAtlas;
         private readonly WorldRenderer _renderer;
         private readonly UiRenderer _uiRenderer;
         private readonly GameControl _gameControl;
@@ -29,10 +28,9 @@ namespace CubeHack.FrontEnd
         private bool _wasWindowGrabbed = false;
         private System.Drawing.Point _nonGrabbedMousePosition;
 
-        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, WorldRenderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
+        internal GameApp(GameLoop gameLoop, WorldRenderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
         {
             _gameLoop = gameLoop;
-            _textureAtlas = textureAtlas;
             _renderer = renderer;
             _uiRenderer = uiRenderer;
             _gameControl = gameControl;

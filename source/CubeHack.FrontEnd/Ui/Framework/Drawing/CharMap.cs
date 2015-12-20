@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.FrontEnd.Graphics.Engine;
 using CubeHack.Util;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;

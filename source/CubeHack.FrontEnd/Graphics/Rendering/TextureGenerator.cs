@@ -7,11 +7,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace CubeHack.FrontEnd
+namespace CubeHack.FrontEnd.Graphics.Rendering
 {
     internal static class TextureGenerator
     {
-        public const int TextureSize = TextureAtlas.TextureSize;
+        public const int TextureSize = WorldTextureAtlas.TextureSize;
 
         private static readonly NoiseCube _noiseCube = new NoiseCube();
 

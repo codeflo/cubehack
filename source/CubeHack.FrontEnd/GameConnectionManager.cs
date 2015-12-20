@@ -1,11 +1,11 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.FrontEnd.Graphics.Rendering;
 using CubeHack.Game;
 using CubeHack.Storage;
 using CubeHack.Tcp;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CubeHack.FrontEnd
@@ -14,10 +14,10 @@ namespace CubeHack.FrontEnd
     {
         private readonly GameController _controller;
 
-        private readonly TextureAtlas _textureAtlas;
+        private readonly WorldTextureAtlas _textureAtlas;
         private IDisposable _server;
 
-        internal GameConnectionManager(GameController controller, TextureAtlas textureAtlas)
+        internal GameConnectionManager(GameController controller, WorldTextureAtlas textureAtlas)
         {
             _controller = controller;
             _textureAtlas = textureAtlas;
@@ -116,15 +116,7 @@ namespace CubeHack.FrontEnd
 
         private async Task ConnectChannelAsync(IChannel channel)
         {
-            _textureAtlas.Clear();
-
-            foreach (var texture in channel.ModData.Materials.Select(m => m.Texture))
-            {
-                _textureAtlas.Register(texture);
-            }
-
-            await _textureAtlas.BuildAsync();
-
+            await _textureAtlas.SetModAsync(channel.ModData);
             Client = new GameClient(_controller, channel);
         }
 

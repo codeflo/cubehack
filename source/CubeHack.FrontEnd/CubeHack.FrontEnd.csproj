@@ -80,9 +80,9 @@
     <Compile Include="Graphics\Rendering\WorldRenderer.cs" />
     <Compile Include="RenderInfo.cs" />
     <Compile Include="Shader.cs" />
-    <Compile Include="TextureAtlas.cs" />
-    <Compile Include="TextureGenerator.cs" />
-    <Compile Include="TextureHelper.cs" />
+    <Compile Include="Graphics\Rendering\WorldTextureAtlas.cs" />
+    <Compile Include="Graphics\Rendering\TextureGenerator.cs" />
+    <Compile Include="Graphics\Engine\TextureHelper.cs" />
     <Compile Include="Ui\Framework\Drawing\Canvas.cs" />
     <Compile Include="Ui\Framework\Controls\Control.cs" />
     <Compile Include="Ui\Framework\Properties\DelegateProperty.cs" />
@@ -115,7 +115,9 @@
       <Name>CubeHack.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Graphics\Textures\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

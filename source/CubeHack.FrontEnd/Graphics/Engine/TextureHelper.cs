@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 
-namespace CubeHack.FrontEnd
+namespace CubeHack.FrontEnd.Graphics.Engine
 {
     internal static class TextureHelper
     {
@@ -23,6 +23,26 @@ namespace CubeHack.FrontEnd
                         computedBitmap.BitmapData.Width,
                         computedBitmap.BitmapData.Height,
                         0,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                        PixelType.UnsignedByte,
+                        computedBitmap.BitmapData.Scan0);
+            }
+
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+        }
+
+        public static async Task DrawSubTextureAsync(int textureId, int x, int y, int width, int height, Action<System.Drawing.Graphics> drawAction, Action<BitmapData> bitmapAction)
+        {
+            using (var computedBitmap = await Task.Run(() => new ComputedBitmap(width, height, drawAction, bitmapAction)))
+            {
+                GL.BindTexture(TextureTarget.Texture2D, textureId);
+                GL.TexSubImage2D(
+                        TextureTarget.Texture2D,
+                        0,
+                        x,
+                        y,
+                        computedBitmap.BitmapData.Width,
+                        computedBitmap.BitmapData.Height,
                         OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
                         PixelType.UnsignedByte,
                         computedBitmap.BitmapData.Scan0);
