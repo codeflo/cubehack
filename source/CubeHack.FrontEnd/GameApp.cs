@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.FrontEnd.Graphics.Rendering;
 using CubeHack.FrontEnd.Ui.Framework;
 using CubeHack.FrontEnd.Ui.Framework.Input;
 using CubeHack.Game;
@@ -16,7 +17,7 @@ namespace CubeHack.FrontEnd
 
         private readonly GameLoop _gameLoop;
         private readonly TextureAtlas _textureAtlas;
-        private readonly Renderer _renderer;
+        private readonly WorldRenderer _renderer;
         private readonly UiRenderer _uiRenderer;
         private readonly GameControl _gameControl;
         private readonly GameController _gameController;
@@ -28,7 +29,7 @@ namespace CubeHack.FrontEnd
         private bool _wasWindowGrabbed = false;
         private System.Drawing.Point _nonGrabbedMousePosition;
 
-        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, Renderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
+        internal GameApp(GameLoop gameLoop, TextureAtlas textureAtlas, WorldRenderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
         {
             _gameLoop = gameLoop;
             _textureAtlas = textureAtlas;
@@ -50,7 +51,7 @@ namespace CubeHack.FrontEnd
             try
             {
                 _gameWindow.Title = "CubeHack";
-                _gameWindow.VSync = VSyncMode.Adaptive;
+                _gameWindow.VSync = VSyncMode.Off;
 
                 /* This sequence seems necessary to bring the window to the front reliably. */
                 _gameWindow.WindowState = WindowState.Maximized;
@@ -198,7 +199,7 @@ namespace CubeHack.FrontEnd
                 using (client.TakeRenderLock())
                 {
                     client.UpdateState();
-                    _renderer.Render(client, renderInfo.Width, renderInfo.Height);
+                    _renderer.Render(client, renderInfo);
                 }
             }
             else

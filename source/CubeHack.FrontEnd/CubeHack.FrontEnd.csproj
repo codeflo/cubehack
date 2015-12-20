@@ -57,6 +57,10 @@
     <Compile Include="GameConnectionManager.cs" />
     <Compile Include="GameControl.cs" />
     <Compile Include="GameController.cs" />
+    <Compile Include="Graphics\Engine\TriangleBufferExtensions.cs" />
+    <Compile Include="Graphics\Engine\VertexArray.cs" />
+    <Compile Include="Graphics\Engine\TriangleBuffer.cs" />
+    <Compile Include="Graphics\Engine\VertexSpecification.cs" />
     <Compile Include="Ui\Framework\Drawing\FontStyle.cs" />
     <Compile Include="Ui\Framework\Input\InputState.cs" />
     <Compile Include="Ui\Framework\Input\Key.cs" />
@@ -70,7 +74,9 @@
     <Compile Include="GameLoop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderer.cs" />
+    <Compile Include="Graphics\Engine\ByteBuffer.cs" />
+    <Compile Include="Graphics\Rendering\OutlineRenderer.cs" />
+    <Compile Include="Graphics\Rendering\WorldRenderer.cs" />
     <Compile Include="RenderInfo.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="TextureAtlas.cs" />
@@ -98,9 +104,9 @@
     <None Include="App.config" />
     <EmbeddedResource Include="Shaders\PostProcess.fs.glsl" />
     <EmbeddedResource Include="Shaders\PostProcess.vs.glsl" />
+    <None Include="packages.config" />
     <EmbeddedResource Include="Shaders\Cube.fs.glsl" />
     <EmbeddedResource Include="Shaders\Cube.vs.glsl" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CubeHack.Core\CubeHack.Core.csproj">
@@ -108,6 +114,7 @@
       <Name>CubeHack.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

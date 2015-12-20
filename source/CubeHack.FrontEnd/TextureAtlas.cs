@@ -21,6 +21,11 @@ namespace CubeHack.FrontEnd
         private int _textureId;
         private TextureEntry[] _textureEntries;
 
+        public TextureAtlas()
+        {
+            Clear();
+        }
+
         public int TextureId
         {
             get
@@ -42,9 +47,10 @@ namespace CubeHack.FrontEnd
             }
 
             _textureEntries = null;
-            _count = 0;
-            _size = 0;
+            _count = 1;
+            _size = 1;
             _textures.Clear();
+            _textures.Add(null);
         }
 
         public void Bind()
@@ -82,7 +88,24 @@ namespace CubeHack.FrontEnd
                 _textureId,
                 _size * TextureSize,
                 _size * TextureSize,
-                null,
+                graphics =>
+                {
+                    int x = 0, y = 0;
+                    for (int i = 0; i < _count; ++i)
+                    {
+                        if (_textures[i] == null)
+                        {
+                            graphics.FillRectangle(System.Drawing.Brushes.White, new System.Drawing.Rectangle(x * TextureSize, y * TextureSize, TextureSize, TextureSize));
+                        }
+
+                        ++x;
+                        if (x == _size)
+                        {
+                            x = 0;
+                            ++y;
+                        }
+                    }
+                },
                 bitmapData =>
                 {
                     int x = 0, y = 0;
@@ -104,6 +127,14 @@ namespace CubeHack.FrontEnd
         public struct TextureEntry
         {
             public float X0, Y0, X1, Y1;
+
+            public ushort X0S => (ushort)(X0 * ushort.MaxValue);
+
+            public ushort Y0S => (ushort)(Y0 * ushort.MaxValue);
+
+            public ushort X1S => (ushort)(X1 * ushort.MaxValue);
+
+            public ushort Y1S => (ushort)(Y1 * ushort.MaxValue);
         }
     }
 }

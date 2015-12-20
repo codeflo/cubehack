@@ -11,7 +11,7 @@ namespace CubeHack.FrontEnd
 {
     internal static class TextureHelper
     {
-        public static async Task DrawTextureAsync(int textureId, int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
+        public static async Task DrawTextureAsync(int textureId, int width, int height, Action<System.Drawing.Graphics> drawAction, Action<BitmapData> bitmapAction)
         {
             using (var computedBitmap = await Task.Run(() => new ComputedBitmap(width, height, drawAction, bitmapAction)))
             {
@@ -36,13 +36,13 @@ namespace CubeHack.FrontEnd
             private readonly Bitmap _bitmap;
             private readonly BitmapData _bitmapData;
 
-            public ComputedBitmap(int width, int height, Action<Graphics> drawAction, Action<BitmapData> bitmapAction)
+            public ComputedBitmap(int width, int height, Action<System.Drawing.Graphics> drawAction, Action<BitmapData> bitmapAction)
             {
                 _bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                 if (drawAction != null)
                 {
-                    using (var graphics = Graphics.FromImage(_bitmap))
+                    using (var graphics = System.Drawing.Graphics.FromImage(_bitmap))
                     {
                         drawAction(graphics);
                     }

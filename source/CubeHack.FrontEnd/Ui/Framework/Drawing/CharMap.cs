@@ -93,7 +93,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             }
         }
 
-        private static RectangleF MeasureRectangle(Graphics graphics, int fontSize, System.Drawing.Font font, string s)
+        private static RectangleF MeasureRectangle(System.Drawing.Graphics graphics, int fontSize, System.Drawing.Font font, string s)
         {
             var stringFormat = new StringFormat(StringFormatFlags.NoWrap);
             stringFormat.SetMeasurableCharacterRanges(new[] { new CharacterRange(0, 1) });
@@ -160,7 +160,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
             _isInitializing = false;
         }
 
-        private bool InitializeChar(Graphics graphics, int bitmapWidth, int bitmapHeight, System.Drawing.Font font, int fontSize, float xWidth, float xHeight, char c, FontStyle style, ref float currentX, ref float currentY)
+        private bool InitializeChar(System.Drawing.Graphics graphics, int bitmapWidth, int bitmapHeight, System.Drawing.Font font, int fontSize, float xWidth, float xHeight, char c, FontStyle style, ref float currentX, ref float currentY)
         {
             var charKey = new CharKey(c, style);
             string s = new string(c, 1);

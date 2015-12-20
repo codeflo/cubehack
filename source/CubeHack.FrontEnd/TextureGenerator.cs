@@ -17,6 +17,8 @@ namespace CubeHack.FrontEnd
 
         public static void DrawTexture(BitmapData bitmapData, Texture texture, int offsetX, int offsetY)
         {
+            if (texture == null) return;
+
             var color = new CubeHack.Data.Color(texture.Color);
 
             double tf = 1.0 / TextureSize;
@@ -32,7 +34,7 @@ namespace CubeHack.FrontEnd
                     float b = color.B;
 
                     float o = 10 * (_noiseCube.Get(xf, yf, 0.075) - _noiseCube.Get(xf, yf, 0.10));
-                    if (texture.Index == 1)
+                    if (texture.Index == 2)
                     {
                         o = o > 0.070f ? 0.070f : 0;
                         r += o;
