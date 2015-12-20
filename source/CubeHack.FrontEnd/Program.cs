@@ -2,6 +2,9 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Util;
+using System;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace CubeHack.FrontEnd
 {
@@ -9,10 +12,22 @@ namespace CubeHack.FrontEnd
     {
         public static void Main()
         {
-            using (var container = new DependencyInjectionContainer())
+            try
             {
-                var gameApp = container.Resolve<GameApp>();
-                gameApp.Run();
+                using (var container = new DependencyInjectionContainer())
+                {
+                    var gameApp = container.Resolve<GameApp>();
+                    gameApp.Run();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+
+                MessageBox.Show(ex.ToString(), "CubeHack", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

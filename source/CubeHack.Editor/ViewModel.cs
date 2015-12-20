@@ -9,6 +9,7 @@ using CubeHack.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -109,8 +110,14 @@ namespace CubeHack.Editor
                                 }
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            if (Debugger.IsAttached)
+                            {
+                                Debugger.Break();
+                            }
+
+                            MessageBox.Show(ex.ToString(), "CubeHack", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     });
             }

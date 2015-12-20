@@ -96,9 +96,6 @@ namespace CubeHack.FrontEnd
             catch (GameLoopExitException)
             {
             }
-            catch (Exception)
-            {
-            }
             finally
             {
                 SynchronizationContext.SetSynchronizationContext(oldSynchronizationContext);

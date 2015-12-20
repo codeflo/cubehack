@@ -198,70 +198,76 @@ namespace CubeHack.Game
 
         private void RunUniverse()
         {
-            var frameTime = GameTime.Now();
-
-            while (!_isDisposed)
+            try
             {
-                var startTime = DateTime.Now;
+                var frameTime = GameTime.Now();
 
-                lock (_mutex)
+                while (!_isDisposed)
                 {
-                    foreach (var channel in _channels)
+                    var startTime = DateTime.Now;
+
+                    lock (_mutex)
                     {
-                        while (true)
+                        foreach (var channel in _channels)
                         {
-                            var playerEvent = channel.TakePlayerEvent();
-                            if (playerEvent == null) break;
-                            HandlePlayerEvent(channel, playerEvent);
-                        }
-                    }
-
-                    var elapsedDuration = GameTime.Update(ref frameTime);
-                    foreach (var entity in _entities)
-                    {
-                        if (entity.PositionData == null)
-                        {
-                            continue;
-                        }
-
-                        if (entity.IsAiControlled)
-                        {
-                            Ai.Control(_mod.PhysicsValues, elapsedDuration, entity, _entities.FindAll(e => !e.Equals(entity)));
-                        }
-
-                        Movement.MoveEntity(
-                            _mod.PhysicsValues,
-                            _startWorld,
-                            entity.PositionData,
-                            elapsedDuration,
-                            entity.PositionData.Velocity.X,
-                            entity.PositionData.Velocity.Y,
-                            entity.PositionData.Velocity.Z);
-                    }
-
-                    foreach (var channel in _channels)
-                    {
-                        if (channel.NeedsGameEvent())
-                        {
-                            var gameEvent = GetCurrentGameEvent(channel);
-                            if (!channel.HasSentInitialValues)
+                            while (true)
                             {
-                                channel.HasSentInitialValues = true;
-                                gameEvent.PhysicsValues = _mod.PhysicsValues;
+                                var playerEvent = channel.TakePlayerEvent();
+                                if (playerEvent == null) break;
+                                HandlePlayerEvent(channel, playerEvent);
+                            }
+                        }
+
+                        var elapsedDuration = GameTime.Update(ref frameTime);
+                        foreach (var entity in _entities)
+                        {
+                            if (entity.PositionData == null)
+                            {
+                                continue;
                             }
 
-                            channel.QueueGameEvent(gameEvent);
+                            if (entity.IsAiControlled)
+                            {
+                                Ai.Control(_mod.PhysicsValues, elapsedDuration, entity, _entities.FindAll(e => !e.Equals(entity)));
+                            }
+
+                            Movement.MoveEntity(
+                                _mod.PhysicsValues,
+                                _startWorld,
+                                entity.PositionData,
+                                elapsedDuration,
+                                entity.PositionData.Velocity.X,
+                                entity.PositionData.Velocity.Y,
+                                entity.PositionData.Velocity.Z);
+                        }
+
+                        foreach (var channel in _channels)
+                        {
+                            if (channel.NeedsGameEvent())
+                            {
+                                var gameEvent = GetCurrentGameEvent(channel);
+                                if (!channel.HasSentInitialValues)
+                                {
+                                    channel.HasSentInitialValues = true;
+                                    gameEvent.PhysicsValues = _mod.PhysicsValues;
+                                }
+
+                                channel.QueueGameEvent(gameEvent);
+                            }
                         }
                     }
-                }
 
-                var endTime = DateTime.Now;
+                    var endTime = DateTime.Now;
 
-                double sleepMillis = 10 - (endTime - startTime).TotalMilliseconds;
-                if (sleepMillis > 0)
-                {
-                    Thread.Sleep((int)Math.Ceiling(sleepMillis));
+                    double sleepMillis = 10 - (endTime - startTime).TotalMilliseconds;
+                    if (sleepMillis > 0)
+                    {
+                        Thread.Sleep((int)Math.Ceiling(sleepMillis));
+                    }
                 }
+            }
+            catch
+            {
             }
         }
 
