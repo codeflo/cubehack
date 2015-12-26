@@ -32,6 +32,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
 
         private GameTime _time;
 
+        [DependencyInjected]
         public Canvas(CharMap charMap)
         {
             _charMap = charMap;

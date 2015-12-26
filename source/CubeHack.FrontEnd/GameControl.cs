@@ -14,6 +14,7 @@ namespace CubeHack.FrontEnd
         private readonly MainMenu _mainMenu;
         private readonly HudControl _hudControl;
 
+        [DependencyInjected]
         public GameControl(MainMenu mainMenu, HudControl hudControl)
         {
             _mainMenu = mainMenu;

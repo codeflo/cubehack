@@ -24,6 +24,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
         private int _textureId;
         private TextureEntry[] _textureEntries;
 
+        [DependencyInjected]
         public WorldTextureAtlas()
         {
         }

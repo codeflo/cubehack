@@ -41,6 +41,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private GameTime _currentFrameTime;
 
+        [DependencyInjected]
         public WorldRenderer(WorldTextureAtlas textureAtlas, OutlineRenderer outlineRenderer)
         {
             _textureAtlas = textureAtlas;

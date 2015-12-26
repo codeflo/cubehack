@@ -29,6 +29,11 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
         private bool _isInitialized;
         private int _fontTextureId;
 
+        [DependencyInjected]
+        public CharMap()
+        {
+        }
+
         public int TextureId => _fontTextureId;
 
         public float GetCharWidth(float lineHeight, char c, FontStyle style)

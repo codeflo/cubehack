@@ -28,6 +28,7 @@ namespace CubeHack.FrontEnd
         private bool _wasWindowGrabbed = false;
         private System.Drawing.Point _nonGrabbedMousePosition;
 
+        [DependencyInjected]
         internal GameApp(GameLoop gameLoop, WorldRenderer renderer, UiRenderer uiRenderer, GameControl gameControl, GameController gameController, GameConnectionManager connectionManager)
         {
             _gameLoop = gameLoop;

@@ -14,6 +14,7 @@ namespace CubeHack.FrontEnd.Ui.Menu
 
         private string _address = string.Empty;
 
+        [DependencyInjected]
         public ConnectScreen(GameConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;

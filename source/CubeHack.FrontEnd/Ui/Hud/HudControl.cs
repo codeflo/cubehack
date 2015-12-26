@@ -10,6 +10,11 @@ namespace CubeHack.FrontEnd.Ui.Hud
 {
     internal sealed class HudControl : Control
     {
+        [DependencyInjected]
+        public HudControl()
+        {
+        }
+
         protected override void RenderForeground(Canvas canvas)
         {
             if (canvas.MouseMode == MouseMode.Grabbed) DrawCrossHair(canvas);

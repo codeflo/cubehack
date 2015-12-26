@@ -17,6 +17,7 @@ namespace CubeHack.FrontEnd
         private readonly WorldTextureAtlas _textureAtlas;
         private IDisposable _server;
 
+        [DependencyInjected]
         internal GameConnectionManager(GameController controller, WorldTextureAtlas textureAtlas)
         {
             _controller = controller;

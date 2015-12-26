@@ -21,6 +21,7 @@ namespace CubeHack.FrontEnd.Ui.Menu
         private readonly Button _connectButton;
         private Control _activeScreen = null;
 
+        [DependencyInjected]
         public OutOfGameMenu(GameConnectionManager connectionManager, ConnectScreen connectScreen)
         {
             _connectionManager = connectionManager;

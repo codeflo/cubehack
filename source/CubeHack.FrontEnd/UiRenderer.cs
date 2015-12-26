@@ -19,6 +19,7 @@ namespace CubeHack.FrontEnd
 
         private GameTime _frameTime;
 
+        [DependencyInjected]
         private UiRenderer(Canvas canvas)
         {
             _canvas = canvas;

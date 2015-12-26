@@ -8,6 +8,11 @@ namespace CubeHack.FrontEnd
 {
     internal class GameController : IGameController
     {
+        [DependencyInjected]
+        public GameController()
+        {
+        }
+
         public Func<GameKey, bool> IsKeyPressedCallback { get; set; }
 
         public bool IsKeyPressed(GameKey key)

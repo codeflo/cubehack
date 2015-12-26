@@ -27,6 +27,11 @@ namespace CubeHack.FrontEnd
         private bool _shouldQuit;
         private bool _isRunning;
 
+        [DependencyInjected]
+        public GameLoop()
+        {
+        }
+
         /// <summary>
         /// Raised when the next frame should be rendered.
         /// </summary>

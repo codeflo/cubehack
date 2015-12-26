@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace CubeHack.Util
@@ -78,8 +79,8 @@ namespace CubeHack.Util
                 _currentlyCreatingInstances.Add(type);
                 try
                 {
-                    var constructors = type.GetConstructors(_bindingFlags);
-                    if (constructors.Length != 1) throw new Exception($"Type needs exactly one constructor: '{type.FullName}'");
+                    var constructors = type.GetConstructors(_bindingFlags).Where(c => c.GetCustomAttributes<DependencyInjectedAttribute>().Any()).ToList();
+                    if (constructors.Count != 1) throw new Exception($"Type needs exactly one constructor with [{nameof(DependencyInjectedAttribute)}]: '{type.FullName}'");
                     var constructor = constructors[0];
 
                     var parameters = constructor.GetParameters();

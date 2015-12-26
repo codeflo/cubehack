@@ -14,6 +14,11 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
         private int _depthBufferWidth;
         private int _depthBufferHeight;
 
+        [DependencyInjected]
+        public OutlineRenderer()
+        {
+        }
+
         public void RenderOutlines(RenderInfo renderInfo)
         {
             GL.Flush();

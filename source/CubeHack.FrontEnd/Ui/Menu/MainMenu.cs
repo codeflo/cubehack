@@ -13,6 +13,7 @@ namespace CubeHack.FrontEnd.Ui.Menu
         private readonly OutOfGameMenu _outOfGameMenu;
         private readonly PauseMenu _pauseMenu;
 
+        [DependencyInjected]
         public MainMenu(GameConnectionManager connectionManager, OutOfGameMenu outOfGameMenu, PauseMenu pauseMenu)
         {
             _connectionManager = connectionManager;

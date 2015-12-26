@@ -18,6 +18,7 @@ namespace CubeHack.FrontEnd.Ui.Menu
         private readonly Button _continueButton;
         private readonly Button _disconnectButton;
 
+        [DependencyInjected]
         public PauseMenu(GameConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;
