@@ -83,6 +83,8 @@
     <Compile Include="Game\Behaviors\RandomWalkBehavior.cs" />
     <Compile Include="Geometry\EntityOffset.cs" />
     <Compile Include="Game\PlayerEvent.cs" />
+    <Compile Include="Geometry\EntityOrientation.cs" />
+    <Compile Include="Geometry\EntityPlacement.cs" />
     <Compile Include="Geometry\EntityPos.cs" />
     <Compile Include="Game\PositionData.cs" />
     <Compile Include="Game\RayCastResult.cs" />

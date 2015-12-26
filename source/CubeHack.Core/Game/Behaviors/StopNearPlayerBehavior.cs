@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Util;
-using System;
 
 namespace CubeHack.Game.Behaviors
 {
@@ -24,9 +23,9 @@ namespace CubeHack.Game.Behaviors
             {
                 if (other.IsAiControlled) continue;
 
-                var offset = Entity.PositionData.Position - other.PositionData.Position;
+                var offset = Entity.PositionData.Placement.Pos - other.PositionData.Placement.Pos;
 
-                if (Math.Abs(offset.Length) < 4)
+                if (offset.Length < 4)
                 {
                     return BehaviorPriority.Value(10);
                 }

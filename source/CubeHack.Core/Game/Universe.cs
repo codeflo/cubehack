@@ -156,7 +156,7 @@ namespace CubeHack.Game
 
             if (player.PositionData != null)
             {
-                var playerChunkPos = (ChunkPos)player.PositionData.Position;
+                var playerChunkPos = (ChunkPos)player.PositionData.Placement.Pos;
 
                 for (int x = playerChunkPos.X - ChunkViewRadiusXZ; x <= playerChunkPos.X + ChunkViewRadiusXZ; ++x)
                 {
@@ -234,9 +234,7 @@ namespace CubeHack.Game
                                 _startWorld,
                                 entity.PositionData,
                                 elapsedDuration,
-                                entity.PositionData.Velocity.X,
-                                entity.PositionData.Velocity.Y,
-                                entity.PositionData.Velocity.Z);
+                                entity.PositionData.Velocity);
                         }
 
                         foreach (var channel in _channels)

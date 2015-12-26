@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using CubeHack.Util;
 using System;
 
@@ -14,20 +15,18 @@ namespace CubeHack.Game.Behaviors
 
         public override void Behave(BehaviorContext context)
         {
+            var horizontal = Entity.PositionData.Placement.Orientation.Horizontal;
             if (context.elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
             {
-                Entity.PositionData.HAngle = Rng.NextFloat() * 360f;
+                horizontal = Rng.NextDouble() * 2 * Math.PI;
             }
             else if (context.elapsedDuration.Seconds > 1.0 * Rng.NextExp())
             {
-                Entity.PositionData.HAngle += Rng.NextFloat() * 30f - 15f;
+                horizontal += (Rng.NextDouble() * 2 - 1) * 0.25;
             }
 
-            double vz = -0.125 * context.physicsValues.PlayerMovementSpeed * Math.Cos(Entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
-            double vx = -0.125 * context.physicsValues.PlayerMovementSpeed * Math.Sin(Entity.PositionData.HAngle * ExtraMath.RadiansPerDegree);
-
-            Entity.PositionData.Velocity.X = vx;
-            Entity.PositionData.Velocity.Z = vz;
+            var orientation = Entity.PositionData.Placement.Orientation = new EntityOrientation(horizontal, 0);
+            Entity.PositionData.Velocity = -0.125 * context.physicsValues.PlayerMovementSpeed * (EntityOffset)orientation;
         }
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)

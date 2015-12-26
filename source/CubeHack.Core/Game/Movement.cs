@@ -12,47 +12,47 @@ namespace CubeHack.Game
     {
         public static void Respawn(PositionData positionData)
         {
-            positionData.VAngle = 0;
-            positionData.HAngle = (float)(Rng.NextDouble() * 360);
-            positionData.Position = new EntityPos() + new EntityOffset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32);
-            positionData.CollisionPosition = positionData.Position;
+            positionData.Placement = new EntityPlacement(
+                new EntityPos() + new EntityOffset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32),
+                new EntityOrientation(0, Rng.NextDouble() * 2 * Math.PI));
+            positionData.InternalPos = positionData.Placement.Pos;
         }
 
-        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionData positionData, GameDuration elapsedDuration, double vx, double vy, double vz)
+        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionData positionData, GameDuration elapsedDuration, EntityOffset offset)
         {
-            vy -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
-            if (MoveY(physicsValues, world, positionData, vy * elapsedDuration.Seconds))
+            offset.Y -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
+            if (MoveY(physicsValues, world, positionData, offset.Y * elapsedDuration.Seconds))
             {
                 positionData.IsFalling = false;
 
-                if (Math.Abs(vy) > Math.Sqrt(2 * physicsValues.Gravity * physicsValues.TerminalHeight))
+                if (Math.Abs(offset.Y) > Math.Sqrt(2 * physicsValues.Gravity * physicsValues.TerminalHeight))
                 {
                     Respawn(positionData);
                 }
 
-                vy = 0;
+                offset.Y = 0;
             }
             else
             {
-                vy -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
+                offset.Y -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
                 positionData.IsFalling = true;
             }
 
-            if (vx != 0 || vz != 0)
+            if (offset.X != 0 || offset.Z != 0)
             {
                 long savedY = 0;
                 if (!positionData.IsFalling)
                 {
                     // Temporarily move the character up a block so that it can climb up stairs.
-                    savedY = positionData.CollisionPosition.Y;
+                    savedY = positionData.InternalPos.Y;
                     MoveY(physicsValues, world, positionData, 1);
                 }
 
-                EntityPos positionBeforeMovement = positionData.CollisionPosition;
-                double moveX = vx * elapsedDuration.Seconds;
-                double moveZ = vz * elapsedDuration.Seconds;
+                EntityPos positionBeforeMovement = positionData.InternalPos;
+                double moveX = offset.X * elapsedDuration.Seconds;
+                double moveZ = offset.Z * elapsedDuration.Seconds;
 
-                if (vx > vz)
+                if (offset.X > offset.Z)
                 {
                     MoveX(physicsValues, world, positionData, moveX);
                     MoveZ(physicsValues, world, positionData, moveZ);
@@ -63,39 +63,39 @@ namespace CubeHack.Game
                     MoveX(physicsValues, world, positionData, moveX);
                 }
 
-                var moveDelta = positionData.CollisionPosition - positionBeforeMovement;
+                var moveDelta = positionData.InternalPos - positionBeforeMovement;
                 moveX -= moveDelta.X;
                 moveZ -= moveDelta.Z;
 
                 if (!positionData.IsFalling)
                 {
                     // Attempt to move the character back down to the ground in case we didn't climb a stair.
-                    MoveY(physicsValues, world, positionData, (savedY - positionData.CollisionPosition.Y) / (double)(1L << 32));
+                    MoveY(physicsValues, world, positionData, (savedY - positionData.InternalPos.Y) / (double)(1L << 32));
 
-                    savedY = positionData.CollisionPosition.Y;
+                    savedY = positionData.InternalPos.Y;
 
                     // Attempt to move the caracter down an additional block so that it can walk down stairs.
                     if (!MoveY(physicsValues, world, positionData, -((1L << 32) + 1) / (double)(1L << 32)))
                     {
-                        positionData.CollisionPosition.Y = savedY;
+                        positionData.InternalPos.Y = savedY;
                         positionData.IsFalling = true;
                     }
                 }
 
                 // Attempt to continue movement at this new (lower) Y position.
-                if (vx > vz)
+                if (offset.X > offset.Z)
                 {
-                    if (MoveX(physicsValues, world, positionData, moveX)) vx = 0;
-                    if (MoveZ(physicsValues, world, positionData, moveZ)) vz = 0;
+                    if (MoveX(physicsValues, world, positionData, moveX)) offset.X = 0;
+                    if (MoveZ(physicsValues, world, positionData, moveZ)) offset.Z = 0;
                 }
                 else
                 {
-                    if (MoveZ(physicsValues, world, positionData, moveZ)) vz = 0;
-                    if (MoveX(physicsValues, world, positionData, moveX)) vx = 0;
+                    if (MoveZ(physicsValues, world, positionData, moveZ)) offset.Z = 0;
+                    if (MoveX(physicsValues, world, positionData, moveX)) offset.X = 0;
                 }
             }
 
-            positionData.Velocity = new EntityOffset(vx, vy, vz);
+            positionData.Velocity = offset;
             SetPositionFromCollisionPosition(physicsValues, world, positionData);
         }
 
@@ -103,11 +103,11 @@ namespace CubeHack.Game
         {
             if (positionData.IsFalling)
             {
-                positionData.Position = positionData.CollisionPosition;
+                positionData.Placement.Pos = positionData.InternalPos;
                 return;
             }
 
-            var position = positionData.CollisionPosition;
+            var pos = positionData.InternalPos;
 
             double yOffset = 0;
 
@@ -119,7 +119,7 @@ namespace CubeHack.Game
             {
                 for (int z = -8; z <= 8; ++z)
                 {
-                    p = position + new EntityOffset(radius * 0.25 * x, 0, radius * 0.25 * z);
+                    p = pos + new EntityOffset(radius * 0.25 * x, 0, radius * 0.25 * z);
 
                     double w = (x >= -4 && x <= 4 && z >= -4 && z <= 4) ? 1 : 0.5;
                     yOffset += w * GetWeightedOffset(world, (BlockPos)p);
@@ -129,8 +129,8 @@ namespace CubeHack.Game
 
             yOffset /= weight;
 
-            position += new EntityOffset(0, -yOffset, 0);
-            positionData.Position = position;
+            pos += new EntityOffset(0, -yOffset, 0);
+            positionData.Placement.Pos = pos;
         }
 
         private static double GetWeightedOffset(World world, BlockPos p)
@@ -167,7 +167,7 @@ namespace CubeHack.Game
 
         private static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
-            EntityPos position = positionData.CollisionPosition;
+            EntityPos position = positionData.InternalPos;
             long p = position.X;
 
             int cy0 = GetBlockCoordinate(position.Y + 1);
@@ -177,13 +177,13 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(world, new BlockPos(cx, cy0, cz0), new BlockPos(cx, cy1, cz1)), out p);
             position.X = p;
 
-            positionData.CollisionPosition = position;
+            positionData.InternalPos = position;
             return hasCollided;
         }
 
         private static bool MoveY(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
-            EntityPos position = positionData.CollisionPosition;
+            EntityPos position = positionData.InternalPos;
             long p = position.Y;
 
             int cx0 = GetBlockCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
@@ -193,13 +193,13 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, distance > 0 ? physicsValues.PlayerHeight : 0, distance, cy => AllPassable(world, new BlockPos(cx0, cy, cz0), new BlockPos(cx1, cy, cz1)), out p);
             position.Y = p;
 
-            positionData.CollisionPosition = position;
+            positionData.InternalPos = position;
             return hasCollided;
         }
 
         private static bool MoveZ(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
         {
-            EntityPos position = positionData.CollisionPosition;
+            EntityPos position = positionData.InternalPos;
             long p = position.Z;
 
             int cx0 = GetBlockCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
@@ -209,7 +209,7 @@ namespace CubeHack.Game
             bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(world, new BlockPos(cx0, cy0, cz), new BlockPos(cx1, cy1, cz)), out p);
             position.Z = p;
 
-            positionData.CollisionPosition = position;
+            positionData.InternalPos = position;
             return hasCollided;
         }
 

@@ -10,6 +10,9 @@ namespace CubeHack.Util
         public const double RadiansPerDegree = Math.PI / 180.0;
         public const double DegreesPerRadian = 180.0 / Math.PI;
 
+        public const double TwoPi = 2 * Math.PI;
+        public const double HalfPi = 0.5 * Math.PI;
+
         public static double Square(double p)
         {
             return p * p;

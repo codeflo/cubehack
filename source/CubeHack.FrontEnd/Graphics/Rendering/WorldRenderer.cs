@@ -56,13 +56,13 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            var offset = gameClient.PositionData.Position - new EntityPos();
+            var offset = gameClient.PositionData.Placement.Pos - new EntityPos();
             SetProjectionMatrix(renderInfo);
 
             _modelViewMatrix = Matrix4.Identity
                 * Matrix4.CreateTranslation((float)-offset.X, (float)-offset.Y - gameClient.PhysicsValues.PlayerEyeHeight, (float)-offset.Z)
-                * Matrix4.CreateRotationY(-gameClient.PositionData.HAngle * (float)ExtraMath.RadiansPerDegree)
-                * Matrix4.CreateRotationX(gameClient.PositionData.VAngle * (float)ExtraMath.RadiansPerDegree);
+                * Matrix4.CreateRotationY((float)-gameClient.PositionData.Placement.Orientation.Horizontal)
+                * Matrix4.CreateRotationX((float)gameClient.PositionData.Placement.Orientation.Vertical);
 
             _textureAtlas.Bind();
 
@@ -118,8 +118,8 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             foreach (var position in positions)
             {
-                var offset2 = position.Position - new EntityPos();
-                GL.Uniform3(12, (float)offset2.X, (float)offset2.Y, (float)offset2.Z);
+                var offset = position.Placement.Pos - new EntityPos();
+                GL.Uniform3(12, (float)offset.X, (float)offset.Y, (float)offset.Z);
 
                 using (var vertexArray = new VertexArray(_cubeVertexSpecification))
                 {
@@ -142,9 +142,9 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             GL.UniformMatrix4(0, false, ref _projectionMatrix);
             GL.UniformMatrix4(4, false, ref _modelViewMatrix);
 
-            var cameraChunkPos = (ChunkPos)gameClient.PositionData.Position;
+            var cameraChunkPos = (ChunkPos)gameClient.PositionData.Placement.Pos;
 
-            var offset = (gameClient.PositionData.Position - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
+            var offset = (gameClient.PositionData.Placement.Pos - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
             for (int y = cameraChunkPos.Y + ChunkViewRadiusY; y >= cameraChunkPos.Y - ChunkViewRadiusY; --y)
             {
@@ -250,11 +250,11 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             double t0, t1;
 
             // Perform mouselook rotation
-            double ha = gameClient.PositionData.HAngle * ExtraMath.RadiansPerDegree;
+            double ha = gameClient.PositionData.Placement.Orientation.Horizontal;
             double hc = Math.Cos(ha), hs = Math.Sin(ha);
             t0 = dx * hc - dz * hs; t1 = dz * hc + dx * hs; dx = t0; dz = t1;
 
-            double va = -gameClient.PositionData.VAngle * ExtraMath.RadiansPerDegree;
+            double va = -gameClient.PositionData.Placement.Orientation.Vertical;
             double vc = Math.Cos(va), vs = Math.Sin(va);
             t0 = dz * vc - dy * vs; t1 = dy * vc + dz * vs; dz = t0; dy = t1;
 

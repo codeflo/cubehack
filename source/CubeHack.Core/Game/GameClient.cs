@@ -57,24 +57,26 @@ namespace CubeHack.Game
 
         public void MouseLook(float dx, float dy)
         {
-            PositionData.HAngle -= 0.1f * dx;
-            if (PositionData.HAngle > 180)
+            const double mouseLookSpeed = 0.1 * ExtraMath.RadiansPerDegree;
+
+            PositionData.Placement.Orientation.Horizontal -= mouseLookSpeed * dx;
+            if (PositionData.Placement.Orientation.Horizontal > Math.PI)
             {
-                PositionData.HAngle -= 360;
+                PositionData.Placement.Orientation.Horizontal -= ExtraMath.TwoPi;
             }
-            if (PositionData.HAngle < -180)
+            if (PositionData.Placement.Orientation.Horizontal < -Math.PI)
             {
-                PositionData.HAngle += 360;
+                PositionData.Placement.Orientation.Horizontal += ExtraMath.TwoPi;
             }
 
-            PositionData.VAngle += 0.1f * dy;
-            if (PositionData.VAngle > 90)
+            PositionData.Placement.Orientation.Vertical += mouseLookSpeed * dy;
+            if (PositionData.Placement.Orientation.Vertical > ExtraMath.HalfPi)
             {
-                PositionData.VAngle = 90;
+                PositionData.Placement.Orientation.Vertical = ExtraMath.HalfPi;
             }
-            if (PositionData.VAngle < -90)
+            if (PositionData.Placement.Orientation.Vertical < -ExtraMath.HalfPi)
             {
-                PositionData.VAngle = -90;
+                PositionData.Placement.Orientation.Vertical = -ExtraMath.HalfPi;
             }
         }
 
@@ -85,7 +87,7 @@ namespace CubeHack.Game
 
             foreach (var entityPosition in EntityPositions)
             {
-                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedDuration, entityPosition.Velocity.X, entityPosition.Velocity.Y, entityPosition.Velocity.Z);
+                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedDuration, entityPosition.Velocity);
             }
 
             UpdateBuildAction(elapsedDuration);
@@ -175,12 +177,10 @@ namespace CubeHack.Game
 
             playerEvent.PositionData = new PositionData
             {
-                Position = PositionData.Position,
-                CollisionPosition = PositionData.CollisionPosition,
+                Placement = PositionData.Placement,
                 Velocity = PositionData.Velocity,
-                HAngle = PositionData.HAngle,
-                VAngle = PositionData.VAngle,
                 IsFalling = PositionData.IsFalling,
+                InternalPos = PositionData.InternalPos,
             };
 
             if (_blockUpdates.Count > 0)
@@ -199,12 +199,11 @@ namespace CubeHack.Game
                 _placementCooldown -= elapsedDuration;
             }
 
-            double f = Math.PI / 180.0;
-            double lookZ = -Math.Cos(PositionData.HAngle * f) * Math.Cos(-PositionData.VAngle * f);
-            double lookX = -Math.Sin(PositionData.HAngle * f) * Math.Cos(-PositionData.VAngle * f);
-            double lookY = Math.Sin(-PositionData.VAngle * f);
+            var result = World.CastRay(
+                PositionData.Placement.Pos + new EntityOffset(0, PhysicsValues.PlayerEyeHeight, 0),
+                (EntityOffset)PositionData.Placement.Orientation,
+                PhysicsValues.MiningDistance);
 
-            var result = World.CastRay(PositionData.Position + new EntityOffset(0, PhysicsValues.PlayerEyeHeight, 0), new EntityOffset(lookX, lookY, lookZ), PhysicsValues.MiningDistance);
             if (result == null)
             {
                 HighlightedBlock = null;
@@ -247,53 +246,51 @@ namespace CubeHack.Game
 
         private void MovePlayer(GameDuration elapsedDuration)
         {
-            double vx = 0, vz = 0, vy = PositionData.Velocity.Y;
+            var velocity = new EntityOffset(0, PositionData.Velocity.Y, 0);
 
-            double f = Math.PI / 180.0;
-            double lookZ = -PhysicsValues.PlayerMovementSpeed * Math.Cos(PositionData.HAngle * f);
-            double lookX = -PhysicsValues.PlayerMovementSpeed * Math.Sin(PositionData.HAngle * f);
+            var moveOffset = PhysicsValues.PlayerMovementSpeed * (EntityOffset)PositionData.Placement.Orientation;
 
             bool isMovingAlong = false, isMovingSideways = false;
             if (_controller.IsKeyPressed(GameKey.Forwards))
             {
                 isMovingAlong = true;
-                vx += lookX;
-                vz += lookZ;
+                velocity.X += moveOffset.X;
+                velocity.Z += moveOffset.Z;
             }
 
             if (_controller.IsKeyPressed(GameKey.Left))
             {
                 isMovingSideways = true;
-                vx += lookZ;
-                vz -= lookX;
+                velocity.X += moveOffset.Z;
+                velocity.Z -= moveOffset.X;
             }
 
             if (_controller.IsKeyPressed(GameKey.Backwards))
             {
                 isMovingAlong = true;
-                vx -= lookX;
-                vz -= lookZ;
+                velocity.X -= moveOffset.X;
+                velocity.Z -= moveOffset.Z;
             }
 
             if (_controller.IsKeyPressed(GameKey.Right))
             {
                 isMovingSideways = true;
-                vx -= lookZ;
-                vz += lookX;
+                velocity.X -= moveOffset.Z;
+                velocity.Z += moveOffset.X;
             }
 
             if (isMovingAlong && isMovingSideways)
             {
-                vx *= _inverseSqrt2;
-                vz *= _inverseSqrt2;
+                velocity.X *= _inverseSqrt2;
+                velocity.Z *= _inverseSqrt2;
             }
 
             if (!PositionData.IsFalling && _controller.IsKeyPressed(GameKey.Jump))
             {
-                vy += GetJumpingSpeed();
+                velocity.Y += GetJumpingSpeed();
             }
 
-            Movement.MoveEntity(PhysicsValues, World, PositionData, elapsedDuration, vx, vy, vz);
+            Movement.MoveEntity(PhysicsValues, World, PositionData, elapsedDuration, velocity);
         }
 
         private double GetJumpingSpeed()
