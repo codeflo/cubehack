@@ -167,17 +167,21 @@ namespace CubeHack.Game
                             var chunkPos = new ChunkPos(x, y, z);
                             if (!channel.SentChunks.ContainsKey(chunkPos))
                             {
-                                channel.SentChunks[chunkPos] = true;
                                 var chunk = _startWorld.GetChunk(chunkPos);
 
-                                if (chunk != null)
+                                if (chunk.IsCreated)
                                 {
-                                    if (gameEvent.ChunkDataList == null)
-                                    {
-                                        gameEvent.ChunkDataList = new List<ChunkData>();
-                                    }
+                                    channel.SentChunks[chunkPos] = true;
 
-                                    gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                    if (chunk != null)
+                                    {
+                                        if (gameEvent.ChunkDataList == null)
+                                        {
+                                            gameEvent.ChunkDataList = new List<ChunkData>();
+                                        }
+
+                                        gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                    }
                                 }
                             }
                         }

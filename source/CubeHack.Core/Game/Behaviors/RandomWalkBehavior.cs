@@ -26,7 +26,9 @@ namespace CubeHack.Game.Behaviors
             }
 
             var orientation = Entity.PositionData.Placement.Orientation = new EntityOrientation(horizontal, 0);
-            Entity.PositionData.Velocity = -0.125 * context.physicsValues.PlayerMovementSpeed * (EntityOffset)orientation;
+            var velocity = -0.125 * context.physicsValues.PlayerMovementSpeed * (EntityOffset)orientation;
+            Entity.PositionData.Velocity.X = velocity.X;
+            Entity.PositionData.Velocity.Z = velocity.Z;
         }
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)

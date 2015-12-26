@@ -289,8 +289,9 @@ namespace CubeHack.Game
                     for (int z = block0.Z; z <= block1.Z; ++z)
                     {
                         var blockPos = new BlockPos(x, y, z);
-                        var chunk = world.PeekChunk((ChunkPos)blockPos);
-                        if (chunk == null) return false;
+                        var chunk = world.GetChunk((ChunkPos)blockPos);
+
+                        if (!chunk.IsCreated) return false;
 
                         if (world[blockPos] != 0)
                         {
