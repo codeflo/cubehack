@@ -26,7 +26,7 @@ namespace CubeHack.Game
             _player = player;
         }
 
-        public int SentCubeUpdates { get; set; }
+        public int SentBlockUpdates { get; set; }
 
         public Dictionary<ChunkPos, bool> SentChunks { get; } = new Dictionary<ChunkPos, bool>();
 

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Geometry;
 using System;
 
 namespace CubeHack.Game
@@ -16,19 +17,19 @@ namespace CubeHack.Game
 
         public void CreateChunk(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.Size; ++x)
+            for (int x = 0; x < GeometryConstants.ChunkSize; ++x)
             {
-                long wx = ((long)chunk.Pos.X << Chunk.Bits) + x;
-                for (int z = 0; z < Chunk.Size; ++z)
+                long wx = ((long)chunk.Pos.X << GeometryConstants.ChunkSizeBits) + x;
+                for (int z = 0; z < GeometryConstants.ChunkSize; ++z)
                 {
-                    long wz = ((long)chunk.Pos.Z << Chunk.Bits) + z;
+                    long wz = ((long)chunk.Pos.Z << GeometryConstants.ChunkSizeBits) + z;
 
                     long y1 = (long)(8 * (Math.Sin(wx * 0.08 + 1) + Math.Sin(wz * 0.073 + 2))) - 16;
                     long y2 = (long)(3 * (Math.Sin(wx * 0.23 + wz * 0.02 + 1) + Math.Sin(-wx * 0.05 + wz * 0.31 + 2))) - 12;
 
-                    for (int y = 0; y < Chunk.Size; ++y)
+                    for (int y = 0; y < GeometryConstants.ChunkSize; ++y)
                     {
-                        long wy = ((long)chunk.Pos.Y << Chunk.Bits) + y;
+                        long wy = ((long)chunk.Pos.Y << GeometryConstants.ChunkSizeBits) + y;
 
                         if (wy < y1)
                         {

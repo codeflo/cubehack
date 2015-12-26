@@ -5,6 +5,9 @@ namespace CubeHack.Geometry
 {
     public static class GeometryConstants
     {
+        public const int ChunkSizeBits = 5;
+        public const int ChunkSize = 1 << ChunkSizeBits;
+
         public const int ChunkViewRadiusXZ = 5;
         public const int ChunkViewRadiusY = 3;
     }

@@ -11,7 +11,7 @@ namespace CubeHack.Game
 {
     public class World
     {
-        private const int _chunkMask = Chunk.Size - 1;
+        private const int _chunkMask = GeometryConstants.ChunkSize - 1;
 
         private const long _upperMask = unchecked((long)0xFFFFFFFF00000000L);
 
@@ -37,7 +37,7 @@ namespace CubeHack.Game
                     return 1;
                 }
 
-                var chunk = PeekChunk(p.ChunkPos);
+                var chunk = PeekChunk((ChunkPos)p);
                 if (chunk == null)
                 {
                     return 0;
@@ -48,7 +48,7 @@ namespace CubeHack.Game
 
             set
             {
-                var chunkPos = p.ChunkPos;
+                var chunkPos = (ChunkPos)p;
                 var chunk = GetChunk(chunkPos);
                 chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
 
@@ -103,9 +103,9 @@ namespace CubeHack.Game
             GetChunk(chunkData.Pos).PasteChunkData(chunkData);
         }
 
-        public RayCastResult CastRay(EntityPos position, EntityOffset direction, double max)
+        public RayCastResult CastRay(EntityPos entityPos, EntityOffset direction, double max)
         {
-            long x = position.X, y = position.Y, z = position.Z;
+            long x = entityPos.X, y = entityPos.Y, z = entityPos.Z;
             double dx = direction.X, dy = direction.Y, dz = direction.Z;
 
             int sdx = (int)Math.Sign(dx);
@@ -120,18 +120,16 @@ namespace CubeHack.Game
             const long edgeLength = 1L << 32;
             const double oneOverEdge = 1.0 / edgeLength;
 
-            int cx = (int)(x >> 32);
-            int cy = (int)(y >> 32);
-            int cz = (int)(z >> 32);
+            var blockPos = (BlockPos)entityPos;
 
-            if (this[new BlockPos(cx, cy, cz)] != 0)
+            if (this[blockPos] != 0)
             {
-                return new RayCastResult { Position = position, CubeX = cx, CubeY = cy, CubeZ = cz };
+                return new RayCastResult { EntityPos = entityPos, BlockPos = blockPos };
             }
 
             while (max > 0 && IsNumber(max))
             {
-                /* Check which edge of the current cube is hit first */
+                /* Check which edge of the current block is hit first */
 
                 long edgeX;
                 if (sdx > 0)
@@ -180,10 +178,10 @@ namespace CubeHack.Game
                     z += (long)(tx * dz * edgeLength);
                     max -= tx;
 
-                    cx += sdx;
-                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
+                    blockPos.X += sdx;
+                    if (max >= 0 && this[blockPos] != 0)
                     {
-                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = -sdx, NormalY = 0, NormalZ = 0 };
+                        return new RayCastResult { EntityPos = new EntityPos(x, y, z), BlockPos = blockPos, Normal = new BlockOffset(-sdx, 0, 0) };
                     }
                 }
                 else if (IsNumber(ty) && (ty <= tz || !IsNumber(tz)))
@@ -193,10 +191,10 @@ namespace CubeHack.Game
                     z += (long)(ty * dz * edgeLength);
                     max -= ty;
 
-                    cy += sdy;
-                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
+                    blockPos.Y += sdy;
+                    if (max >= 0 && this[blockPos] != 0)
                     {
-                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = -sdy, NormalZ = 0 };
+                        return new RayCastResult { EntityPos = new EntityPos(x, y, z), BlockPos = blockPos, Normal = new BlockOffset(0, -sdy, 0) };
                     }
                 }
                 else if (IsNumber(tz))
@@ -206,10 +204,10 @@ namespace CubeHack.Game
                     z = edgeZ;
                     max -= tz;
 
-                    cz += sdz;
-                    if (max >= 0 && this[new BlockPos(cx, cy, cz)] != 0)
+                    blockPos.Z += sdz;
+                    if (max >= 0 && this[blockPos] != 0)
                     {
-                        return new RayCastResult { Position = new EntityPos(x, y, z), CubeX = cx, CubeY = cy, CubeZ = cz, NormalX = 0, NormalY = 0, NormalZ = -sdz };
+                        return new RayCastResult { EntityPos = new EntityPos(x, y, z), BlockPos = blockPos, Normal = new BlockOffset(0, 0, -sdz) };
                     }
                 }
                 else

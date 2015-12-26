@@ -71,7 +71,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             _count = _textures.Count;
 
-            // Find a texture size that fits all cube textures.
+            // Find a texture size that fits all material textures.
             for (_size = 1; _size * _size < _count; _size += _size) { }
 
             _textureEntries = new TextureEntry[_count];

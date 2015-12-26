@@ -13,6 +13,6 @@ namespace CubeHack.Game
         public PositionData PositionData { get; set; }
 
         [ProtoMember(2)]
-        public List<CubeUpdateData> CubeUpdates { get; set; }
+        public List<BlockUpdateData> BlockUpdates { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace CubeHack.Game
 
         private readonly World _startWorld;
 
-        private readonly List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+        private readonly List<BlockUpdateData> _blockUpdates = new List<BlockUpdateData>();
 
         private volatile bool _isDisposed;
 
@@ -112,7 +112,7 @@ namespace CubeHack.Game
                 var channel = new Channel(this, entity);
                 _channels.Add(channel);
 
-                channel.SentCubeUpdates = _cubeUpdates.Count;
+                channel.SentBlockUpdates = _blockUpdates.Count;
                 return channel;
             }
         }
@@ -128,15 +128,15 @@ namespace CubeHack.Game
             }
         }
 
-        private void AddCubeUpdates(List<CubeUpdateData> cubeUpdates)
+        private void AddBlockUpdates(List<BlockUpdateData> blockUpdates)
         {
             lock (_mutex)
             {
-                _cubeUpdates.AddRange(cubeUpdates);
+                _blockUpdates.AddRange(blockUpdates);
 
-                foreach (var cubeUpdate in cubeUpdates)
+                foreach (var blockUpdate in blockUpdates)
                 {
-                    _startWorld[new BlockPos(cubeUpdate.X, cubeUpdate.Y, cubeUpdate.Z)] = cubeUpdate.Material;
+                    _startWorld[blockUpdate.Pos] = blockUpdate.Material;
                 }
             }
         }
@@ -156,15 +156,13 @@ namespace CubeHack.Game
 
             if (player.PositionData != null)
             {
-                int chunkX = player.PositionData.Position.ChunkX;
-                int chunkY = player.PositionData.Position.ChunkY;
-                int chunkZ = player.PositionData.Position.ChunkZ;
+                var playerChunkPos = (ChunkPos)player.PositionData.Position;
 
-                for (int x = chunkX - ChunkViewRadiusXZ; x <= chunkX + ChunkViewRadiusXZ; ++x)
+                for (int x = playerChunkPos.X - ChunkViewRadiusXZ; x <= playerChunkPos.X + ChunkViewRadiusXZ; ++x)
                 {
-                    for (int y = chunkY - ChunkViewRadiusY; y <= chunkY + ChunkViewRadiusY; ++y)
+                    for (int y = playerChunkPos.Y - ChunkViewRadiusY; y <= playerChunkPos.Y + ChunkViewRadiusY; ++y)
                     {
-                        for (int z = chunkZ - ChunkViewRadiusXZ; z <= chunkZ + ChunkViewRadiusXZ; ++z)
+                        for (int z = playerChunkPos.Z - ChunkViewRadiusXZ; z <= playerChunkPos.Z + ChunkViewRadiusXZ; ++z)
                         {
                             var chunkPos = new ChunkPos(x, y, z);
                             if (!channel.SentChunks.ContainsKey(chunkPos))
@@ -187,10 +185,10 @@ namespace CubeHack.Game
                 }
             }
 
-            if (channel.SentCubeUpdates != _cubeUpdates.Count)
+            if (channel.SentBlockUpdates != _blockUpdates.Count)
             {
-                gameEvent.CubeUpdates = _cubeUpdates.GetRange(channel.SentCubeUpdates, _cubeUpdates.Count - channel.SentCubeUpdates);
-                channel.SentCubeUpdates = _cubeUpdates.Count;
+                gameEvent.BlockUpdates = _blockUpdates.GetRange(channel.SentBlockUpdates, _blockUpdates.Count - channel.SentBlockUpdates);
+                channel.SentBlockUpdates = _blockUpdates.Count;
             }
 
             return gameEvent;
@@ -278,9 +276,9 @@ namespace CubeHack.Game
                 channel.Player.PositionData = playerEvent.PositionData;
             }
 
-            if (playerEvent.CubeUpdates != null)
+            if (playerEvent.BlockUpdates != null)
             {
-                AddCubeUpdates(playerEvent.CubeUpdates);
+                AddBlockUpdates(playerEvent.BlockUpdates);
             }
         }
     }

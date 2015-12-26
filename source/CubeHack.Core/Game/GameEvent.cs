@@ -20,7 +20,7 @@ namespace CubeHack.Game
         public List<ChunkData> ChunkDataList { get; set; }
 
         [ProtoMember(4)]
-        public List<CubeUpdateData> CubeUpdates { get; set; }
+        public List<BlockUpdateData> BlockUpdates { get; set; }
 
         [ProtoMember(5)]
         public bool IsDisconnected { get; set; }

@@ -7,19 +7,11 @@ namespace CubeHack.Game
 {
     public class RayCastResult
     {
-        public EntityPos Position { get; set; }
+        public BlockPos BlockPos;
 
-        public int CubeX { get; set; }
+        public BlockOffset Normal;
 
-        public int CubeY { get; set; }
-
-        public int CubeZ { get; set; }
-
-        public int NormalX { get; set; }
-
-        public int NormalY { get; set; }
-
-        public int NormalZ { get; set; }
+        public EntityPos EntityPos;
 
         public static bool FaceEquals(RayCastResult a, RayCastResult b)
         {
@@ -33,12 +25,8 @@ namespace CubeHack.Game
                 return false;
             }
 
-            return a.CubeX == b.CubeX
-                && a.CubeY == b.CubeY
-                && a.CubeZ == b.CubeZ
-                && a.NormalX == b.NormalX
-                && a.NormalY == b.NormalY
-                && a.NormalZ == b.NormalZ;
+            return a.BlockPos == b.BlockPos
+                && a.Normal == b.Normal;
         }
     }
 }

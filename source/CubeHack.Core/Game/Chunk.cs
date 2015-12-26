@@ -9,9 +9,6 @@ namespace CubeHack.Game
 {
     public class Chunk
     {
-        public const int Bits = 5;
-        public const int Size = 1 << Bits;
-
         private ushort[] _data;
         private ChunkData _chunkData;
         private bool _isCreated;
@@ -71,13 +68,13 @@ namespace CubeHack.Game
                         return;
                     }
 
-                    _data = new ushort[Size * Size * Size];
+                    _data = new ushort[GeometryConstants.ChunkSize * GeometryConstants.ChunkSize * GeometryConstants.ChunkSize];
                 }
 
                 ushort oldValue = _data[index];
                 if (oldValue != value)
                 {
-                    ContentHash = ContentHash - GetCubeHash(index, oldValue) + GetCubeHash(index, value);
+                    ContentHash = ContentHash - GetBlockHash(index, oldValue) + GetBlockHash(index, value);
                     _data[index] = value;
                     _chunkData = null;
                 }
@@ -149,7 +146,7 @@ namespace CubeHack.Game
 
             if (_data == null)
             {
-                _data = new ushort[Size * Size * Size];
+                _data = new ushort[GeometryConstants.ChunkSize * GeometryConstants.ChunkSize * GeometryConstants.ChunkSize];
             }
 
             using (var stream = new MemoryStream(data))
@@ -170,7 +167,7 @@ namespace CubeHack.Game
                     for (int j = i; j < i + length; ++j)
                     {
                         _data[j] = value;
-                        ContentHash += GetCubeHash(j, value);
+                        ContentHash += GetBlockHash(j, value);
                     }
 
                     i += length;
@@ -185,15 +182,15 @@ namespace CubeHack.Game
 
         private int GetIndex(int x, int y, int z)
         {
-            if (x < 0 || y < 0 || z < 0 || x >= Size || y >= Size || z >= Size)
+            if (x < 0 || y < 0 || z < 0 || x >= GeometryConstants.ChunkSize || y >= GeometryConstants.ChunkSize || z >= GeometryConstants.ChunkSize)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            return (((x << Bits) + y) << Bits) + z;
+            return (((x << GeometryConstants.ChunkSizeBits) + y) << GeometryConstants.ChunkSizeBits) + z;
         }
 
-        private ulong GetCubeHash(int index, ushort value)
+        private ulong GetBlockHash(int index, ushort value)
         {
             return (((ulong)index << 1) | 1) * value;
         }

@@ -4,6 +4,7 @@
 namespace CubeHack.Geometry
 {
     using ProtoBuf;
+    using Util;
 
     /// <summary>
     /// The offset between two <see cref="Geometry.ChunkPos"/> values.
@@ -21,14 +22,44 @@ namespace CubeHack.Geometry
 
         public ChunkOffset(int x, int y, int z)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public static ChunkOffset operator +(ChunkOffset a, ChunkOffset b)
+        {
+            return new ChunkOffset(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
+        public static ChunkOffset operator -(ChunkOffset a, ChunkOffset b)
+        {
+            return new ChunkOffset(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
         public static ChunkOffset operator -(ChunkOffset o)
         {
             return new ChunkOffset(-o.X, -o.Y, -o.Z);
+        }
+
+        public static bool operator ==(ChunkOffset a, ChunkOffset b)
+        {
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+        }
+
+        public static bool operator !=(ChunkOffset a, ChunkOffset b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ChunkOffset && (ChunkOffset)obj == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCalculator.Value[X][Y][Z];
         }
     }
 }

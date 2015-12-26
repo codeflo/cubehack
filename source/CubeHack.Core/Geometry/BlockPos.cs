@@ -3,7 +3,6 @@
 
 namespace CubeHack.Geometry
 {
-    using Game;
     using ProtoBuf;
     using Util;
 
@@ -29,12 +28,20 @@ namespace CubeHack.Geometry
             Z = z;
         }
 
-        public ChunkPos ChunkPos
+        public static explicit operator ChunkPos(BlockPos pos)
         {
-            get
-            {
-                return new ChunkPos(X >> Chunk.Bits, Y >> Chunk.Bits, Z >> Chunk.Bits);
-            }
+            return new ChunkPos(
+                pos.X >> GeometryConstants.ChunkSizeBits,
+                pos.Y >> GeometryConstants.ChunkSizeBits,
+                pos.Z >> GeometryConstants.ChunkSizeBits);
+        }
+
+        public static implicit operator BlockPos(ChunkPos pos)
+        {
+            return new BlockPos(
+                pos.X << GeometryConstants.ChunkSizeBits,
+                pos.Y << GeometryConstants.ChunkSizeBits,
+                pos.Z << GeometryConstants.ChunkSizeBits);
         }
 
         public static bool operator ==(BlockPos a, BlockPos b)

@@ -43,7 +43,7 @@ namespace CubeHack.Game
                 long savedY = 0;
                 if (!positionData.IsFalling)
                 {
-                    // Temporarily move the character up a cube so that it can climb up stairs.
+                    // Temporarily move the character up a block so that it can climb up stairs.
                     savedY = positionData.CollisionPosition.Y;
                     MoveY(physicsValues, world, positionData, 1);
                 }
@@ -74,7 +74,7 @@ namespace CubeHack.Game
 
                     savedY = positionData.CollisionPosition.Y;
 
-                    // Attempt to move the caracter down an additional cube so that it can walk down stairs.
+                    // Attempt to move the caracter down an additional block so that it can walk down stairs.
                     if (!MoveY(physicsValues, world, positionData, -((1L << 32) + 1) / (double)(1L << 32)))
                     {
                         positionData.CollisionPosition.Y = savedY;
@@ -122,7 +122,7 @@ namespace CubeHack.Game
                     p = position + new EntityOffset(radius * 0.25 * x, 0, radius * 0.25 * z);
 
                     double w = (x >= -4 && x <= 4 && z >= -4 && z <= 4) ? 1 : 0.5;
-                    yOffset += w * GetWeightedOffset(world, p);
+                    yOffset += w * GetWeightedOffset(world, (BlockPos)p);
                     weight += w;
                 }
             }
@@ -133,13 +133,13 @@ namespace CubeHack.Game
             positionData.Position = position;
         }
 
-        private static double GetWeightedOffset(World world, EntityPos p)
+        private static double GetWeightedOffset(World world, BlockPos p)
         {
-            if (world[new BlockPos(p.CubeX, p.CubeY - 1, p.CubeZ)] == 0)
+            if (world[p - new BlockOffset(0, 1, 0)] == 0)
             {
-                if (world[new BlockPos(p.CubeX, p.CubeY - 2, p.CubeZ)] == 0)
+                if (world[p - new BlockOffset(0, 2, 0)] == 0)
                 {
-                    if (world[new BlockPos(p.CubeX, p.CubeY - 3, p.CubeZ)] != 0)
+                    if (world[p - new BlockOffset(0, 3, 0)] != 0)
                     {
                         return 2;
                     }
@@ -162,7 +162,7 @@ namespace CubeHack.Game
         {
             var a = position + new EntityOffset(EntityOffset.Epsilon, 0, EntityOffset.Epsilon);
             var b = position + new EntityOffset(-EntityOffset.Epsilon, physicsValues.PlayerHeight - EntityOffset.Epsilon, -EntityOffset.Epsilon);
-            return AllPassable(world, a.CubeX, b.CubeX, a.CubeY, b.CubeY, a.CubeZ, b.CubeZ);
+            return AllPassable(world, (BlockPos)a, (BlockPos)b);
         }
 
         private static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
@@ -170,11 +170,11 @@ namespace CubeHack.Game
             EntityPos position = positionData.CollisionPosition;
             long p = position.X;
 
-            int cy0 = EntityPos.GetCubeCoordinate(position.Y + 1);
-            int cy1 = EntityPos.GetCubeCoordinate(position.Y + (long)(physicsValues.PlayerHeight * (1L << 32)) - 1);
-            int cz0 = EntityPos.GetCubeCoordinate(position.Z - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
-            int cz1 = EntityPos.GetCubeCoordinate(position.Z + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
-            bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(world, cx, cx, cy0, cy1, cz0, cz1), out p);
+            int cy0 = GetBlockCoordinate(position.Y + 1);
+            int cy1 = GetBlockCoordinate(position.Y + (long)(physicsValues.PlayerHeight * (1L << 32)) - 1);
+            int cz0 = GetBlockCoordinate(position.Z - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cz1 = GetBlockCoordinate(position.Z + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cx => AllPassable(world, new BlockPos(cx, cy0, cz0), new BlockPos(cx, cy1, cz1)), out p);
             position.X = p;
 
             positionData.CollisionPosition = position;
@@ -186,11 +186,11 @@ namespace CubeHack.Game
             EntityPos position = positionData.CollisionPosition;
             long p = position.Y;
 
-            int cx0 = EntityPos.GetCubeCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
-            int cx1 = EntityPos.GetCubeCoordinate(position.X + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
-            int cz0 = EntityPos.GetCubeCoordinate(position.Z - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
-            int cz1 = EntityPos.GetCubeCoordinate(position.Z + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
-            bool hasCollided = MoveInternal(p, distance > 0 ? physicsValues.PlayerHeight : 0, distance, cy => AllPassable(world, cx0, cx1, cy, cy, cz0, cz1), out p);
+            int cx0 = GetBlockCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cx1 = GetBlockCoordinate(position.X + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
+            int cz0 = GetBlockCoordinate(position.Z - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cz1 = GetBlockCoordinate(position.Z + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, distance > 0 ? physicsValues.PlayerHeight : 0, distance, cy => AllPassable(world, new BlockPos(cx0, cy, cz0), new BlockPos(cx1, cy, cz1)), out p);
             position.Y = p;
 
             positionData.CollisionPosition = position;
@@ -202,11 +202,11 @@ namespace CubeHack.Game
             EntityPos position = positionData.CollisionPosition;
             long p = position.Z;
 
-            int cx0 = EntityPos.GetCubeCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
-            int cx1 = EntityPos.GetCubeCoordinate(position.X + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
-            int cy0 = EntityPos.GetCubeCoordinate(position.Y + 1);
-            int cy1 = EntityPos.GetCubeCoordinate(position.Y + (long)(physicsValues.PlayerHeight * (1L << 32)) - 1);
-            bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(world, cx0, cx1, cy0, cy1, cz, cz), out p);
+            int cx0 = GetBlockCoordinate(position.X - (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) + 1);
+            int cx1 = GetBlockCoordinate(position.X + (long)(0.5 * physicsValues.PlayerWidth * (1L << 32)) - 1);
+            int cy0 = GetBlockCoordinate(position.Y + 1);
+            int cy1 = GetBlockCoordinate(position.Y + (long)(physicsValues.PlayerHeight * (1L << 32)) - 1);
+            bool hasCollided = MoveInternal(p, physicsValues.PlayerWidth * 0.5, distance, cz => AllPassable(world, new BlockPos(cx0, cy0, cz), new BlockPos(cx1, cy1, cz)), out p);
             position.Z = p;
 
             positionData.CollisionPosition = position;
@@ -237,8 +237,8 @@ namespace CubeHack.Game
 
             startPosition += sign * r;
 
-            int start = EntityPos.GetCubeCoordinate(startPosition + (1L << 31) * sign);
-            int end = EntityPos.GetCubeCoordinate(startPosition + d * sign);
+            int start = GetBlockCoordinate(startPosition + (1L << 31) * sign);
+            int end = GetBlockCoordinate(startPosition + d * sign);
 
             for (int i = start; (i - end) * sign <= 0; i += sign)
             {
@@ -258,7 +258,7 @@ namespace CubeHack.Game
 
                     if (edgeDistance < 0)
                     {
-                        // Attempt to move further inside the cube.
+                        // Attempt to move further inside the block.
                         position = startPosition - sign * r;
                         return true;
                     }
@@ -280,19 +280,19 @@ namespace CubeHack.Game
             return false;
         }
 
-        private static bool AllPassable(World world, int cx0, int cx1, int cy0, int cy1, int cz0, int cz1)
+        private static bool AllPassable(World world, BlockPos block0, BlockPos block1)
         {
-            for (int x = cx0; x <= cx1; ++x)
+            for (int x = block0.X; x <= block1.X; ++x)
             {
-                for (int y = cy0; y <= cy1; ++y)
+                for (int y = block0.Y; y <= block1.Y; ++y)
                 {
-                    for (int z = cz0; z <= cz1; ++z)
+                    for (int z = block0.Z; z <= block1.Z; ++z)
                     {
-                        var chunkPos = new ChunkPos(x >> Chunk.Bits, y >> Chunk.Bits, z >> Chunk.Bits);
-                        var chunk = world.PeekChunk(chunkPos);
+                        var blockPos = new BlockPos(x, y, z);
+                        var chunk = world.PeekChunk((ChunkPos)blockPos);
                         if (chunk == null) return false;
 
-                        if (world[new BlockPos(x, y, z)] != 0)
+                        if (world[blockPos] != 0)
                         {
                             return false;
                         }
@@ -301,6 +301,11 @@ namespace CubeHack.Game
             }
 
             return true;
+        }
+
+        private static int GetBlockCoordinate(long entityCoordinate)
+        {
+            return (int)(entityCoordinate >> 32);
         }
     }
 }

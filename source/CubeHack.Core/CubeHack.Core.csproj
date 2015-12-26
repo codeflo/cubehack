@@ -71,7 +71,7 @@
     <Compile Include="Game\Channel.cs" />
     <Compile Include="Game\Chunk.cs" />
     <Compile Include="Game\ChunkData.cs" />
-    <Compile Include="Game\CubeUpdateData.cs" />
+    <Compile Include="Game\BlockUpdateData.cs" />
     <Compile Include="Game\DataLoader.cs" />
     <Compile Include="Game\Entity.cs" />
     <Compile Include="Game\GameEvent.cs" />

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Util;
 using ProtoBuf;
 using System;
 
@@ -11,34 +12,37 @@ namespace CubeHack.Geometry
     {
         public const double Epsilon = 1.0 / (1L << 32);
 
+        [ProtoMember(1)]
+        public double X;
+
+        [ProtoMember(2)]
+        public double Y;
+
+        [ProtoMember(3)]
+        public double Z;
+
         public EntityOffset(double x, double y, double z)
-            : this()
         {
             X = x;
             Y = y;
             Z = z;
         }
 
-        [ProtoMember(1)]
-        public double X { get; set; }
+        public double Length => Math.Sqrt(X * X + Y * Y + Z * Z);
 
-        [ProtoMember(2)]
-        public double Y { get; set; }
-
-        [ProtoMember(3)]
-        public double Z { get; set; }
-
-        public double Length
+        public static EntityOffset operator +(EntityOffset a, EntityOffset b)
         {
-            get
-            {
-                return Math.Sqrt(X * X + Y * Y + Z * Z);
-            }
+            return new EntityOffset(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
-        public static EntityOffset operator +(EntityOffset o, EntityOffset p)
+        public static EntityOffset operator -(EntityOffset a, EntityOffset b)
         {
-            return new EntityOffset(o.X + p.X, o.Y + p.Y, o.Z + p.Z);
+            return new EntityOffset(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static EntityOffset operator -(EntityOffset o)
+        {
+            return new EntityOffset(-o.X, -o.Y, -o.Z);
         }
 
         public static EntityOffset operator *(double f, EntityOffset o)
@@ -55,6 +59,26 @@ namespace CubeHack.Geometry
         {
             double f = 1.0 / d;
             return new EntityOffset(f * o.X, f * o.Y, f * o.Z);
+        }
+
+        public static bool operator ==(EntityOffset a, EntityOffset b)
+        {
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+        }
+
+        public static bool operator !=(EntityOffset a, EntityOffset b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EntityOffset && (EntityOffset)obj == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCalculator.Value[X][Y][Z];
         }
     }
 }

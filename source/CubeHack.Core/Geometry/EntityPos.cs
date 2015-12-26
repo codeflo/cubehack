@@ -1,7 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using CubeHack.Game;
+using CubeHack.Util;
 using ProtoBuf;
 
 namespace CubeHack.Geometry
@@ -9,72 +9,66 @@ namespace CubeHack.Geometry
     [ProtoContract]
     public struct EntityPos
     {
+        [ProtoMember(1)]
+        public long X;
+
+        [ProtoMember(2)]
+        public long Y;
+
+        [ProtoMember(3)]
+        public long Z;
+
         private const double _scaleFactor = (double)(1L << 32);
+
         private const double _inverseScaleFactor = 1.0 / _scaleFactor;
 
         public EntityPos(long x, long y, long z)
-            : this()
         {
             X = x;
             Y = y;
             Z = z;
         }
 
-        [ProtoMember(1)]
-        public long X { get; set; }
-
-        [ProtoMember(2)]
-        public long Y { get; set; }
-
-        [ProtoMember(3)]
-        public long Z { get; set; }
-
-        public int CubeX
+        public static explicit operator ChunkPos(EntityPos pos)
         {
-            get
-            {
-                return GetCubeCoordinate(X);
-            }
+            return new ChunkPos(
+                (int)(pos.X >> (32 + GeometryConstants.ChunkSizeBits)),
+                (int)(pos.Y >> (32 + GeometryConstants.ChunkSizeBits)),
+                (int)(pos.Z >> (32 + GeometryConstants.ChunkSizeBits)));
         }
 
-        public int CubeY
+        public static implicit operator EntityPos(ChunkPos pos)
         {
-            get
-            {
-                return GetCubeCoordinate(Y);
-            }
+            return new EntityPos(
+                (long)pos.X << (32 + GeometryConstants.ChunkSizeBits),
+                (long)pos.Y << (32 + GeometryConstants.ChunkSizeBits),
+                (long)pos.Z << (32 + GeometryConstants.ChunkSizeBits));
         }
 
-        public int CubeZ
+        public static explicit operator BlockPos(EntityPos pos)
         {
-            get
-            {
-                return GetCubeCoordinate(Z);
-            }
+            return new BlockPos(
+                (int)(pos.X >> 32),
+                (int)(pos.Y >> 32),
+                (int)(pos.Z >> 32));
         }
 
-        public int ChunkX
+        public static implicit operator EntityPos(BlockPos pos)
         {
-            get
-            {
-                return GetChunkCoordinate(X);
-            }
+            return new EntityPos(
+                (long)pos.X << 32,
+                (long)pos.Y << 32,
+                (long)pos.Z << 32);
         }
 
-        public int ChunkY
+        public static bool operator ==(EntityPos a, EntityPos b)
         {
-            get
-            {
-                return GetChunkCoordinate(Y);
-            }
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
 
-        public int ChunkZ
+        public static bool operator !=(EntityPos a, EntityPos b)
         {
-            get
-            {
-                return GetChunkCoordinate(Z);
-            }
+            return !(a == b);
         }
 
         public static EntityOffset operator -(EntityPos a, EntityPos b)
@@ -87,19 +81,19 @@ namespace CubeHack.Geometry
             return new EntityPos(a.X + (long)(_scaleFactor * b.X), a.Y + (long)(_scaleFactor * b.Y), a.Z + (long)(_scaleFactor * b.Z));
         }
 
-        public static EntityPos operator -(EntityPos a, EntityOffset b)
+        public static EntityPos operator -(EntityPos p, EntityOffset o)
         {
-            return new EntityPos(a.X - (long)(_scaleFactor * b.X), a.Y - (long)(_scaleFactor * b.Y), a.Z - (long)(_scaleFactor * b.Z));
+            return p + (-o);
         }
 
-        public static int GetCubeCoordinate(long coordinate)
+        public override bool Equals(object obj)
         {
-            return (int)(coordinate >> 32);
+            return obj is EntityPos && (EntityPos)obj == this;
         }
 
-        public static int GetChunkCoordinate(long coordinate)
+        public override int GetHashCode()
         {
-            return (int)(coordinate >> (32 + Chunk.Bits));
+            return HashCalculator.Value[X][Y][Z];
         }
     }
 }

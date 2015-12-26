@@ -27,7 +27,7 @@ namespace CubeHack.Game
 
         private GameTime _frameTime;
 
-        private List<CubeUpdateData> _cubeUpdates = new List<CubeUpdateData>();
+        private List<BlockUpdateData> _blockUpdates = new List<BlockUpdateData>();
         private int _playerEventQueued;
 
         public GameClient(IGameController controller, IChannel channel)
@@ -45,7 +45,7 @@ namespace CubeHack.Game
 
         public World World { get; private set; }
 
-        public RayCastResult HighlightedCube { get; private set; }
+        public RayCastResult HighlightedBlock { get; private set; }
 
         public bool IsConnected { get; private set; }
 
@@ -155,11 +155,11 @@ namespace CubeHack.Game
                     }
                 }
 
-                if (gameEvent.CubeUpdates != null)
+                if (gameEvent.BlockUpdates != null)
                 {
-                    foreach (var chunkUpdate in gameEvent.CubeUpdates)
+                    foreach (var blockUpdate in gameEvent.BlockUpdates)
                     {
-                        World[new BlockPos(chunkUpdate.X, chunkUpdate.Y, chunkUpdate.Z)] = chunkUpdate.Material;
+                        World[blockUpdate.Pos] = blockUpdate.Material;
                     }
                 }
             }
@@ -183,11 +183,12 @@ namespace CubeHack.Game
                 IsFalling = PositionData.IsFalling,
             };
 
-            if (_cubeUpdates.Count > 0)
+            if (_blockUpdates.Count > 0)
             {
-                playerEvent.CubeUpdates = _cubeUpdates;
-                _cubeUpdates = new List<CubeUpdateData>();
+                playerEvent.BlockUpdates = _blockUpdates;
+                _blockUpdates = new List<BlockUpdateData>();
             }
+
             return playerEvent;
         }
 
@@ -206,23 +207,21 @@ namespace CubeHack.Game
             var result = World.CastRay(PositionData.Position + new EntityOffset(0, PhysicsValues.PlayerEyeHeight, 0), new EntityOffset(lookX, lookY, lookZ), PhysicsValues.MiningDistance);
             if (result == null)
             {
-                HighlightedCube = null;
+                HighlightedBlock = null;
                 _miningTime = GameDuration.Zero;
             }
             else
             {
-                if (RayCastResult.FaceEquals(HighlightedCube, result)
+                if (RayCastResult.FaceEquals(HighlightedBlock, result)
                     && _controller.IsKeyPressed(GameKey.Primary))
                 {
                     _miningTime += elapsedDuration;
 
                     if (_miningTime.Seconds >= PhysicsValues.MiningTime)
                     {
-                        _cubeUpdates.Add(new CubeUpdateData
+                        _blockUpdates.Add(new BlockUpdateData
                         {
-                            X = result.CubeX,
-                            Y = result.CubeY,
-                            Z = result.CubeZ,
+                            Pos = result.BlockPos,
                             Material = 0,
                         });
                     }
@@ -234,17 +233,15 @@ namespace CubeHack.Game
                     if (_placementCooldown <= GameDuration.Zero && _controller.IsKeyPressed(GameKey.Secondary))
                     {
                         _placementCooldown.Seconds = PhysicsValues.PlacementCooldown;
-                        _cubeUpdates.Add(new CubeUpdateData
+                        _blockUpdates.Add(new BlockUpdateData
                         {
-                            X = result.CubeX + result.NormalX,
-                            Y = result.CubeY + result.NormalY,
-                            Z = result.CubeZ + result.NormalZ,
+                            Pos = result.BlockPos + result.Normal,
                             Material = 1,
                         });
                     }
                 }
 
-                HighlightedCube = result;
+                HighlightedBlock = result;
             }
         }
 
@@ -302,11 +299,6 @@ namespace CubeHack.Game
         private double GetJumpingSpeed()
         {
             return Math.Sqrt(2 * PhysicsValues.Gravity * PhysicsValues.PlayerJumpHeight);
-        }
-
-        private int GetCurrentCubeCoordinate(long position, long direction)
-        {
-            return EntityPos.GetCubeCoordinate(position + (1L << 31) * direction);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
     {
         private const float _viewingAngle = 100f;
 
-        private static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)Chunk.Size));
+        private static readonly double ChunkRadius = Math.Sqrt(3 * ExtraMath.Square((double)GeometryConstants.ChunkSize));
         private static readonly GameDuration _chunkCacheExpiration = GameDuration.FromSeconds(30);
 
         private static readonly VertexSpecification _cubeVertexSpecification = new VertexSpecification()
@@ -68,7 +68,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             RenderHighlightedFace(gameClient);
 
-            RenderCubes(gameClient);
+            RenderBlocks(gameClient);
 
             RenderEntities(gameClient);
 
@@ -77,20 +77,20 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private void RenderHighlightedFace(GameClient gameClient)
         {
-            var highlightedCube = gameClient.HighlightedCube;
-            if (highlightedCube == null) return;
+            var highlightedBlock = gameClient.HighlightedBlock;
+            if (highlightedBlock == null) return;
 
-            var textureEntry = _textureAtlas.GetTextureEntry(gameClient.World[new BlockPos(highlightedCube.CubeX, highlightedCube.CubeY, highlightedCube.CubeZ)]);
+            var textureEntry = _textureAtlas.GetTextureEntry(gameClient.World[highlightedBlock.BlockPos]);
 
             _tempTriangles.Clear();
 
             float highlight = 0.2f;
-            if (highlightedCube.NormalX < 0) DrawCubeLeft(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
-            if (highlightedCube.NormalX > 0) DrawCubeRight(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
-            if (highlightedCube.NormalY < 0) DrawCubeBottom(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
-            if (highlightedCube.NormalY > 0) DrawCubeTop(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
-            if (highlightedCube.NormalZ < 0) DrawCubeBack(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
-            if (highlightedCube.NormalZ > 0) DrawCubeFront(_tempTriangles, textureEntry, highlightedCube.CubeX + 0.5f, highlightedCube.CubeY + 0.5f, highlightedCube.CubeZ + 0.5f, highlight);
+            if (highlightedBlock.Normal.X < 0) DrawBlockLeft(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
+            if (highlightedBlock.Normal.X > 0) DrawBlockRight(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
+            if (highlightedBlock.Normal.Y < 0) DrawBlockBottom(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
+            if (highlightedBlock.Normal.Y > 0) DrawBlockTop(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
+            if (highlightedBlock.Normal.Z < 0) DrawBlockBack(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
+            if (highlightedBlock.Normal.Z > 0) DrawBlockFront(_tempTriangles, textureEntry, highlightedBlock.BlockPos.X + 0.5f, highlightedBlock.BlockPos.Y + 0.5f, highlightedBlock.BlockPos.Z + 0.5f, highlight);
 
             GL.UseProgram(_cubeShader.Value.Id);
 
@@ -135,24 +135,22 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             GL.UseProgram(0);
         }
 
-        private void RenderCubes(GameClient gameClient)
+        private void RenderBlocks(GameClient gameClient)
         {
             GL.UseProgram(_cubeShader.Value.Id);
 
             GL.UniformMatrix4(0, false, ref _projectionMatrix);
             GL.UniformMatrix4(4, false, ref _modelViewMatrix);
 
-            int chunkX = gameClient.PositionData.Position.CubeX >> Chunk.Bits;
-            int chunkY = gameClient.PositionData.Position.CubeY >> Chunk.Bits;
-            int chunkZ = gameClient.PositionData.Position.CubeZ >> Chunk.Bits;
+            var cameraChunkPos = (ChunkPos)gameClient.PositionData.Position;
 
             var offset = (gameClient.PositionData.Position - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
-            for (int y = chunkY + ChunkViewRadiusY; y >= chunkY - ChunkViewRadiusY; --y)
+            for (int y = cameraChunkPos.Y + ChunkViewRadiusY; y >= cameraChunkPos.Y - ChunkViewRadiusY; --y)
             {
-                for (int x = chunkX - ChunkViewRadiusXZ; x <= chunkX + ChunkViewRadiusXZ; ++x)
+                for (int x = cameraChunkPos.X - ChunkViewRadiusXZ; x <= cameraChunkPos.X + ChunkViewRadiusXZ; ++x)
                 {
-                    for (int z = chunkZ - ChunkViewRadiusXZ; z <= chunkZ + ChunkViewRadiusXZ; ++z)
+                    for (int z = cameraChunkPos.Z - ChunkViewRadiusXZ; z <= cameraChunkPos.Z + ChunkViewRadiusXZ; ++z)
                     {
                         var chunkPos = new ChunkPos(x, y, z);
 
@@ -242,7 +240,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
         {
             // Check if the bounding sphere of the chunk is in the viewing frustum.
 
-            double df = (double)(Chunk.Size);
+            double df = (double)(GeometryConstants.ChunkSize);
 
             // Determine the chunk center relative to the viewer.
             double dx = (x + 0.5) * df - offset.X;
@@ -270,29 +268,30 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private void RenderChunk(TriangleBuffer buffer, Chunk chunk)
         {
-            float xOffset = (chunk.Pos.X << Chunk.Bits) + 0.5f;
-            float yOffset = (chunk.Pos.Y << Chunk.Bits) + 0.5f;
-            float zOffset = (chunk.Pos.Z << Chunk.Bits) + 0.5f;
+            var offset = chunk.Pos - new BlockPos(0, 0, 0);
+            float xOffset = offset.X + 0.5f;
+            float yOffset = offset.Y + 0.5f;
+            float zOffset = offset.Z + 0.5f;
 
-            for (int y = Chunk.Size - 1; y >= 0; --y)
+            for (int y = GeometryConstants.ChunkSize - 1; y >= 0; --y)
             {
-                for (int x = 0; x < Chunk.Size; ++x)
+                for (int x = 0; x < GeometryConstants.ChunkSize; ++x)
                 {
-                    for (int z = 0; z < Chunk.Size; ++z)
+                    for (int z = 0; z < GeometryConstants.ChunkSize; ++z)
                     {
-                        ushort cube = chunk[x, y, z];
-                        if (cube != 0)
+                        ushort material = chunk[x, y, z];
+                        if (material != 0)
                         {
-                            var textureEntry = _textureAtlas.GetTextureEntry(cube);
+                            var textureEntry = _textureAtlas.GetTextureEntry(material);
 
                             float x1 = x + xOffset, y1 = y + yOffset, z1 = z + zOffset;
 
-                            if (x == 0 || chunk[x - 1, y, z] == 0) DrawCubeLeft(buffer, textureEntry, x1, y1, z1, 0);
-                            if (x == Chunk.Size - 1 || chunk[x + 1, y, z] == 0) DrawCubeRight(buffer, textureEntry, x1, y1, z1, 0);
-                            if (y == 0 || chunk[x, y - 1, z] == 0) DrawCubeBottom(buffer, textureEntry, x1, y1, z1, 0);
-                            if (y == Chunk.Size - 1 || chunk[x, y + 1, z] == 0) DrawCubeTop(buffer, textureEntry, x1, y1, z1, 0);
-                            if (z == 0 || chunk[x, y, z - 1] == 0) DrawCubeBack(buffer, textureEntry, x1, y1, z1, 0);
-                            if (z == Chunk.Size - 1 || chunk[x, y, z + 1] == 0) DrawCubeFront(buffer, textureEntry, x1, y1, z1, 0);
+                            if (x == 0 || chunk[x - 1, y, z] == 0) DrawBlockLeft(buffer, textureEntry, x1, y1, z1, 0);
+                            if (x == GeometryConstants.ChunkSize - 1 || chunk[x + 1, y, z] == 0) DrawBlockRight(buffer, textureEntry, x1, y1, z1, 0);
+                            if (y == 0 || chunk[x, y - 1, z] == 0) DrawBlockBottom(buffer, textureEntry, x1, y1, z1, 0);
+                            if (y == GeometryConstants.ChunkSize - 1 || chunk[x, y + 1, z] == 0) DrawBlockTop(buffer, textureEntry, x1, y1, z1, 0);
+                            if (z == 0 || chunk[x, y, z - 1] == 0) DrawBlockBack(buffer, textureEntry, x1, y1, z1, 0);
+                            if (z == GeometryConstants.ChunkSize - 1 || chunk[x, y, z + 1] == 0) DrawBlockFront(buffer, textureEntry, x1, y1, z1, 0);
                         }
                     }
                 }
@@ -371,7 +370,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x - xRadius, y + height, z - xRadius); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexByte(255, 255, 255, 0); buffer.EndVertex();
         }
 
-        private void DrawCubeFront(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockFront(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
@@ -382,7 +381,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x - 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeRight(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockRight(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
@@ -393,7 +392,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x + 0.5f, y + 0.5f, z + 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeBack(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockBack(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
@@ -404,7 +403,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x + 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeLeft(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockLeft(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
@@ -415,7 +414,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(0.67f, 0.67f, 0.67f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeTop(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockTop(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
@@ -426,7 +425,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             buffer.VertexFloat(x - 0.5f, y + 0.5f, z - 0.5f); buffer.VertexUInt16(textureEntry.X0, textureEntry.Y1); buffer.VertexColorBytes(1f, 1f, 1f, highlight); buffer.EndVertex();
         }
 
-        private void DrawCubeBottom(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
+        private void DrawBlockBottom(TriangleBuffer buffer, WorldTextureAtlas.TextureEntry textureEntry, float x, float y, float z, float highlight)
         {
             buffer.Triangle(0, 1, 3);
             buffer.Triangle(3, 1, 2);
