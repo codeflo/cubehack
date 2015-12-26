@@ -193,13 +193,10 @@ namespace CubeHack.FrontEnd
             _mouseState = Mouse.GetState();
 
             var client = _connectionManager.Client;
-            if (client != null && client.IsConnected)
+            if (client != null)
             {
-                using (client.TakeRenderLock())
-                {
-                    client.UpdateState();
-                    _renderer.Render(client, renderInfo);
-                }
+                client.UpdateState();
+                _renderer.Render(client, renderInfo);
             }
             else
             {

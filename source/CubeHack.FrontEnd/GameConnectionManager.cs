@@ -12,21 +12,24 @@ namespace CubeHack.FrontEnd
 {
     public sealed class GameConnectionManager : IDisposable
     {
+        private readonly GameLoop _gameLoop;
         private readonly GameController _controller;
-
         private readonly WorldTextureAtlas _textureAtlas;
+
+        private IChannel _channel;
         private IDisposable _server;
 
         [DependencyInjected]
-        internal GameConnectionManager(GameController controller, WorldTextureAtlas textureAtlas)
+        internal GameConnectionManager(GameLoop gameLoop, GameController controller, WorldTextureAtlas textureAtlas)
         {
+            _gameLoop = gameLoop;
             _controller = controller;
             _textureAtlas = textureAtlas;
         }
 
         public GameClient Client { get; private set; }
 
-        public bool IsConnected => Client != null && Client.IsConnected;
+        public bool IsConnected => Client != null;
 
         public bool IsConnecting { get; private set; }
 
@@ -34,9 +37,15 @@ namespace CubeHack.FrontEnd
         {
             if (Client != null)
             {
-                var client = Client;
-                Task.Run(() => client.Dispose());
                 Client = null;
+            }
+
+            if (_channel != null)
+            {
+                var channel = _channel;
+                channel.OnGameEventAsync = null;
+                Task.Run(() => channel.Dispose());
+                _channel = null;
             }
 
             if (_server != null)
@@ -117,8 +126,34 @@ namespace CubeHack.FrontEnd
 
         private async Task ConnectChannelAsync(IChannel channel)
         {
+            _channel = channel;
+            channel.OnGameEventAsync = OnGameEventAsync;
             await _textureAtlas.SetModAsync(channel.ModData);
-            Client = new GameClient(_controller, channel);
+            Client = new GameClient(_controller);
+            await channel.SendPlayerEventAsync(Client.CreatePlayerEvent());
+        }
+
+        private async Task OnGameEventAsync(GameEvent gameEvent)
+        {
+            if (gameEvent == null) return;
+
+            PlayerEvent playerEvent = null;
+            await _gameLoop.SendAsync(() => playerEvent = OnGameEvent(gameEvent));
+            if (playerEvent != null && _channel != null) await _channel.SendPlayerEventAsync(playerEvent);
+        }
+
+        private PlayerEvent OnGameEvent(GameEvent gameEvent)
+        {
+            if (gameEvent.IsDisconnected)
+            {
+                Disconnect();
+                return null;
+            }
+
+            if (Client == null) return null;
+
+            Client.HandleGameEvent(gameEvent);
+            return Client.CreatePlayerEvent();
         }
 
         private async Task<TcpChannel> ConnectTcpAsync(string address, int port)

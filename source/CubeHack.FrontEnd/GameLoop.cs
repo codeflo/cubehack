@@ -5,6 +5,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CubeHack.FrontEnd
 {
@@ -131,6 +132,15 @@ namespace CubeHack.FrontEnd
             SendInternal(new QueuedAction(action));
         }
 
+        /// <summary>
+        /// Adds a new action to the end of the event queue, and waits until the action is processed.
+        /// </summary>
+        /// <param name="action">The action to enqueue.</param>
+        public Task SendAsync(Action action)
+        {
+            return SendInternalAsync(new QueuedAction(action));
+        }
+
         private void PostInternal(QueuedAction queuedAction)
         {
             lock (_mutex)
@@ -202,6 +212,20 @@ namespace CubeHack.FrontEnd
             }
         }
 
+        private Task SendInternalAsync(QueuedAction queuedAction)
+        {
+            var completionSource = new TaskCompletionSource<object>();
+
+            lock (_mutex)
+            {
+                if (_shouldQuit) completionSource.SetException(new GameLoopExitException());
+                queuedAction.SetCompletionSource(completionSource);
+                _queuedActions.Enqueue(queuedAction);
+            }
+
+            return completionSource.Task;
+        }
+
         private class GameLoopExitException : Exception
         {
         }
@@ -232,7 +256,10 @@ namespace CubeHack.FrontEnd
             private readonly Action _action;
             private readonly SendOrPostCallback _callback;
             private readonly object _state;
+
             private volatile ManualResetEventSlim _completedEvent;
+            private TaskCompletionSource<object> _completionSource;
+
             private volatile Exception _exception;
             private volatile bool _isCompleted;
 
@@ -254,6 +281,7 @@ namespace CubeHack.FrontEnd
                 _exception = new OperationCanceledException();
                 _isCompleted = true;
                 if (_completedEvent != null) _completedEvent.Set();
+                if (_completionSource != null) _completionSource.TrySetException(_exception);
             }
 
             public void ThrowIfNotSuccessful()
@@ -268,10 +296,12 @@ namespace CubeHack.FrontEnd
                 {
                     _action?.Invoke();
                     _callback?.Invoke(_state);
+                    _completionSource?.TrySetResult(null);
                 }
                 catch (Exception ex)
                 {
                     _exception = ex;
+                    _completionSource?.TrySetException(ex);
                     throw;
                 }
                 finally
@@ -284,6 +314,11 @@ namespace CubeHack.FrontEnd
             public void SetCompletedEvent(ManualResetEventSlim completedEvent)
             {
                 _completedEvent = completedEvent;
+            }
+
+            public void SetCompletionSource(TaskCompletionSource<object> completionSource)
+            {
+                _completionSource = completionSource;
             }
         }
     }
