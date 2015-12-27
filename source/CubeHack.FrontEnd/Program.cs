@@ -14,6 +14,8 @@ namespace CubeHack.FrontEnd
         {
             try
             {
+                ThreadPoolConfiguration.Init();
+
                 using (var container = new DependencyInjectionContainer())
                 {
                     var gameApp = container.Resolve<GameApp>();

@@ -30,6 +30,11 @@ namespace CubeHack.Game
 
         private volatile bool _isDisposed;
 
+        static Universe()
+        {
+            ThreadPoolConfiguration.Init();
+        }
+
         public Universe(ISaveFile saveFile, Mod mod)
         {
             SaveFile = saveFile;

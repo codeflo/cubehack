@@ -67,7 +67,7 @@ namespace CubeHack.Game
                 {
                     chunk = new Chunk(this, chunkPos);
                     _chunkMap[chunkPos] = chunk;
-                    LoadOrGenerate(chunk);
+                    Task.Run(() => LoadOrGenerate(chunk));
                 }
 
                 return chunk;
@@ -222,7 +222,7 @@ namespace CubeHack.Game
             }
             else if (Generator != null)
             {
-                await Task.Run(() => Generator.CreateChunk(chunk));
+                Generator.CreateChunk(chunk);
             }
         }
     }

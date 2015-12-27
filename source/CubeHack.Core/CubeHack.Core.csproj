@@ -119,6 +119,7 @@
     <Compile Include="Util\GameDuration.cs" />
     <Compile Include="Util\HashCalculator.cs" />
     <Compile Include="Util\Rng.cs" />
+    <Compile Include="Util\ThreadPoolConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
