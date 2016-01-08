@@ -31,12 +31,12 @@ namespace CubeHack.Game.Behaviors
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)
         {
-            return BehaviorPriority.Min;
+            return BehaviorPriority.Value(1);
         }
 
         public override GameDuration MinimumDuration()
         {
-            return new GameDuration(0);
+            return new GameDuration(0.5);
         }
     }
 }

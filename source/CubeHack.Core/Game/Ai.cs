@@ -50,16 +50,17 @@ namespace CubeHack.Game
                     }
 
                     // determine the other Behavior's current priority
-                    var prio = b.DeterminePriority(context);
+                    var otherPrio = b.DeterminePriority(context);
 
                     // only consider other Behavior if it's applicable
-                    if (prio == BehaviorPriority.NA)
+                    if (otherPrio == BehaviorPriority.NA)
                     {
                         continue;
                     }
 
-                    // switch to other Behavior if its priority is higher than that of the current Behavior
-                    if (prio > current.DeterminePriority(context))
+                    // switch to other Behavior depending on relation between priorities
+                    var currentPrio = current.DeterminePriority(context);
+                    if (otherPrio / (currentPrio + otherPrio) > Rng.NextDouble())
                     {
                         // reset the current Behavior, as it might become active again later
                         current.Reset();

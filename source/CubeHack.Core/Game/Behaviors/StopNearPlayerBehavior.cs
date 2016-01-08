@@ -27,7 +27,7 @@ namespace CubeHack.Game.Behaviors
 
                 if (offset.Length < 4)
                 {
-                    return BehaviorPriority.Value(10);
+                    return BehaviorPriority.Value(4);
                 }
             }
 

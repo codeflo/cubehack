@@ -67,6 +67,30 @@ namespace CubeHack.Game
             return prio1._priority > prio2._priority;
         }
 
+        public static double operator /(BehaviorPriority prio1, BehaviorPriority prio2)
+        {
+            if (prio2 == BehaviorPriority.Min) return prio1._priority;
+
+            return (double)prio1._priority / (double)prio2._priority;
+        }
+
+        public static BehaviorPriority operator +(BehaviorPriority prio1, BehaviorPriority prio2)
+        {
+            if (prio1 == BehaviorPriority.Min)
+            {
+                return prio2;
+            }
+            if (prio2 == BehaviorPriority.Min)
+            {
+                return prio1;
+            }
+            if (prio1 == BehaviorPriority.Max || prio2 == BehaviorPriority.Max)
+            {
+                return BehaviorPriority.Max;
+            }
+            return new BehaviorPriority(prio1._priority + prio2._priority);
+        }
+
         public override bool Equals(Object other)
         {
             if (!(other is BehaviorPriority))
