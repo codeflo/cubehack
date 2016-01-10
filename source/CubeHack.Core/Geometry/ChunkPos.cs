@@ -4,6 +4,7 @@
 namespace CubeHack.Geometry
 {
     using ProtoBuf;
+    using System;
     using Util;
 
     /// <summary>
@@ -51,6 +52,49 @@ namespace CubeHack.Geometry
         public static ChunkPos operator -(ChunkPos p, ChunkOffset o)
         {
             return p + (-o);
+        }
+
+        /// <summary>
+        /// Iterates over the a rectangular box of ChunkPos values around a given center, starting with the center and working outwards.
+        /// </summary>
+        /// <param name="center">The center position of the chunks to iterate.</param>
+        /// <param name="radiusXZ">The "radius" of the box in X and Z coordinates.</param>
+        /// <param name="radiusY">The "radius" of the box in Y coordinates.</param>
+        /// <param name="action">The action to call for each ChunkPos.</param>
+        public static void IterateOutwards(ChunkPos center, int radiusXZ, int radiusY, Action<ChunkPos> action)
+        {
+            var radius = Math.Max(radiusXZ, radiusY);
+            for (var r = 0; r <= radius; ++r)
+            {
+                // Only send the ChunkPos values with exact distance r from the center.
+
+                var ry = Math.Min(r, radiusY);
+                for (var y = -ry; y <= ry; ++y)
+                {
+                    if (y == -r || y == r)
+                    {
+                        var rxz = Math.Min(r, radiusXZ);
+
+                        for (var x = -rxz; x <= rxz; ++x)
+                        {
+                            for (var z = -rxz; z <= rxz; ++z)
+                            {
+                                action(new ChunkPos(center.X + x, center.Y + y, center.Z + z));
+                            }
+                        }
+                    }
+                    else if (r <= radiusXZ)
+                    {
+                        for (var i = 0; i <= 2 * r; ++i)
+                        {
+                            action(new ChunkPos(center.X - r + i, center.Y + y, center.Z - r));
+                            action(new ChunkPos(center.X + r, center.Y + y, center.Z - r + i));
+                            action(new ChunkPos(center.X + r - i, center.Y + y, center.Z + r));
+                            action(new ChunkPos(center.X - r, center.Y + y, center.Z + r - i));
+                        }
+                    }
+                }
+            }
         }
 
         public override bool Equals(object obj)

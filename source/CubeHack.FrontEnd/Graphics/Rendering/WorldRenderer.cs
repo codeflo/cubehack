@@ -147,64 +147,63 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             var offset = (gameClient.PositionData.Placement.Pos - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
-            for (int y = cameraChunkPos.Y + ChunkViewRadiusY; y >= cameraChunkPos.Y - ChunkViewRadiusY; --y)
-            {
-                for (int x = cameraChunkPos.X - ChunkViewRadiusXZ; x <= cameraChunkPos.X + ChunkViewRadiusXZ; ++x)
+            int chunkUpdates = 0;
+
+            ChunkPos.IterateOutwards(
+                cameraChunkPos,
+                ChunkViewRadiusXZ,
+                ChunkViewRadiusY,
+                chunkPos =>
                 {
-                    for (int z = cameraChunkPos.Z - ChunkViewRadiusXZ; z <= cameraChunkPos.Z + ChunkViewRadiusXZ; ++z)
+                    ChunkBufferEntry entry;
+                    _chunkBuffers.TryGetValue(chunkPos, out entry);
+
+                    /* Don't let nearby entries expire. */
+                    if (entry != null) entry.LastAccess = _currentFrameTime;
+
+                    if (!IsInViewingFrustum(gameClient, offset, chunkPos)) return;
+
+                    var chunk = gameClient.World.PeekChunk(chunkPos);
+                    if (chunk != null && chunk.HasData)
                     {
-                        var chunkPos = new ChunkPos(x, y, z);
-
-                        ChunkBufferEntry entry;
-                        _chunkBuffers.TryGetValue(chunkPos, out entry);
-
-                        /* Don't let nearby entries expire. */
-                        if (entry != null) entry.LastAccess = _currentFrameTime;
-
-                        if (!IsInViewingFrustum(gameClient, offset, x, y, z)) continue;
-
-                        var chunk = gameClient.World.PeekChunk(chunkPos);
-                        if (chunk != null && chunk.HasData)
+                        if (entry == null)
                         {
-                            if (entry == null)
-                            {
-                                entry = new ChunkBufferEntry { LastAccess = _currentFrameTime };
-                                _chunkBuffers[chunkPos] = entry;
-                            }
-
-                            if (entry.ContentHash != chunk.ContentHash)
-                            {
-                                if (entry.TriangleTask != null && entry.TriangleTask.IsCompleted)
-                                {
-                                    var triangles = entry.TriangleTask.Result;
-
-                                    if (entry.TriangleTaskContentHash == chunk.ContentHash)
-                                    {
-                                        if (entry.VertexArray == null) entry.VertexArray = new VertexArray(_cubeVertexSpecification);
-                                        entry.VertexArray.SetData(triangles, BufferUsageHint.StaticDraw);
-                                        entry.ContentHash = chunk.ContentHash;
-                                    }
-
-                                    triangles.Dispose();
-                                    entry.TriangleTask = null;
-                                    entry.TriangleTaskContentHash = 0;
-                                }
-
-                                if (entry.ContentHash != chunk.ContentHash && entry.TriangleTask == null)
-                                {
-                                    var triangleBuffer = new TriangleBuffer(_cubeVertexSpecification);
-
-                                    var localChunk = chunk;
-                                    entry.TriangleTask = Task.Run(() => { RenderChunk(triangleBuffer, localChunk); return triangleBuffer; });
-                                    entry.TriangleTaskContentHash = chunk.ContentHash;
-                                }
-                            }
-
-                            entry.VertexArray?.Draw();
+                            entry = new ChunkBufferEntry { LastAccess = _currentFrameTime };
+                            _chunkBuffers[chunkPos] = entry;
                         }
+
+                        if (entry.ContentHash != chunk.ContentHash)
+                        {
+                            if (chunkUpdates < 5 && entry.TriangleTask != null && entry.TriangleTask.IsCompleted)
+                            {
+                                var triangles = entry.TriangleTask.Result;
+
+                                if (entry.TriangleTaskContentHash == chunk.ContentHash)
+                                {
+                                    ++chunkUpdates;
+                                    if (entry.VertexArray == null) entry.VertexArray = new VertexArray(_cubeVertexSpecification);
+                                    entry.VertexArray.SetData(triangles, BufferUsageHint.StaticDraw);
+                                    entry.ContentHash = chunk.ContentHash;
+                                }
+
+                                triangles.Dispose();
+                                entry.TriangleTask = null;
+                                entry.TriangleTaskContentHash = 0;
+                            }
+
+                            if (entry.ContentHash != chunk.ContentHash && entry.TriangleTask == null)
+                            {
+                                var triangleBuffer = new TriangleBuffer(_cubeVertexSpecification);
+
+                                var localChunk = chunk;
+                                entry.TriangleTask = Task.Run(() => { RenderChunk(triangleBuffer, localChunk); return triangleBuffer; });
+                                entry.TriangleTaskContentHash = chunk.ContentHash;
+                            }
+                        }
+
+                        entry.VertexArray?.Draw();
                     }
-                }
-            }
+                });
 
             GL.UseProgram(0);
 
@@ -237,16 +236,16 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             }
         }
 
-        private bool IsInViewingFrustum(GameClient gameClient, EntityOffset offset, int x, int y, int z)
+        private bool IsInViewingFrustum(GameClient gameClient, EntityOffset offset, ChunkPos chunkPos)
         {
             // Check if the bounding sphere of the chunk is in the viewing frustum.
 
             double df = (double)(GeometryConstants.ChunkSize);
 
             // Determine the chunk center relative to the viewer.
-            double dx = (x + 0.5) * df - offset.X;
-            double dy = (y + 0.5) * df - offset.Y;
-            double dz = (z + 0.5) * df - offset.Z;
+            double dx = (chunkPos.X + 0.5) * df - offset.X;
+            double dy = (chunkPos.Y + 0.5) * df - offset.Y;
+            double dz = (chunkPos.Z + 0.5) * df - offset.Z;
 
             double t0, t1;
 

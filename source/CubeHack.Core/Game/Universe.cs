@@ -163,35 +163,35 @@ namespace CubeHack.Game
             {
                 var playerChunkPos = (ChunkPos)player.PositionData.Placement.Pos;
 
-                for (int x = playerChunkPos.X - ChunkViewRadiusXZ; x <= playerChunkPos.X + ChunkViewRadiusXZ; ++x)
-                {
-                    for (int y = playerChunkPos.Y - ChunkViewRadiusY; y <= playerChunkPos.Y + ChunkViewRadiusY; ++y)
+                int chunksInPacket = 0;
+
+                ChunkPos.IterateOutwards(
+                    playerChunkPos,
+                    ChunkViewRadiusXZ,
+                    ChunkViewRadiusY,
+                    chunkPos =>
                     {
-                        for (int z = playerChunkPos.Z - ChunkViewRadiusXZ; z <= playerChunkPos.Z + ChunkViewRadiusXZ; ++z)
+                        if (!channel.SentChunks.ContainsKey(chunkPos))
                         {
-                            var chunkPos = new ChunkPos(x, y, z);
-                            if (!channel.SentChunks.ContainsKey(chunkPos))
+                            var chunk = _startWorld.GetChunk(chunkPos);
+
+                            if (chunksInPacket < 5 && chunk.IsCreated)
                             {
-                                var chunk = _startWorld.GetChunk(chunkPos);
+                                channel.SentChunks[chunkPos] = true;
 
-                                if (chunk.IsCreated)
+                                if (chunk != null)
                                 {
-                                    channel.SentChunks[chunkPos] = true;
-
-                                    if (chunk != null)
+                                    if (gameEvent.ChunkDataList == null)
                                     {
-                                        if (gameEvent.ChunkDataList == null)
-                                        {
-                                            gameEvent.ChunkDataList = new List<ChunkData>();
-                                        }
-
-                                        gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                        gameEvent.ChunkDataList = new List<ChunkData>();
                                     }
+
+                                    gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                    ++chunksInPacket;
                                 }
                             }
                         }
-                    }
-                }
+                    });
             }
 
             if (channel.SentBlockUpdates != _blockUpdates.Count)
