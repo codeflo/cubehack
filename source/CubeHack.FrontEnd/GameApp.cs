@@ -50,7 +50,7 @@ namespace CubeHack.FrontEnd
             try
             {
                 _gameWindow.Title = "CubeHack";
-                _gameWindow.VSync = VSyncMode.Off;
+                _gameWindow.VSync = VSyncMode.On;
 
                 /* This sequence seems necessary to bring the window to the front reliably. */
                 _gameWindow.WindowState = WindowState.Maximized;
