@@ -1,3 +1,4 @@
 The CubeHack authors, in alphabetical order:
 
+Andreas Angerer <andreas.angerer@gmail.com>
 Florian Häglsperger <florian@haeglsperger.com>
