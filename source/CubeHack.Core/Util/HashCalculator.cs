@@ -19,25 +19,13 @@ namespace CubeHack.Util
          * because it has a really simple implementation.
          */
 
-        public static readonly HashCalculator Value;
+        public static readonly HashCalculator Value = GetInitialValue();
 
-        private const uint c1 = 0xcc9e2d51;
+        private const uint C1 = 0xcc9e2d51;
 
-        private const uint c2 = 0x1b873593;
+        private const uint C2 = 0x1b873593;
 
         private uint _hash;
-
-        static HashCalculator()
-        {
-            // Start with a different seed each time to make hash values more unpredictable.
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                byte[] seedBytes = new byte[4];
-                rng.GetBytes(seedBytes);
-                uint seedValue = BitConverter.ToUInt32(seedBytes, 0);
-                Value = new HashCalculator(seedValue);
-            }
-        }
 
         private HashCalculator(uint hash)
         {
@@ -48,9 +36,9 @@ namespace CubeHack.Util
         {
             get
             {
-                k *= c1;
+                k *= C1;
                 k = RotL(k, 15);
-                k *= c2;
+                k *= C2;
 
                 uint h = _hash ^ k;
                 h = RotL(h, 13);
@@ -70,7 +58,7 @@ namespace CubeHack.Util
 
         public HashCalculator this[double k] => this[k.GetHashCode()];
 
-        public HashCalculator this[bool k] => this[k ? 0xb0f0c498U : 0x859a53a4U]; // random values
+        public HashCalculator this[bool k] => this[k ? 0xb0f0c498U : 0x859a53a4U];
 
         public HashCalculator this[byte[] bytes]
         {
@@ -101,9 +89,10 @@ namespace CubeHack.Util
             }
         }
 
+        // random values
         public HashCalculator this[string s] => this[s.GetHashCode()];
 
-        public static implicit operator int (HashCalculator murmurHash)
+        public static implicit operator int(HashCalculator murmurHash)
         {
             uint h = murmurHash._hash;
 
@@ -116,6 +105,16 @@ namespace CubeHack.Util
             return (int)h;
         }
 
+        public static bool operator ==(HashCalculator h1, HashCalculator h2)
+        {
+            return h1._hash == h2._hash;
+        }
+
+        public static bool operator !=(HashCalculator h1, HashCalculator h2)
+        {
+            return !(h1 == h2);
+        }
+
         public override int GetHashCode()
         {
             return this;
@@ -126,11 +125,23 @@ namespace CubeHack.Util
             return obj is HashCalculator && ((HashCalculator)obj)._hash == _hash;
         }
 
+        private static HashCalculator GetInitialValue()
+        {
+            // Start with a different seed each time to make hash values more unpredictable.
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                byte[] seedBytes = new byte[4];
+                rng.GetBytes(seedBytes);
+                uint seedValue = BitConverter.ToUInt32(seedBytes, 0);
+                return new HashCalculator(seedValue);
+            }
+        }
+
         private static uint Mix(uint h, uint k)
         {
-            k *= c1;
+            k *= C1;
             k = RotL(k, 15);
-            k *= c2;
+            k *= C2;
 
             h ^= k;
             h = RotL(h, 13);

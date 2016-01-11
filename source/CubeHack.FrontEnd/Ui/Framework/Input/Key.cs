@@ -24,7 +24,7 @@ namespace CubeHack.FrontEnd.Ui.Framework.Input
         }
 
         /// <summary>
-        /// Returns a readable name for the key, like "Escape". This can be used in keybinding dialogs.
+        /// Gets a readable name for the key, like "Escape". This can be used in keybinding dialogs.
         /// </summary>
         public string Name { get; }
 

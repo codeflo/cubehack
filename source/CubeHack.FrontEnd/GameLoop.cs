@@ -136,6 +136,7 @@ namespace CubeHack.FrontEnd
         /// Adds a new action to the end of the event queue, and waits until the action is processed.
         /// </summary>
         /// <param name="action">The action to enqueue.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task SendAsync(Action action)
         {
             return SendInternalAsync(new QueuedAction(action));
@@ -154,7 +155,7 @@ namespace CubeHack.FrontEnd
         {
             if (window.IsExiting) throw new GameLoopExitException();
             window.ProcessEvents();
-            while (!window.IsExiting && ProcessSingleQueuedAction()) ;
+            while (!window.IsExiting && ProcessSingleQueuedAction()) { }
             if (window.IsExiting) throw new GameLoopExitException();
         }
 
@@ -200,7 +201,7 @@ namespace CubeHack.FrontEnd
                 else
                 {
                     /* We are in the main thread. Process queued actions until our action is finished. */
-                    while (ProcessSingleQueuedAction() && !queuedAction.IsCompleted) ;
+                    while (ProcessSingleQueuedAction() && !queuedAction.IsCompleted) { }
                 }
 
                 /* Exceptions should bubble up to the caller. */
@@ -226,6 +227,7 @@ namespace CubeHack.FrontEnd
             return completionSource.Task;
         }
 
+        [Serializable]
         private class GameLoopExitException : Exception
         {
         }
@@ -274,7 +276,10 @@ namespace CubeHack.FrontEnd
                 _state = state;
             }
 
-            public bool IsCompleted { get { return !_isCompleted; } }
+            public bool IsCompleted
+            {
+                get { return !_isCompleted; }
+            }
 
             public void Abort()
             {

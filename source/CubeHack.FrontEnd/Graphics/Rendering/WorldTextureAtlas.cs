@@ -154,9 +154,15 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         public struct TextureEntry
         {
-            public int PixelX0, PixelY0, PixelX1, PixelY1;
+            public int PixelX0;
+            public int PixelY0;
+            public int PixelX1;
+            public int PixelY1;
 
-            public ushort X0, Y0, X1, Y1;
+            public ushort X0;
+            public ushort Y0;
+            public ushort X1;
+            public ushort Y1;
         }
     }
 }

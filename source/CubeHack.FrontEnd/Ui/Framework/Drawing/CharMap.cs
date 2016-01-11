@@ -253,7 +253,10 @@ namespace CubeHack.FrontEnd.Ui.Framework.Drawing
 
         private class CharEntry
         {
-            public float TextureX, TextureY, TextureWidth, TextureHeight;
+            public float TextureX;
+            public float TextureY;
+            public float TextureWidth;
+            public float TextureHeight;
             public float BoxLeft;
             public float BoxRight;
             public float InnerWidth;

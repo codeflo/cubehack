@@ -123,6 +123,7 @@ namespace CubeHack.Game
                 {
                     edgeX = (x - 1) & _upperMask;
                 }
+
                 double tx = (edgeX - x) * oneOverEdge / dx;
 
                 long edgeY;
@@ -134,6 +135,7 @@ namespace CubeHack.Game
                 {
                     edgeY = (y - 1) & _upperMask;
                 }
+
                 double ty = (edgeY - y) * oneOverEdge / dy;
 
                 long edgeZ;
@@ -145,6 +147,7 @@ namespace CubeHack.Game
                 {
                     edgeZ = (z - 1) & _upperMask;
                 }
+
                 double tz = (edgeZ - z) * oneOverEdge / dz;
 
                 if (Math.Abs(edgeX - x) > edgeLength || Math.Abs(edgeY - y) > edgeLength

@@ -13,7 +13,7 @@ namespace CubeHack.Game
         public static void Respawn(PositionData positionData)
         {
             positionData.Placement = new EntityPlacement(
-                new EntityPos() + new EntityOffset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32),
+                EntityPos.Origin + new EntityOffset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32),
                 new EntityOrientation(0, Rng.NextDouble() * 2 * Math.PI));
             positionData.InternalPos = positionData.Placement.Pos;
         }
@@ -247,7 +247,7 @@ namespace CubeHack.Game
                     long edge = (long)i << 32;
                     if (sign < 0)
                     {
-                        edge += (1L << 32);
+                        edge += 1L << 32;
                     }
                     else
                     {

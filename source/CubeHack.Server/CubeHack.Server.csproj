@@ -36,6 +36,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CubeHack.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>..\..\dist\CubeHack Server.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\..\dist\</OutputPath>

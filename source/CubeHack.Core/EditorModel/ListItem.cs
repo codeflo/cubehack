@@ -75,6 +75,7 @@ namespace CubeHack.EditorModel
             {
                 instance.Add(entry.Value.GetObject());
             }
+
             return instance;
         }
 

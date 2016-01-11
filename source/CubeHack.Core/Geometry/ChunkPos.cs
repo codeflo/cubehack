@@ -66,7 +66,7 @@ namespace CubeHack.Geometry
             var radius = Math.Max(radiusXZ, radiusY);
             for (var r = 0; r <= radius; ++r)
             {
-                // Only send the ChunkPos values with exact distance r from the center.
+                /* Only send the ChunkPos values with exact distance r from the center. */
 
                 var ry = Math.Min(r, radiusY);
                 for (var y = -ry; y <= ry; ++y)

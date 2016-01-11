@@ -14,8 +14,9 @@ namespace CubeHack.Game
         private GameDuration _behaviorDuration;
 
         /// <summary>
-        /// Constructs a new Behavior.
+        /// Initializes a new instance of the <see cref="Behavior"/> class.
         /// </summary>
+        /// <param name="entity">The entity controlled by this behavior.</param>
         public Behavior(Entity entity)
         {
             _entity = entity;
@@ -23,7 +24,7 @@ namespace CubeHack.Game
         }
 
         /// <summary>
-        /// The Entity controlled by this Behavior.
+        /// Gets the Entity controlled by this Behavior.
         /// </summary>
         public Entity Entity
         {
@@ -31,7 +32,7 @@ namespace CubeHack.Game
         }
 
         /// <summary>
-        /// The duration this Behavior has been active.
+        /// Gets the duration this Behavior has been active.
         /// </summary>
         public GameDuration ActiveDuration
         {

@@ -42,7 +42,8 @@ namespace CubeHack.Data
             throw new ArgumentException();
         }
 
-        public Color(float r, float g, float b) : this(r, g, b, 1f)
+        public Color(float r, float g, float b)
+            : this(r, g, b, 1f)
         {
         }
 

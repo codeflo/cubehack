@@ -20,6 +20,7 @@
     <DebugType>pdbonly</DebugType>
     <CodeAnalysisRuleSet>..\CubeHack.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DocumentationFile>..\..\dist\CubeHack.Core.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\..\dist\</OutputPath>

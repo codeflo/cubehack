@@ -43,6 +43,8 @@ namespace CubeHack.Storage
         {
             _cancellation.Cancel();
             _writeThread.Join();
+            _cancellation.Dispose();
+            _queuedKeys.Dispose();
         }
 
         public async Task<StorageValue> ReadAsync(StorageKey key)
@@ -138,6 +140,7 @@ namespace CubeHack.Storage
                     {
                         stream.Write(value.Bytes, 0, value.Bytes.Length);
                     }
+
                     break;
                 }
                 catch (IOException)

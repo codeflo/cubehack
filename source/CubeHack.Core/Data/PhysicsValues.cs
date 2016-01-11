@@ -10,14 +10,14 @@ namespace CubeHack.Data
     public class PhysicsValues
     {
         /// <summary>
-        /// Gravity in blocks per square second.
+        /// Gets or sets the gravity in blocks per square second.
         /// </summary>
         [EditorData]
         [ProtoMember(1)]
         public float Gravity { get; set; }
 
         /// <summary>
-        /// Player movement speed in blocks per second.
+        /// Gets or sets the player movement speed in blocks per second.
         /// </summary>
         [EditorData]
         [ProtoMember(2)]

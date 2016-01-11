@@ -16,11 +16,6 @@ namespace CubeHack.Util
 
         private long _elapsedTicks;
 
-        public static GameTime Now()
-        {
-            return new GameTime { _elapsedTicks = Stopwatch.GetTimestamp() - _start };
-        }
-
         public static GameDuration operator -(GameTime a, GameTime b)
         {
             return new GameDuration(_tickDuration * (a._elapsedTicks - b._elapsedTicks));
@@ -69,6 +64,11 @@ namespace CubeHack.Util
         public static bool operator <=(GameTime a, GameTime b)
         {
             return a._elapsedTicks <= b._elapsedTicks;
+        }
+
+        public static GameTime Now()
+        {
+            return new GameTime { _elapsedTicks = Stopwatch.GetTimestamp() - _start };
         }
 
         /// <summary>

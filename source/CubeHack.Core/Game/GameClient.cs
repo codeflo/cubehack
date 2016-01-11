@@ -44,6 +44,7 @@ namespace CubeHack.Game
             {
                 PositionData.Placement.Orientation.Horizontal -= ExtraMath.TwoPi;
             }
+
             if (PositionData.Placement.Orientation.Horizontal < -Math.PI)
             {
                 PositionData.Placement.Orientation.Horizontal += ExtraMath.TwoPi;
@@ -54,6 +55,7 @@ namespace CubeHack.Game
             {
                 PositionData.Placement.Orientation.Vertical = ExtraMath.HalfPi;
             }
+
             if (PositionData.Placement.Orientation.Vertical < -ExtraMath.HalfPi)
             {
                 PositionData.Placement.Orientation.Vertical = -ExtraMath.HalfPi;

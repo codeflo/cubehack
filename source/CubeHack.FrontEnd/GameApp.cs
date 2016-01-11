@@ -8,10 +8,11 @@ using CubeHack.Game;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System;
 
 namespace CubeHack.FrontEnd
 {
-    public sealed class GameApp
+    public sealed class GameApp : IDisposable
     {
         private readonly Ui.Framework.Input.KeyboardState _uiKeyboardState = new Ui.Framework.Input.KeyboardState();
 
@@ -41,6 +42,15 @@ namespace CubeHack.FrontEnd
             _gameController.IsKeyPressedCallback = IsKeyPressed;
 
             _gameLoop.Reset();
+        }
+
+        public void Dispose()
+        {
+            if (_gameWindow != null)
+            {
+                _gameWindow.Dispose();
+                _gameWindow = null;
+            }
         }
 
         public void Run()
@@ -78,13 +88,6 @@ namespace CubeHack.FrontEnd
                 _gameWindow = null;
             }
         }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern bool SetCursorPos(int x, int y);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        private static extern bool GetCursorPos(out System.Drawing.Point point);
 
         private bool IsKeyPressed(GameKey gameKey)
         {
@@ -147,7 +150,7 @@ namespace CubeHack.FrontEnd
             bool isWindowGrabbed = _gameWindow.Focused && _gameControl.HandleGetMouseMode() == MouseMode.Grabbed;
 
             System.Drawing.Point point;
-            GetCursorPos(out point);
+            NativeMethods.GetCursorPos(out point);
 
             if (isWindowGrabbed)
             {
@@ -158,8 +161,10 @@ namespace CubeHack.FrontEnd
 
                 var center = _gameWindow.PointToScreen(new System.Drawing.Point(_gameWindow.Width / 2, _gameWindow.Height / 2));
 
-                // Use Win32 GetCursorPos/SetCursorPos to "grab" the mouse cursor and get "infinite" mouse movement.
-                // This feels a bit jaggy; there must be a better way to implement this.
+                /*
+                 * Use Win32 GetCursorPos/SetCursorPos to "grab" the mouse cursor and get "infinite" mouse movement.
+                 * This feels a bit jaggy; there must be a better way to implement this
+                 */
 
                 if (_gameWindow.CursorVisible)
                 {
@@ -172,11 +177,11 @@ namespace CubeHack.FrontEnd
                     _connectionManager.Client?.MouseLook(x, y);
                 }
 
-                SetCursorPos(center.X, center.Y);
+                NativeMethods.SetCursorPos(center.X, center.Y);
             }
             else if (_wasWindowGrabbed)
             {
-                SetCursorPos(_nonGrabbedMousePosition.X, _nonGrabbedMousePosition.Y);
+                NativeMethods.SetCursorPos(_nonGrabbedMousePosition.X, _nonGrabbedMousePosition.Y);
 
                 _gameWindow.CursorVisible = true;
             }
@@ -210,7 +215,7 @@ namespace CubeHack.FrontEnd
         private InputState GetInputState()
         {
             System.Drawing.Point mousePoint;
-            GetCursorPos(out mousePoint);
+            NativeMethods.GetCursorPos(out mousePoint);
             mousePoint = _gameWindow.PointToClient(mousePoint);
 
             var inputState = new InputState();

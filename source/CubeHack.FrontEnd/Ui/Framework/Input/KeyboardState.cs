@@ -21,7 +21,10 @@ namespace CubeHack.FrontEnd.Ui.Framework.Input
 
         public bool this[Key key]
         {
-            get { return _pressedKeys.Contains(key); }
+            get
+            {
+                return _pressedKeys.Contains(key);
+            }
 
             set
             {

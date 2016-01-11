@@ -14,7 +14,7 @@ using static CubeHack.Geometry.GeometryConstants;
 
 namespace CubeHack.FrontEnd.Graphics.Rendering
 {
-    internal sealed class WorldRenderer
+    internal sealed class WorldRenderer : IDisposable
     {
         private const float _viewingAngle = 100f;
 
@@ -48,6 +48,11 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             _outlineRenderer = outlineRenderer;
         }
 
+        public void Dispose()
+        {
+            _tempTriangles.Dispose();
+        }
+
         public void Render(GameClient gameClient, RenderInfo renderInfo)
         {
             _currentFrameTime = GameTime.Now();
@@ -57,7 +62,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
-            var offset = gameClient.PositionData.Placement.Pos - new EntityPos();
+            var offset = gameClient.PositionData.Placement.Pos - EntityPos.Origin;
             SetProjectionMatrix(renderInfo);
 
             _modelViewMatrix = Matrix4.Identity
@@ -119,7 +124,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             foreach (var position in positions)
             {
-                var offset = position.Placement.Pos - new EntityPos();
+                var offset = position.Placement.Pos - EntityPos.Origin;
                 GL.Uniform3(12, (float)offset.X, (float)offset.Y, (float)offset.Z);
 
                 using (var vertexArray = new VertexArray(_cubeVertexSpecification))
@@ -145,7 +150,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
             var cameraChunkPos = (ChunkPos)gameClient.PositionData.Placement.Pos;
 
-            var offset = (gameClient.PositionData.Placement.Pos - new EntityPos()) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
+            var offset = (gameClient.PositionData.Placement.Pos - EntityPos.Origin) + new EntityOffset(0, gameClient.PhysicsValues.PlayerEyeHeight, 0);
 
             int chunkUpdates = 0;
 
@@ -238,9 +243,9 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private bool IsInViewingFrustum(GameClient gameClient, EntityOffset offset, ChunkPos chunkPos)
         {
-            // Check if the bounding sphere of the chunk is in the viewing frustum.
+            /* Check if the bounding sphere of the chunk is in the viewing frustum. */
 
-            double df = (double)(GeometryConstants.ChunkSize);
+            var df = (double)GeometryConstants.ChunkSize;
 
             // Determine the chunk center relative to the viewer.
             double dx = (chunkPos.X + 0.5) * df - offset.X;
@@ -261,7 +266,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             // Check if the chunk is behind the viewer.
             if (dz > ChunkRadius && dz > ChunkRadius) return false;
 
-            // TODO: We can discard even more chunks by taking the left, right, top and bottom planes into account.
+            /* TODO: We can discard even more chunks by taking the left, right, top and bottom planes into account. */
 
             return true;
         }

@@ -25,10 +25,12 @@ namespace CubeHack.EditorModel
             {
                 return new StringItem();
             }
+
             if (type == typeof(float))
             {
                 return new FloatItem();
             }
+
             if (type == typeof(double))
             {
                 return new DoubleItem();

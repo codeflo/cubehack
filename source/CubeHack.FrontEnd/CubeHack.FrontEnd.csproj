@@ -25,6 +25,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CodeAnalysisRuleSet>..\CubeHack.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DocumentationFile>..\..\dist\CubeHack.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\..\dist\</OutputPath>
@@ -64,6 +65,7 @@
     <Compile Include="Graphics\Engine\VertexArray.cs" />
     <Compile Include="Graphics\Engine\TriangleBuffer.cs" />
     <Compile Include="Graphics\Engine\VertexSpecification.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Ui\Framework\Drawing\FontStyle.cs" />
     <Compile Include="Ui\Framework\Input\InputState.cs" />
     <Compile Include="Ui\Framework\Input\Key.cs" />
@@ -88,14 +90,14 @@
     <Compile Include="Ui\Framework\Drawing\Canvas.cs" />
     <Compile Include="Ui\Framework\Controls\Control.cs" />
     <Compile Include="Ui\Framework\Properties\DelegateProperty.cs" />
-    <Compile Include="Ui\Framework\Properties\DelegateProperty`1.cs" />
     <Compile Include="Ui\Framework\Drawing\FontAnimation.cs" />
     <Compile Include="Ui\Framework\Drawing\Font.cs" />
+    <Compile Include="Ui\Framework\Properties\DelegateProperty{T}.cs" />
     <Compile Include="Ui\Framework\Properties\IProperty.cs" />
     <Compile Include="Ui\Framework\Properties\Property.cs" />
-    <Compile Include="Ui\Framework\Properties\Property`1.cs" />
     <Compile Include="UiRenderer.cs" />
     <Compile Include="GameApp.cs" />
+    <Compile Include="Ui\Framework\Properties\Property{T}.cs" />
     <Compile Include="Ui\Framework\Rectangle.cs" />
     <Compile Include="Ui\Hud\HudControl.cs" />
     <Compile Include="Ui\Menu\ConnectScreen.cs" />
