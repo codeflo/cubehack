@@ -115,6 +115,11 @@ namespace CubeHack.Util
             return !(h1 == h2);
         }
 
+        public static HashCalculator FromSeed(uint seed)
+        {
+            return new HashCalculator(seed);
+        }
+
         public override int GetHashCode()
         {
             return this;
