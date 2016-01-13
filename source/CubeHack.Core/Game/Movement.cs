@@ -24,7 +24,24 @@ namespace CubeHack.Game
             if (MoveY(physicsValues, world, positionData, offset.Y * elapsedDuration.Seconds))
             {
                 positionData.IsFalling = false;
+            }
+            else
+            {
+                if (!positionData.IsFalling)
+                {
+                    /* Re-evaluate the fall from the apparent position. */
+                    positionData.InternalPos = positionData.Placement.Pos;
+                    MoveY(physicsValues, world, positionData, offset.Y * elapsedDuration.Seconds);
+                    positionData.IsFalling = true;
+                }
+            }
 
+            if (positionData.IsFalling)
+            {
+                offset.Y -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
+            }
+            else
+            {
                 if (Math.Abs(offset.Y) > Math.Sqrt(2 * physicsValues.Gravity * physicsValues.TerminalHeight))
                 {
                     Respawn(positionData);
@@ -32,19 +49,13 @@ namespace CubeHack.Game
 
                 offset.Y = 0;
             }
-            else
-            {
-                offset.Y -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
-                positionData.IsFalling = true;
-            }
 
             if (offset.X != 0 || offset.Z != 0)
             {
-                long savedY = 0;
-                if (!positionData.IsFalling)
+                long savedY = positionData.InternalPos.Y;
+                if (!positionData.IsFalling && world[(BlockPos)positionData.InternalPos - BlockOffset.UnitY] != 0)
                 {
                     // Temporarily move the character up a block so that it can climb up stairs.
-                    savedY = positionData.InternalPos.Y;
                     MoveY(physicsValues, world, positionData, 1);
                 }
 
@@ -107,62 +118,55 @@ namespace CubeHack.Game
                 return;
             }
 
-            var pos = positionData.InternalPos;
+            var entityPos = positionData.InternalPos;
+            var blockPos = (BlockPos)entityPos;
+
+            /*
+             * When standing on an edge, the entities bottom center might be hanging in the air.
+             * Find the true floor position by iterating downward and looking for the floor.
+             */
+            if (world[blockPos] == 0 && world[blockPos - BlockOffset.UnitY] == 0)
+            {
+                blockPos -= BlockOffset.UnitY;
+                entityPos -= EntityOffset.UnitY;
+
+                if (world[blockPos - new BlockOffset(0, 2, 0)] == 0)
+                {
+                    blockPos -= BlockOffset.UnitY;
+                    entityPos -= EntityOffset.UnitY;
+                }
+            }
+
+            var entityOffset = entityPos - blockPos;
 
             double yOffset = 0;
 
-            double radius = 0.5 - EntityOffset.Epsilon;
-            EntityPos p;
+            /*
+             * Take the integral of all floor heights in a 2 by 2 area around the center.
+             * Since the height is piecewise constant, this is a weighted sum of the heights around the entity position.
+             */
 
-            double weight = 0;
-            for (int x = -8; x <= 8; ++x)
-            {
-                for (int z = -8; z <= 8; ++z)
-                {
-                    p = pos + new EntityOffset(radius * 0.25 * x, 0, radius * 0.25 * z);
+            yOffset += (1 - entityOffset.X) * FindHeight(world, blockPos - BlockOffset.UnitX);
+            yOffset += entityOffset.X * FindHeight(world, blockPos + BlockOffset.UnitX);
+            yOffset += (1 - entityOffset.Z) * FindHeight(world, blockPos - BlockOffset.UnitZ);
+            yOffset += entityOffset.Z * FindHeight(world, blockPos + BlockOffset.UnitZ);
+            yOffset += (1 - entityOffset.X) * (1 - entityOffset.Z) * FindHeight(world, blockPos + new BlockOffset(-1, 0, -1));
+            yOffset += (1 - entityOffset.X) * entityOffset.Z * FindHeight(world, blockPos + new BlockOffset(-1, 0, 1));
+            yOffset += entityOffset.X * (1 - entityOffset.Z) * FindHeight(world, blockPos + new BlockOffset(1, 0, -1));
+            yOffset += entityOffset.X * entityOffset.Z * FindHeight(world, blockPos + new BlockOffset(1, 0, 1));
 
-                    double w = (x >= -4 && x <= 4 && z >= -4 && z <= 4) ? 1 : 0.5;
-                    yOffset += w * GetWeightedOffset(world, (BlockPos)p);
-                    weight += w;
-                }
-            }
+            // Normalize.
+            yOffset *= 0.25;
 
-            yOffset /= weight;
-
-            pos += new EntityOffset(0, -yOffset, 0);
-            positionData.Placement.Pos = pos;
+            entityPos += new EntityOffset(0, yOffset, 0);
+            positionData.Placement.Pos = entityPos;
         }
 
-        private static double GetWeightedOffset(World world, BlockPos p)
+        private static double FindHeight(World world, BlockPos blockPos)
         {
-            if (world[p - new BlockOffset(0, 1, 0)] == 0)
-            {
-                if (world[p - new BlockOffset(0, 2, 0)] == 0)
-                {
-                    if (world[p - new BlockOffset(0, 3, 0)] != 0)
-                    {
-                        return 2;
-                    }
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-
+            if (world[blockPos] != 0) return 1;
+            if (world[blockPos] == 0 && world[blockPos - BlockOffset.UnitY] == 0) return -1;
             return 0;
-        }
-
-        private static long MaxMin(long a, long b, long c)
-        {
-            return Math.Max(a, Math.Min(b, c));
-        }
-
-        private static bool IsAllowed(PhysicsValues physicsValues, World world, EntityPos position)
-        {
-            var a = position + new EntityOffset(EntityOffset.Epsilon, 0, EntityOffset.Epsilon);
-            var b = position + new EntityOffset(-EntityOffset.Epsilon, physicsValues.PlayerHeight - EntityOffset.Epsilon, -EntityOffset.Epsilon);
-            return AllPassable(world, (BlockPos)a, (BlockPos)b);
         }
 
         private static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)

@@ -188,7 +188,7 @@ namespace CubeHack.Game
         {
             var velocity = new EntityOffset(0, PositionData.Velocity.Y, 0);
 
-            var moveOffset = PhysicsValues.PlayerMovementSpeed * (EntityOffset)PositionData.Placement.Orientation;
+            var moveOffset = PhysicsValues.PlayerMovementSpeed * (EntityOffset)new EntityOrientation(PositionData.Placement.Orientation.Horizontal, 0);
 
             bool isMovingAlong = false, isMovingSideways = false;
             if (_controller.IsKeyPressed(GameKey.Forwards))
