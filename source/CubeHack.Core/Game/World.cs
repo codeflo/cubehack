@@ -19,12 +19,20 @@ namespace CubeHack.Game
 
         private readonly Dictionary<ChunkPos, Chunk> _chunkMap = new Dictionary<ChunkPos, Chunk>();
 
-        public World(Universe universe)
+        public World(Universe universe, ModData modData)
         {
             Universe = universe;
+            ModData = modData;
+        }
+
+        public World(Universe universe)
+            : this(universe, null)
+        {
         }
 
         public Universe Universe { get; }
+
+        public ModData ModData { get; }
 
         public WorldGenerator Generator { get; set; }
 

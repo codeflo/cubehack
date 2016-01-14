@@ -71,6 +71,7 @@
     <Compile Include="Game\BehaviorContext.cs" />
     <Compile Include="Game\Behaviors\StopNearPlayerBehavior.cs" />
     <Compile Include="Game\BehaviorPriority.cs" />
+    <Compile Include="Game\EntityData.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />

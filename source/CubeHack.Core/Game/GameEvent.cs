@@ -11,7 +11,7 @@ namespace CubeHack.Game
     public sealed class GameEvent
     {
         [ProtoMember(1)]
-        public List<PositionData> EntityPositions { get; set; }
+        public List<EntityData> EntityInfos { get; set; }
 
         [ProtoMember(2)]
         public PhysicsValues PhysicsValues { get; set; }

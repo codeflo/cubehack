@@ -13,7 +13,7 @@ namespace CubeHack.Game
     {
         public PositionData PositionData = new PositionData();
         public PhysicsValues PhysicsValues = new PhysicsValues();
-        public List<PositionData> EntityPositions = new List<PositionData>();
+        public List<EntityData> EntityInfos = new List<EntityData>();
 
         private readonly double _inverseSqrt2 = Math.Sqrt(0.5);
 
@@ -25,9 +25,9 @@ namespace CubeHack.Game
 
         private List<BlockUpdateData> _blockUpdates = new List<BlockUpdateData>();
 
-        public GameClient(IGameController controller)
+        public GameClient(IGameController controller, ModData modData)
         {
-            World = new World(null);
+            World = new World(null, modData);
             _controller = controller;
         }
 
@@ -67,9 +67,9 @@ namespace CubeHack.Game
             var elapsedDuration = GameTime.Update(ref _frameTime);
             MovePlayer(elapsedDuration);
 
-            foreach (var entityPosition in EntityPositions)
+            foreach (var entityInfo in EntityInfos)
             {
-                Movement.MoveEntity(PhysicsValues, World, entityPosition, elapsedDuration, entityPosition.Velocity);
+                Movement.MoveEntity(PhysicsValues, World, entityInfo.PositionData, elapsedDuration, entityInfo.PositionData.Velocity);
             }
 
             UpdateBuildAction(elapsedDuration);
@@ -84,9 +84,9 @@ namespace CubeHack.Game
                 return;
             }
 
-            if (gameEvent.EntityPositions != null)
+            if (gameEvent.EntityInfos != null)
             {
-                EntityPositions = gameEvent.EntityPositions;
+                EntityInfos = gameEvent.EntityInfos;
             }
 
             if (gameEvent.PhysicsValues != null)

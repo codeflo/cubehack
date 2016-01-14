@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.Data;
 using CubeHack.FrontEnd.Graphics.Engine;
 using CubeHack.Game;
 using CubeHack.Geometry;
@@ -114,23 +115,35 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private void RenderEntities(GameClient gameClient)
         {
-            var positions = gameClient.EntityPositions;
-            if (positions == null) return;
+            var infos = gameClient.EntityInfos;
+            if (infos == null) return;
 
             GL.UseProgram(_cubeShader.Value.Id);
 
             GL.UniformMatrix4(0, false, ref _projectionMatrix);
             GL.UniformMatrix4(4, false, ref _modelViewMatrix);
 
-            foreach (var position in positions)
+            foreach (var info in infos)
             {
-                var offset = position.Placement.Pos - EntityPos.Origin;
+                var offset = info.PositionData.Placement.Pos - EntityPos.Origin;
+
+                float modelWidth = 0.5f * gameClient.PhysicsValues.PlayerWidth;
+                float modelHeight = gameClient.PhysicsValues.PlayerHeight;
+
+                if (info.ModelIndex != null)
+                {
+                    Model model = gameClient.World.ModData.Models[(int)info.ModelIndex];
+
+                    modelWidth = model.Width;
+                    modelHeight = model.Height;
+                }
+
                 GL.Uniform3(12, (float)offset.X, (float)offset.Y, (float)offset.Z);
 
                 using (var vertexArray = new VertexArray(_cubeVertexSpecification))
                 {
                     _tempTriangles.Clear();
-                    DrawEntity(_tempTriangles, 0, 0, 0, 0.5f * gameClient.PhysicsValues.PlayerWidth, gameClient.PhysicsValues.PlayerHeight);
+                    DrawEntity(_tempTriangles, 0, 0, 0, modelWidth, modelHeight);
                     vertexArray.SetData(_tempTriangles, BufferUsageHint.DynamicDraw);
                     vertexArray.Draw();
                 }

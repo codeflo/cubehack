@@ -32,5 +32,14 @@
       }
     }
   },
-  "MobTypes": {}
+  "MobTypes": {
+    "myMob": {
+      "Name": "myMob",
+      "Model": {
+        "Width": 0.6,
+        "Height": 5.0,
+        "Cuboids": []
+      }
+    }
+  }
 }

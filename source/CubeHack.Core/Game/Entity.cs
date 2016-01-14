@@ -8,5 +8,9 @@ namespace CubeHack.Game
         public bool IsAiControlled { get; set; }
 
         public PositionData PositionData { get; set; }
+
+        public string MobName { get; set; }
+
+        public int? ModelIndex { get; set; }
     }
 }

@@ -60,10 +60,19 @@ namespace CubeHack.Game
 
             for (int i = 0; i < 20; ++i)
             {
+                MobType type = null;
+                if (_mod.MobTypes.Count > 0)
+                {
+                    string nextMobType = _mod.MobTypes.Keys.ElementAt(i % _mod.MobTypes.Count);
+                    type = _mod.MobTypes[nextMobType];
+                }
+
                 var e = new Entity()
                 {
                     PositionData = new PositionData(),
                     IsAiControlled = true,
+                    MobName = type?.Name,
+                    ModelIndex = type?.Model.Index
                 };
 
                 Movement.Respawn(e.PositionData);
@@ -150,12 +159,12 @@ namespace CubeHack.Game
         {
             var player = channel.Player;
 
-            var gameEvent = new GameEvent() { EntityPositions = new List<PositionData>() };
+            var gameEvent = new GameEvent() { EntityInfos = new List<EntityData>() };
             foreach (var entity in _entities)
             {
                 if (entity != player)
                 {
-                    gameEvent.EntityPositions.Add(entity.PositionData);
+                    gameEvent.EntityInfos.Add(new EntityData { PositionData = entity.PositionData, ModelIndex = entity.ModelIndex });
                 }
             }
 

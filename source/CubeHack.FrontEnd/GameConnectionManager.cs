@@ -129,7 +129,7 @@ namespace CubeHack.FrontEnd
             _channel = channel;
             channel.OnGameEventAsync = OnGameEventAsync;
             await _textureAtlas.SetModAsync(channel.ModData);
-            Client = new GameClient(_controller);
+            Client = new GameClient(_controller, channel.ModData);
             await channel.SendPlayerEventAsync(Client.CreatePlayerEvent());
         }
 
