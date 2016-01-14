@@ -11,7 +11,7 @@ namespace CubeHack.Storage
     [ProtoContract]
     public sealed class SaveFileInfo
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         [ProtoMember(1)]
         public int Version;

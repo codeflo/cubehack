@@ -75,6 +75,7 @@ namespace CubeHack.EditorModel
                     matchingProperty.SetValue(instance, property.Value.GetObject());
                 }
             }
+
             return instance;
         }
 

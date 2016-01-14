@@ -68,7 +68,9 @@ namespace CubeHack.FrontEnd.Ui.Menu
                 var style = new Font(30, new Color(1, 1, 1)) { Animation = FontAnimation.Wave };
                 canvas.Print(
                     style,
-                    0.5f * (canvas.Width - canvas.MeasureText(style, status)), canvas.Height * 0.5f - 15, status);
+                    0.5f * (canvas.Width - canvas.MeasureText(style, status)),
+                    canvas.Height * 0.5f - 15,
+                    status);
             }
         }
 

@@ -5,6 +5,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CubeHack.FrontEnd
 {
@@ -131,6 +132,16 @@ namespace CubeHack.FrontEnd
             SendInternal(new QueuedAction(action));
         }
 
+        /// <summary>
+        /// Adds a new action to the end of the event queue, and waits until the action is processed.
+        /// </summary>
+        /// <param name="action">The action to enqueue.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public Task SendAsync(Action action)
+        {
+            return SendInternalAsync(new QueuedAction(action));
+        }
+
         private void PostInternal(QueuedAction queuedAction)
         {
             lock (_mutex)
@@ -144,7 +155,7 @@ namespace CubeHack.FrontEnd
         {
             if (window.IsExiting) throw new GameLoopExitException();
             window.ProcessEvents();
-            while (!window.IsExiting && ProcessSingleQueuedAction()) ;
+            while (!window.IsExiting && ProcessSingleQueuedAction()) { }
             if (window.IsExiting) throw new GameLoopExitException();
         }
 
@@ -190,7 +201,7 @@ namespace CubeHack.FrontEnd
                 else
                 {
                     /* We are in the main thread. Process queued actions until our action is finished. */
-                    while (ProcessSingleQueuedAction() && !queuedAction.IsCompleted) ;
+                    while (ProcessSingleQueuedAction() && !queuedAction.IsCompleted) { }
                 }
 
                 /* Exceptions should bubble up to the caller. */
@@ -202,6 +213,21 @@ namespace CubeHack.FrontEnd
             }
         }
 
+        private Task SendInternalAsync(QueuedAction queuedAction)
+        {
+            var completionSource = new TaskCompletionSource<object>();
+
+            lock (_mutex)
+            {
+                if (_shouldQuit) completionSource.SetException(new GameLoopExitException());
+                queuedAction.SetCompletionSource(completionSource);
+                _queuedActions.Enqueue(queuedAction);
+            }
+
+            return completionSource.Task;
+        }
+
+        [Serializable]
         private class GameLoopExitException : Exception
         {
         }
@@ -232,7 +258,10 @@ namespace CubeHack.FrontEnd
             private readonly Action _action;
             private readonly SendOrPostCallback _callback;
             private readonly object _state;
+
             private volatile ManualResetEventSlim _completedEvent;
+            private TaskCompletionSource<object> _completionSource;
+
             private volatile Exception _exception;
             private volatile bool _isCompleted;
 
@@ -247,13 +276,17 @@ namespace CubeHack.FrontEnd
                 _state = state;
             }
 
-            public bool IsCompleted { get { return !_isCompleted; } }
+            public bool IsCompleted
+            {
+                get { return !_isCompleted; }
+            }
 
             public void Abort()
             {
                 _exception = new OperationCanceledException();
                 _isCompleted = true;
                 if (_completedEvent != null) _completedEvent.Set();
+                if (_completionSource != null) _completionSource.TrySetException(_exception);
             }
 
             public void ThrowIfNotSuccessful()
@@ -268,10 +301,12 @@ namespace CubeHack.FrontEnd
                 {
                     _action?.Invoke();
                     _callback?.Invoke(_state);
+                    _completionSource?.TrySetResult(null);
                 }
                 catch (Exception ex)
                 {
                     _exception = ex;
+                    _completionSource?.TrySetException(ex);
                     throw;
                 }
                 finally
@@ -284,6 +319,11 @@ namespace CubeHack.FrontEnd
             public void SetCompletedEvent(ManualResetEventSlim completedEvent)
             {
                 _completedEvent = completedEvent;
+            }
+
+            public void SetCompletionSource(TaskCompletionSource<object> completionSource)
+            {
+                _completionSource = completionSource;
             }
         }
     }

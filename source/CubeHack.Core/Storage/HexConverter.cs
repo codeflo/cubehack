@@ -12,7 +12,7 @@ namespace CubeHack.Storage
     /// </summary>
     public static class HexConverter
     {
-        // Adapted from http://stackoverflow.com/a/18574846
+        /* Adapted from http://stackoverflow.com/a/18574846 */
 
         public static string[] _hexBytes = Enumerable.Range(0, 256).Select(v => v.ToString("x2", CultureInfo.InvariantCulture)).ToArray();
 

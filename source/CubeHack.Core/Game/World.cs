@@ -50,9 +50,11 @@ namespace CubeHack.Game
             {
                 var chunkPos = (ChunkPos)p;
                 var chunk = GetChunk(chunkPos);
-                chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
-
-                Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
+                if (chunk.IsCreated)
+                {
+                    chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
+                    Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
+                }
             }
         }
 
@@ -65,26 +67,7 @@ namespace CubeHack.Game
                 {
                     chunk = new Chunk(this, chunkPos);
                     _chunkMap[chunkPos] = chunk;
-
-                    /* TODO: Figure out how to load/generate chunks asynchronously without breaking the game. */
-                    Task.Run(
-                        async () =>
-                        {
-                            var savedValueTask = Universe?.SaveFile?.ReadAsync(StorageKey.Get("ChunkData", chunkPos));
-                            StorageValue savedValue = savedValueTask == null ? null : await savedValueTask;
-                            if (savedValue != null)
-                            {
-                                var chunkData = savedValue.Deserialize<ChunkData>();
-                                if (chunkData != null)
-                                {
-                                    chunk.PasteChunkData(savedValue.Deserialize<ChunkData>());
-                                }
-                            }
-                            else if (Generator != null)
-                            {
-                                Generator.CreateChunk(chunk);
-                            }
-                        }).Wait();
+                    Task.Run(() => LoadOrGenerate(chunk));
                 }
 
                 return chunk;
@@ -140,6 +123,7 @@ namespace CubeHack.Game
                 {
                     edgeX = (x - 1) & _upperMask;
                 }
+
                 double tx = (edgeX - x) * oneOverEdge / dx;
 
                 long edgeY;
@@ -151,6 +135,7 @@ namespace CubeHack.Game
                 {
                     edgeY = (y - 1) & _upperMask;
                 }
+
                 double ty = (edgeY - y) * oneOverEdge / dy;
 
                 long edgeZ;
@@ -162,6 +147,7 @@ namespace CubeHack.Game
                 {
                     edgeZ = (z - 1) & _upperMask;
                 }
+
                 double tz = (edgeZ - z) * oneOverEdge / dz;
 
                 if (Math.Abs(edgeX - x) > edgeLength || Math.Abs(edgeY - y) > edgeLength
@@ -223,6 +209,24 @@ namespace CubeHack.Game
         private static bool IsNumber(double d)
         {
             return !double.IsInfinity(d) && !double.IsNaN(d);
+        }
+
+        private async void LoadOrGenerate(Chunk chunk)
+        {
+            var savedValueTask = Universe?.SaveFile?.ReadAsync(StorageKey.Get("ChunkData", chunk.Pos));
+            StorageValue savedValue = savedValueTask == null ? null : await savedValueTask;
+            if (savedValue != null)
+            {
+                var chunkData = savedValue.Deserialize<ChunkData>();
+                if (chunkData != null)
+                {
+                    chunk.PasteChunkData(savedValue.Deserialize<ChunkData>());
+                }
+            }
+            else if (Generator != null)
+            {
+                Generator.CreateChunk(chunk);
+            }
         }
     }
 }

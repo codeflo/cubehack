@@ -9,6 +9,8 @@ namespace CubeHack.Geometry
     [ProtoContract]
     public struct EntityPos
     {
+        public static readonly EntityPos Origin = default(EntityPos);
+
         [ProtoMember(1)]
         public long X;
 

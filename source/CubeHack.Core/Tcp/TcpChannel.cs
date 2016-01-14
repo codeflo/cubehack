@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CubeHack.Tcp
 {
-    public class TcpChannel : IChannel
+    public sealed class TcpChannel : IChannel
     {
         private readonly object _mutex = new object();
         private readonly TcpClient _tcpClient;
@@ -55,7 +55,7 @@ namespace CubeHack.Tcp
             await _tcpClient.ConnectAsync(_host, _port);
 
             _stream = _tcpClient.GetStream();
-            await _stream.WriteAsync(TcpConstants.MAGIC_COOKIE, 0, TcpConstants.MAGIC_COOKIE.Length);
+            await _stream.WriteAsync(TcpConstants.MagicCookie, 0, TcpConstants.MagicCookie.Length);
             await _stream.FlushAsync();
 
             ModData = await _stream.ReadObjectAsync<ModData>();

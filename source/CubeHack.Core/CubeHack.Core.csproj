@@ -18,12 +18,17 @@
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
+    <CodeAnalysisRuleSet>..\CubeHack.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DocumentationFile>..\..\dist\CubeHack.Core.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\..\dist\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
+    <CodeAnalysisRuleSet>..\CubeHack.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>..\..\dist\CubeHack.Core.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -100,6 +105,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SharedAssemblyInfo.cs" />
+    <Compile Include="Randomization\Noise2D.cs" />
     <Compile Include="Storage\HexConverter.cs" />
     <Compile Include="Storage\ISaveFile.cs" />
     <Compile Include="Storage\SaveFile.cs" />
@@ -118,11 +124,16 @@
     <Compile Include="Util\GameTime.cs" />
     <Compile Include="Util\GameDuration.cs" />
     <Compile Include="Util\HashCalculator.cs" />
-    <Compile Include="Util\PriorityMutex.cs" />
     <Compile Include="Util\Rng.cs" />
+    <Compile Include="Util\ThreadPoolConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

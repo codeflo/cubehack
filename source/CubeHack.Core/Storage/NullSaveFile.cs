@@ -8,7 +8,7 @@ namespace CubeHack.Storage
     /// <summary>
     /// A dummy <see cref="ISaveFile"/> implementation that doesn't save anything.
     /// </summary>
-    public class NullSaveFile : ISaveFile
+    public sealed class NullSaveFile : ISaveFile
     {
         public static readonly NullSaveFile Instance = new NullSaveFile();
 

@@ -7,7 +7,8 @@ namespace CubeHack.Game.Behaviors
 {
     internal class StopNearPlayerBehavior : Behavior
     {
-        public StopNearPlayerBehavior(Entity entity) : base(entity)
+        public StopNearPlayerBehavior(Entity entity)
+            : base(entity)
         {
         }
 
@@ -19,7 +20,7 @@ namespace CubeHack.Game.Behaviors
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)
         {
-            foreach (Entity other in context.otherEntities)
+            foreach (Entity other in context.OtherEntities)
             {
                 if (other.IsAiControlled) continue;
 

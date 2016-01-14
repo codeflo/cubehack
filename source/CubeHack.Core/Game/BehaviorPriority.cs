@@ -15,7 +15,8 @@ namespace CubeHack.Game
             {
                 throw new ArgumentOutOfRangeException("priority", "priority may not be smaller than -1");
             }
-            this._priority = priority;
+
+            _priority = priority;
         }
 
         public static BehaviorPriority NA
@@ -40,11 +41,6 @@ namespace CubeHack.Game
             {
                 return new BehaviorPriority(int.MaxValue);
             }
-        }
-
-        public static BehaviorPriority Value(int priority)
-        {
-            return new BehaviorPriority(priority);
         }
 
         public static bool operator ==(BehaviorPriority prio1, BehaviorPriority prio2)
@@ -80,23 +76,32 @@ namespace CubeHack.Game
             {
                 return prio2;
             }
+
             if (prio2 == BehaviorPriority.Min)
             {
                 return prio1;
             }
+
             if (prio1 == BehaviorPriority.Max || prio2 == BehaviorPriority.Max)
             {
                 return BehaviorPriority.Max;
             }
+
             return new BehaviorPriority(prio1._priority + prio2._priority);
         }
 
-        public override bool Equals(Object other)
+        public static BehaviorPriority Value(int priority)
+        {
+            return new BehaviorPriority(priority);
+        }
+
+        public override bool Equals(object other)
         {
             if (!(other is BehaviorPriority))
             {
                 return false;
             }
+
             return this == ((BehaviorPriority)other);
         }
 

@@ -105,11 +105,11 @@ namespace CubeHack.Tcp
 
         private async Task ReadCookie(Stream stream)
         {
-            byte[] cookieBytes = new byte[TcpConstants.MAGIC_COOKIE.Length];
+            byte[] cookieBytes = new byte[TcpConstants.MagicCookie.Length];
             await stream.ReadArrayAsync(cookieBytes);
-            for (int i = 0; i < TcpConstants.MAGIC_COOKIE.Length; ++i)
+            for (int i = 0; i < TcpConstants.MagicCookie.Length; ++i)
             {
-                if (cookieBytes[i] != TcpConstants.MAGIC_COOKIE[i])
+                if (cookieBytes[i] != TcpConstants.MagicCookie[i])
                 {
                     throw new Exception("Client not recognized.");
                 }

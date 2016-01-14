@@ -98,27 +98,27 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
         private class NoiseCube
         {
-            private const int noiseSize = 64;
-            private const double noiseFactor = 1.0 / noiseSize;
-            private double[,] _data = new double[noiseSize, noiseSize];
+            private const int NoiseSize = 64;
+            private const double NoiseFactor = 1.0 / NoiseSize;
+            private double[,] _data = new double[NoiseSize, NoiseSize];
 
             public NoiseCube()
             {
                 double avg = 0;
 
-                for (int x = 0; x < noiseSize; ++x)
+                for (int x = 0; x < NoiseSize; ++x)
                 {
-                    for (int y = 0; y < noiseSize; ++y)
+                    for (int y = 0; y < NoiseSize; ++y)
                     {
                         _data[x, y] = 2 * Rng.NextDouble() - 1;
                         avg += _data[x, y];
                     }
                 }
 
-                avg /= noiseSize * noiseSize;
-                for (int x = 0; x < noiseSize; ++x)
+                avg /= NoiseSize * NoiseSize;
+                for (int x = 0; x < NoiseSize; ++x)
                 {
-                    for (int y = 0; y < noiseSize; ++y)
+                    for (int y = 0; y < NoiseSize; ++y)
                     {
                         _data[x, y] -= avg;
                     }
@@ -129,19 +129,19 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
             {
                 double mr2 = -1.0 / (r * r);
 
-                int d = Math.Min((int)Math.Ceiling(2 * r * noiseSize), noiseSize - 1);
-                int x0 = (int)Math.Round(x * noiseSize);
-                int y0 = (int)Math.Round(y * noiseSize);
+                int d = Math.Min((int)Math.Ceiling(2 * r * NoiseSize), NoiseSize - 1);
+                int x0 = (int)Math.Round(x * NoiseSize);
+                int y0 = (int)Math.Round(y * NoiseSize);
 
                 double v = 0, vn = 0;
                 for (int x1 = x0 - d; x1 <= x0 + d; ++x1)
                 {
-                    int x2 = x1 & (noiseSize - 1);
-                    double xd = x1 * noiseFactor - x;
+                    int x2 = x1 & (NoiseSize - 1);
+                    double xd = x1 * NoiseFactor - x;
                     for (int y1 = y0 - d; y1 <= y0 + d; ++y1)
                     {
-                        int y2 = y1 & (noiseSize - 1);
-                        double yd = y1 * noiseFactor - y;
+                        int y2 = y1 & (NoiseSize - 1);
+                        double yd = y1 * NoiseFactor - y;
                         double e = Math.Exp(mr2 * (xd * xd + yd * yd));
                         v += e * _data[x2, y2];
                         vn += e;

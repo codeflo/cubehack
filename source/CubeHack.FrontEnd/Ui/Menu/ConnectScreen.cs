@@ -53,13 +53,17 @@ namespace CubeHack.FrontEnd.Ui.Menu
             var style = new Font(30, new Color(0.5f, 0.5f, 0.5f));
             canvas.Print(
                 style,
-                0.5f * (canvas.Width - canvas.MeasureText(style, text)), canvas.Height * 0.5f - 15 - 40, text);
+                0.5f * (canvas.Width - canvas.MeasureText(style, text)),
+                canvas.Height * 0.5f - 15 - 40,
+                text);
 
             text = _address + "_";
             style = new Font(30, new Color(1, 1, 1));
             canvas.Print(
                 style,
-                0.5f * (canvas.Width - canvas.MeasureText(style, text)), canvas.Height * 0.5f - 15 + 40, text);
+                0.5f * (canvas.Width - canvas.MeasureText(style, text)),
+                canvas.Height * 0.5f - 15 + 40,
+                text);
         }
     }
 }

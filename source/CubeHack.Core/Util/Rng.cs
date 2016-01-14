@@ -7,7 +7,7 @@ namespace CubeHack.Util
 {
     public static class Rng
     {
-        // TODO: Replace this with a more robust RNG, something like Mersenne Twister perhaps?
+        /* TODO: Replace this with a more robust RNG, something like Mersenne Twister perhaps? */
 
         private static Random _random = new Random();
 

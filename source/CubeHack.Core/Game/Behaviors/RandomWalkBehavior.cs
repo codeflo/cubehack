@@ -9,24 +9,27 @@ namespace CubeHack.Game.Behaviors
 {
     internal class RandomWalkBehavior : Behavior
     {
-        public RandomWalkBehavior(Entity entity) : base(entity)
+        public RandomWalkBehavior(Entity entity)
+            : base(entity)
         {
         }
 
         public override void Behave(BehaviorContext context)
         {
             var horizontal = Entity.PositionData.Placement.Orientation.Horizontal;
-            if (context.elapsedDuration.Seconds >= 10.0 * Rng.NextExp())
+            if (context.ElapsedDuration.Seconds >= 10.0 * Rng.NextExp())
             {
                 horizontal = Rng.NextDouble() * 2 * Math.PI;
             }
-            else if (context.elapsedDuration.Seconds > 1.0 * Rng.NextExp())
+            else if (context.ElapsedDuration.Seconds > 1.0 * Rng.NextExp())
             {
                 horizontal += (Rng.NextDouble() * 2 - 1) * 0.25;
             }
 
             var orientation = Entity.PositionData.Placement.Orientation = new EntityOrientation(horizontal, 0);
-            Entity.PositionData.Velocity = -0.125 * context.physicsValues.PlayerMovementSpeed * (EntityOffset)orientation;
+            var velocity = -0.125 * context.PhysicsValues.PlayerMovementSpeed * (EntityOffset)orientation;
+            Entity.PositionData.Velocity.X = velocity.X;
+            Entity.PositionData.Velocity.Z = velocity.Z;
         }
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)

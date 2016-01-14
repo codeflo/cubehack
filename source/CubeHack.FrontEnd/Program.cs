@@ -10,10 +10,13 @@ namespace CubeHack.FrontEnd
 {
     internal static class Program
     {
+        [STAThread]
         public static void Main()
         {
             try
             {
+                ThreadPoolConfiguration.Init();
+
                 using (var container = new DependencyInjectionContainer())
                 {
                     var gameApp = container.Resolve<GameApp>();

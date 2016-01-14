@@ -69,7 +69,7 @@ namespace CubeHack.Game
                         _activeBehavior[entity] = b;
                         current = b;
 
-                        //Console.WriteLine("Entity {0} switched to behavior {1}", entity, b);
+                        ////Console.WriteLine("Entity {0} switched to behavior {1}", entity, b);
                     }
                 }
             }

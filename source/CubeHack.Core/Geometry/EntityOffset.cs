@@ -12,6 +12,11 @@ namespace CubeHack.Geometry
     {
         public const double Epsilon = 1.0 / (1L << 32);
 
+        public static readonly EntityOffset Zero = default(EntityOffset);
+        public static readonly EntityOffset UnitX = new EntityOffset(1, 0, 0);
+        public static readonly EntityOffset UnitY = new EntityOffset(0, 1, 0);
+        public static readonly EntityOffset UnitZ = new EntityOffset(0, 0, 1);
+
         [ProtoMember(1)]
         public double X;
 

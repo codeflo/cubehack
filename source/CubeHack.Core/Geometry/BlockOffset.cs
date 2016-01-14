@@ -11,6 +11,11 @@ namespace CubeHack.Geometry
     /// </summary>
     public struct BlockOffset
     {
+        public static readonly BlockOffset Zero = default(BlockOffset);
+        public static readonly BlockOffset UnitX = new BlockOffset(1, 0, 0);
+        public static readonly BlockOffset UnitY = new BlockOffset(0, 1, 0);
+        public static readonly BlockOffset UnitZ = new BlockOffset(0, 0, 1);
+
         [ProtoMember(1)]
         public int X;
 

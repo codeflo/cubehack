@@ -64,12 +64,10 @@ namespace CubeHack.FrontEnd
 
         private static string LoadResource(string path)
         {
-            using (var stream = typeof(Shader).Assembly.GetManifestResourceStream(path))
+            var stream = typeof(Shader).Assembly.GetManifestResourceStream(path);
+            using (var reader = new System.IO.StreamReader(stream, Encoding.UTF8))
             {
-                using (var reader = new System.IO.StreamReader(stream, Encoding.UTF8))
-                {
-                    return reader.ReadToEnd();
-                }
+                return reader.ReadToEnd();
             }
         }
     }

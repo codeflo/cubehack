@@ -11,7 +11,7 @@ namespace CubeHack.Util
     [ProtoContract]
     public struct GameDuration
     {
-        public static readonly GameDuration Zero = new GameDuration();
+        public static readonly GameDuration Zero = default(GameDuration);
 
         public GameDuration(double seconds)
         {
@@ -20,11 +20,6 @@ namespace CubeHack.Util
 
         [ProtoMember(1)]
         public double Seconds { get; set; }
-
-        public static GameDuration FromSeconds(double seconds)
-        {
-            return new GameDuration(seconds);
-        }
 
         public static GameDuration operator +(GameDuration a, GameDuration b)
         {
@@ -79,6 +74,11 @@ namespace CubeHack.Util
         public static bool operator <=(GameDuration a, GameDuration b)
         {
             return a.Seconds <= b.Seconds;
+        }
+
+        public static GameDuration FromSeconds(double seconds)
+        {
+            return new GameDuration(seconds);
         }
 
         public override bool Equals(object obj)

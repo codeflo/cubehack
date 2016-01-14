@@ -30,6 +30,11 @@ namespace CubeHack.Game
 
         private volatile bool _isDisposed;
 
+        static Universe()
+        {
+            ThreadPoolConfiguration.Init();
+        }
+
         public Universe(ISaveFile saveFile, Mod mod)
         {
             SaveFile = saveFile;
@@ -158,17 +163,21 @@ namespace CubeHack.Game
             {
                 var playerChunkPos = (ChunkPos)player.PositionData.Placement.Pos;
 
-                for (int x = playerChunkPos.X - ChunkViewRadiusXZ; x <= playerChunkPos.X + ChunkViewRadiusXZ; ++x)
-                {
-                    for (int y = playerChunkPos.Y - ChunkViewRadiusY; y <= playerChunkPos.Y + ChunkViewRadiusY; ++y)
+                int chunksInPacket = 0;
+
+                ChunkPos.IterateOutwards(
+                    playerChunkPos,
+                    ChunkViewRadiusXZ,
+                    ChunkViewRadiusY,
+                    chunkPos =>
                     {
-                        for (int z = playerChunkPos.Z - ChunkViewRadiusXZ; z <= playerChunkPos.Z + ChunkViewRadiusXZ; ++z)
+                        if (!channel.SentChunks.ContainsKey(chunkPos))
                         {
-                            var chunkPos = new ChunkPos(x, y, z);
-                            if (!channel.SentChunks.ContainsKey(chunkPos))
+                            var chunk = _startWorld.GetChunk(chunkPos);
+
+                            if (chunksInPacket < 5 && chunk.IsCreated)
                             {
                                 channel.SentChunks[chunkPos] = true;
-                                var chunk = _startWorld.GetChunk(chunkPos);
 
                                 if (chunk != null)
                                 {
@@ -178,11 +187,11 @@ namespace CubeHack.Game
                                     }
 
                                     gameEvent.ChunkDataList.Add(chunk.GetChunkData());
+                                    ++chunksInPacket;
                                 }
                             }
                         }
-                    }
-                }
+                    });
             }
 
             if (channel.SentBlockUpdates != _blockUpdates.Count)

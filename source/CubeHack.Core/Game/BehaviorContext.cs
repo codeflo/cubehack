@@ -12,15 +12,17 @@ namespace CubeHack.Game
     /// </summary>
     internal struct BehaviorContext
     {
-        public PhysicsValues physicsValues;
-        public GameDuration elapsedDuration;
-        public IEnumerable<Entity> otherEntities;
+        public PhysicsValues PhysicsValues;
+
+        public GameDuration ElapsedDuration;
+
+        public IEnumerable<Entity> OtherEntities;
 
         public BehaviorContext(PhysicsValues physicsValues, GameDuration elapsedDuration, IEnumerable<Entity> otherEntities)
         {
-            this.physicsValues = physicsValues;
-            this.elapsedDuration = elapsedDuration;
-            this.otherEntities = otherEntities;
+            PhysicsValues = physicsValues;
+            ElapsedDuration = elapsedDuration;
+            OtherEntities = otherEntities;
         }
     }
 }
