@@ -1,9 +1,6 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
-using System.Collections.Generic;
-using System.IO;
-
 namespace CubeHack.Storage
 {
     /// <summary>
@@ -34,25 +31,12 @@ namespace CubeHack.Storage
 
         public static StorageValue Serialize<T>(T instance)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                if (!EqualityComparer<T>.Default.Equals(instance, default(T)))
-                {
-                    ProtoBuf.Serializer.Serialize(memoryStream, instance);
-                }
-
-                return new StorageValue(memoryStream.ToArray());
-            }
+            return new StorageValue(Serialization.Serialize(instance));
         }
 
         public T Deserialize<T>()
         {
-            if (Bytes == null || Bytes.Length == 0) return default(T);
-
-            using (var memoryStream = new MemoryStream(Bytes))
-            {
-                return ProtoBuf.Serializer.Deserialize<T>(memoryStream);
-            }
+            return Serialization.Deserialize<T>(Bytes);
         }
     }
 }

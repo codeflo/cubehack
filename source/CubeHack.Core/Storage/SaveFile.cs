@@ -23,6 +23,8 @@ namespace CubeHack.Storage
 
         private const int _retries = 10;
 
+        private static readonly TimeSpan _saveInterval = TimeSpan.FromSeconds(30);
+
         private readonly object _mutex = new object();
         private readonly BlockingCollection<StorageKey> _queuedKeys = new BlockingCollection<StorageKey>();
         private readonly Dictionary<StorageKey, StorageValue> _queuedValues = new Dictionary<StorageKey, StorageValue>();
@@ -103,6 +105,11 @@ namespace CubeHack.Storage
                 var cancellationToken = _cancellation.Token;
                 while (true)
                 {
+                    if (_queuedKeys.Count == 0)
+                    {
+                        if (cancellationToken.WaitHandle.WaitOne(_saveInterval)) throw new OperationCanceledException();
+                    }
+
                     var key = _queuedKeys.Take(cancellationToken);
                     SaveValue(key);
                 }
