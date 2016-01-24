@@ -5,6 +5,7 @@ using CubeHack.Data;
 using CubeHack.FrontEnd.Graphics.Engine;
 using CubeHack.Game;
 using CubeHack.Geometry;
+using CubeHack.State;
 using CubeHack.Util;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -132,7 +133,7 @@ namespace CubeHack.FrontEnd.Graphics.Rendering
 
                 if (info.ModelIndex != null)
                 {
-                    Model model = gameClient.World.ModData.Models[(int)info.ModelIndex];
+                    Model model = gameClient.ModData.Models[(int)info.ModelIndex];
 
                     modelWidth = model.Width;
                     modelHeight = model.Height;

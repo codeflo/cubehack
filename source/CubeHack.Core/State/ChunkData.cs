@@ -4,7 +4,7 @@
 using CubeHack.Geometry;
 using ProtoBuf;
 
-namespace CubeHack.Game
+namespace CubeHack.State
 {
     [ProtoContract]
     public class ChunkData

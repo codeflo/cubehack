@@ -3,6 +3,7 @@
 
 using CubeHack.FrontEnd.Graphics.Rendering;
 using CubeHack.Game;
+using CubeHack.State;
 using CubeHack.Storage;
 using CubeHack.Tcp;
 using System;
@@ -83,7 +84,7 @@ namespace CubeHack.FrontEnd
             try
             {
                 var saveFile = await SaveDirectory.OpenFileAsync(SaveDirectory.DebugGame);
-                var server = await Task.Run(() => new TcpServer(new Universe(saveFile, DataLoader.LoadMod("Core")), true));
+                var server = await Task.Run(() => new TcpServer(new GameHost(new Universe(saveFile), DataLoader.LoadMod("Core")), true));
                 _server = server;
 
                 var channel = await ConnectTcpAsync("127.0.0.1", server.Port);
@@ -98,7 +99,7 @@ namespace CubeHack.FrontEnd
             }
         }
 
-        public async Task ConnectUniverseAsync(Universe universe)
+        public async Task ConnectUniverseAsync(GameHost universe)
         {
             Disconnect();
             IsConnecting = true;

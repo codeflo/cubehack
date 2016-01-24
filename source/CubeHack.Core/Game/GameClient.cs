@@ -3,6 +3,7 @@
 
 using CubeHack.Data;
 using CubeHack.Geometry;
+using CubeHack.State;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace CubeHack.Game
 {
     public sealed class GameClient
     {
-        public PositionData PositionData = new PositionData();
+        public PositionComponent PositionData = new PositionComponent();
         public PhysicsValues PhysicsValues = new PhysicsValues();
         public List<EntityData> EntityInfos = new List<EntityData>();
 
@@ -27,11 +28,14 @@ namespace CubeHack.Game
 
         public GameClient(IGameController controller, ModData modData)
         {
-            World = new World(null, modData);
+            World = new World(null);
+            ModData = modData;
             _controller = controller;
         }
 
-        public World World { get; private set; }
+        public World World { get; }
+
+        public ModData ModData { get; }
 
         public RayCastResult HighlightedBlock { get; private set; }
 
@@ -115,7 +119,7 @@ namespace CubeHack.Game
         {
             var playerEvent = new PlayerEvent();
 
-            playerEvent.PositionData = new PositionData
+            playerEvent.PositionData = new PositionComponent
             {
                 Placement = PositionData.Placement,
                 Velocity = PositionData.Velocity,

@@ -3,6 +3,7 @@
 
 using CubeHack.Data;
 using CubeHack.Game.Behaviors;
+using CubeHack.State;
 using CubeHack.Util;
 using System.Collections.Generic;
 
@@ -20,7 +21,7 @@ namespace CubeHack.Game
         /// </summary>
         private static Dictionary<Entity, List<Behavior>> _possibleBehaviors = new Dictionary<Entity, List<Behavior>>();
 
-        public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity, IEnumerable<Entity> otherEntities)
+        public static void Control(PhysicsValues physicsValues, GameDuration elapsedDuration, Entity entity)
         {
             // initialize Behavior stores if necessary
             if (!_activeBehavior.ContainsKey(entity))
@@ -36,7 +37,7 @@ namespace CubeHack.Game
             current.AddToActiveDuration(elapsedDuration);
 
             // store all relevant data in BehaviorContext
-            var context = new BehaviorContext(physicsValues, elapsedDuration, otherEntities);
+            var context = new BehaviorContext(physicsValues, elapsedDuration);
 
             // if the minimum running duration of the current Behavior has passed, look for another applicable Behavior
             if (current.ActiveDuration > current.MinimumDuration())
@@ -75,7 +76,9 @@ namespace CubeHack.Game
             }
 
             // let the active Behavior control the entity
-            current.Behave(context);
+            var position = entity.Get<PositionComponent>();
+            current.Behave(context, position);
+            entity.Set(position);
         }
 
         /// <summary>

@@ -3,9 +3,9 @@
 
 using CubeHack.Geometry;
 
-namespace CubeHack.Game
+namespace CubeHack.State
 {
-    public class RayCastResult
+    public sealed class RayCastResult
     {
         public BlockPos BlockPos;
 

@@ -2,12 +2,14 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Geometry;
+using CubeHack.State;
 using ProtoBuf;
 
 namespace CubeHack.Game
 {
+    [Component("Position")]
     [ProtoContract]
-    public class PositionData
+    public class PositionComponent
     {
         [ProtoMember(1)]
         public EntityPlacement Placement;

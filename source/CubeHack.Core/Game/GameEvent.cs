@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Data;
+using CubeHack.State;
 using ProtoBuf;
 using System.Collections.Generic;
 

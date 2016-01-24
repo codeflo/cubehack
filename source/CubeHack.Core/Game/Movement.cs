@@ -3,6 +3,7 @@
 
 using CubeHack.Data;
 using CubeHack.Geometry;
+using CubeHack.State;
 using CubeHack.Util;
 using System;
 
@@ -10,15 +11,16 @@ namespace CubeHack.Game
 {
     internal static class Movement
     {
-        public static void Respawn(PositionData positionData)
+        public static PositionComponent Respawn(PositionComponent position)
         {
-            positionData.Placement = new EntityPlacement(
+            position.Placement = new EntityPlacement(
                 EntityPos.Origin + new EntityOffset((Rng.NextDouble() * 2 - 1) * 32, 0, (Rng.NextDouble() * 2 - 1) * 32),
                 new EntityOrientation(0, Rng.NextDouble() * 2 * Math.PI));
-            positionData.InternalPos = positionData.Placement.Pos;
+            position.InternalPos = position.Placement.Pos;
+            return position;
         }
 
-        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionData positionData, GameDuration elapsedDuration, EntityOffset offset)
+        public static void MoveEntity(PhysicsValues physicsValues, World world, PositionComponent positionData, GameDuration elapsedDuration, EntityOffset offset)
         {
             offset.Y -= 0.5 * elapsedDuration.Seconds * physicsValues.Gravity;
             if (MoveY(physicsValues, world, positionData, offset.Y * elapsedDuration.Seconds))
@@ -110,7 +112,7 @@ namespace CubeHack.Game
             SetPositionFromCollisionPosition(physicsValues, world, positionData);
         }
 
-        private static void SetPositionFromCollisionPosition(PhysicsValues physicsValues, World world, PositionData positionData)
+        private static void SetPositionFromCollisionPosition(PhysicsValues physicsValues, World world, PositionComponent positionData)
         {
             if (positionData.IsFalling)
             {
@@ -169,7 +171,7 @@ namespace CubeHack.Game
             return 0;
         }
 
-        private static bool MoveX(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveX(PhysicsValues physicsValues, World world, PositionComponent positionData, double distance)
         {
             EntityPos position = positionData.InternalPos;
             long p = position.X;
@@ -185,7 +187,7 @@ namespace CubeHack.Game
             return hasCollided;
         }
 
-        private static bool MoveY(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveY(PhysicsValues physicsValues, World world, PositionComponent positionData, double distance)
         {
             EntityPos position = positionData.InternalPos;
             long p = position.Y;
@@ -201,7 +203,7 @@ namespace CubeHack.Game
             return hasCollided;
         }
 
-        private static bool MoveZ(PhysicsValues physicsValues, World world, PositionData positionData, double distance)
+        private static bool MoveZ(PhysicsValues physicsValues, World world, PositionComponent positionData, double distance)
         {
             EntityPos position = positionData.InternalPos;
             long p = position.Z;

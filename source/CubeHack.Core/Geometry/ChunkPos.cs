@@ -8,7 +8,7 @@ namespace CubeHack.Geometry
     using Util;
 
     /// <summary>
-    /// Represents the coordinates of a <see cref="Game.Chunk"/> (a group of blocks with a fixed size).
+    /// Represents the coordinates of a <see cref="State.Chunk"/> (a group of blocks with a fixed size).
     /// </summary>
     [ProtoContract]
     public struct ChunkPos

@@ -2,14 +2,12 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Geometry;
-using CubeHack.Storage;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace CubeHack.Game
+namespace CubeHack.State
 {
-    public class World
+    public sealed class World
     {
         private const int _chunkMask = GeometryConstants.ChunkSize - 1;
 
@@ -19,22 +17,12 @@ namespace CubeHack.Game
 
         private readonly Dictionary<ChunkPos, Chunk> _chunkMap = new Dictionary<ChunkPos, Chunk>();
 
-        public World(Universe universe, ModData modData)
+        public World(Universe universe)
         {
             Universe = universe;
-            ModData = modData;
-        }
-
-        public World(Universe universe)
-            : this(universe, null)
-        {
         }
 
         public Universe Universe { get; }
-
-        public ModData ModData { get; }
-
-        public WorldGenerator Generator { get; set; }
 
         public ushort this[BlockPos p]
         {
@@ -61,7 +49,6 @@ namespace CubeHack.Game
                 if (chunk.IsCreated)
                 {
                     chunk[p.X & _chunkMask, p.Y & _chunkMask, p.Z & _chunkMask] = value;
-                    Universe?.SaveFile?.Write(StorageKey.Get("ChunkData", chunkPos), StorageValue.Serialize(chunk.GetChunkData()));
                 }
             }
         }
@@ -75,7 +62,6 @@ namespace CubeHack.Game
                 {
                     chunk = new Chunk(this, chunkPos);
                     _chunkMap[chunkPos] = chunk;
-                    Task.Run(() => LoadOrGenerate(chunk));
                 }
 
                 return chunk;
@@ -217,24 +203,6 @@ namespace CubeHack.Game
         private static bool IsNumber(double d)
         {
             return !double.IsInfinity(d) && !double.IsNaN(d);
-        }
-
-        private async void LoadOrGenerate(Chunk chunk)
-        {
-            var savedValueTask = Universe?.SaveFile?.ReadAsync(StorageKey.Get("ChunkData", chunk.Pos));
-            StorageValue savedValue = savedValueTask == null ? null : await savedValueTask;
-            if (savedValue != null)
-            {
-                var chunkData = savedValue.Deserialize<ChunkData>();
-                if (chunkData != null)
-                {
-                    chunk.PasteChunkData(savedValue.Deserialize<ChunkData>());
-                }
-            }
-            else if (Generator != null)
-            {
-                Generator.CreateChunk(chunk);
-            }
         }
     }
 }

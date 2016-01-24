@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Game;
+using CubeHack.State;
 using CubeHack.Storage;
 using CubeHack.Tcp;
 using System;
@@ -19,7 +20,7 @@ namespace CubeHack.Server
         private static async Task MainAsync()
         {
             var saveFile = await SaveDirectory.OpenFileAsync(SaveDirectory.DebugGame);
-            using (new TcpServer(new Universe(saveFile, DataLoader.LoadMod("Core")), true))
+            using (new TcpServer(new GameHost(new Universe(saveFile), DataLoader.LoadMod("Core")), true))
             {
                 Console.WriteLine("Server running, press Q to quit.");
                 while (Console.ReadKey(true).Key != ConsoleKey.Q) { }

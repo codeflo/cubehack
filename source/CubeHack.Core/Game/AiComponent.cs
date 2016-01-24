@@ -1,17 +1,14 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.State;
 using ProtoBuf;
 
 namespace CubeHack.Game
 {
+    [Component("Ai")]
     [ProtoContract]
-    public class EntityData
+    internal class AiComponent
     {
-        [ProtoMember(1)]
-        public PositionComponent PositionData;
-
-        [ProtoMember(2)]
-        public int? ModelIndex;
     }
 }

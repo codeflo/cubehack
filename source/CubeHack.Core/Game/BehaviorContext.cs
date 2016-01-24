@@ -3,7 +3,6 @@
 
 using CubeHack.Data;
 using CubeHack.Util;
-using System.Collections.Generic;
 
 namespace CubeHack.Game
 {
@@ -16,13 +15,10 @@ namespace CubeHack.Game
 
         public GameDuration ElapsedDuration;
 
-        public IEnumerable<Entity> OtherEntities;
-
-        public BehaviorContext(PhysicsValues physicsValues, GameDuration elapsedDuration, IEnumerable<Entity> otherEntities)
+        public BehaviorContext(PhysicsValues physicsValues, GameDuration elapsedDuration)
         {
             PhysicsValues = physicsValues;
             ElapsedDuration = elapsedDuration;
-            OtherEntities = otherEntities;
         }
     }
 }

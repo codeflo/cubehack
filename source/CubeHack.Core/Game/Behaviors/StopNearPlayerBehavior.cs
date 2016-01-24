@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.State;
 using CubeHack.Util;
 
 namespace CubeHack.Game.Behaviors
@@ -12,19 +13,19 @@ namespace CubeHack.Game.Behaviors
         {
         }
 
-        public override void Behave(BehaviorContext context)
+        public override void Behave(BehaviorContext context, PositionComponent position)
         {
-            Entity.PositionData.Velocity.X = 0;
-            Entity.PositionData.Velocity.Z = 0;
+            position.Velocity.X = 0;
+            position.Velocity.Z = 0;
         }
 
         public override BehaviorPriority DeterminePriority(BehaviorContext context)
         {
-            foreach (Entity other in context.OtherEntities)
+            foreach (Entity other in Entity.Universe.GetEntities())
             {
-                if (other.IsAiControlled) continue;
+                if (other.Has<AiComponent>()) continue;
 
-                var offset = Entity.PositionData.Placement.Pos - other.PositionData.Placement.Pos;
+                var offset = Entity.Get<PositionComponent>().Placement.Pos - other.Get<PositionComponent>().Placement.Pos;
 
                 if (offset.Length < 4)
                 {

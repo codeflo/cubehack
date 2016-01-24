@@ -2,13 +2,19 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Geometry;
+using CubeHack.Storage;
 using System;
 using System.IO;
 
-namespace CubeHack.Game
+namespace CubeHack.State
 {
-    public class Chunk
+    /// <summary>
+    /// Represents a fixed-size large cubic part of the game world.
+    /// </summary>
+    public sealed class Chunk
     {
+        private readonly StorageKey _storageKey;
+        private readonly ISaveFile _saveFile;
         private ushort[] _data;
         private ChunkData _chunkData;
         private bool _isCreated;
@@ -17,6 +23,31 @@ namespace CubeHack.Game
         {
             World = world;
             Pos = chunkPos;
+
+            _storageKey = StorageKey.Get("ChunkData", chunkPos);
+
+            var saveFile = world?.Universe?.SaveFile;
+            var savedValue = saveFile?.ReadAsync(_storageKey)?.Result;
+            if (savedValue != null)
+            {
+                var chunkData = savedValue.Deserialize<ChunkData>();
+                if (chunkData != null)
+                {
+                    try
+                    {
+                        PasteChunkData(chunkData);
+                    }
+                    catch
+                    {
+                        _data = null;
+                        _isCreated = false;
+                        _chunkData = null;
+                        ContentHash = 0;
+                    }
+                }
+            }
+
+            _saveFile = saveFile;
         }
 
         public ulong ContentHash { get; private set; }
@@ -38,6 +69,7 @@ namespace CubeHack.Game
                 {
                     _isCreated = value;
                     _chunkData = null;
+                    Save();
                 }
             }
         }
@@ -77,6 +109,7 @@ namespace CubeHack.Game
                     ContentHash = ContentHash - GetBlockHash(index, oldValue) + GetBlockHash(index, value);
                     _data[index] = value;
                     _chunkData = null;
+                    Save();
                 }
             }
         }
@@ -132,6 +165,8 @@ namespace CubeHack.Game
 
             IsCreated = chunkData.IsCreated;
             PasteChunkData(chunkData.Data);
+            _chunkData = chunkData;
+            Save();
         }
 
         public void PasteChunkData(byte[] data)
@@ -178,6 +213,11 @@ namespace CubeHack.Game
                     throw new Exception("Invalid ChunkData");
                 }
             }
+        }
+
+        private void Save()
+        {
+            _saveFile?.Write(_storageKey, StorageValue.Serialize(GetChunkData()));
         }
 
         private int GetIndex(int x, int y, int z)

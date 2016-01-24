@@ -3,6 +3,9 @@
 
 using CubeHack.Geometry;
 using CubeHack.Randomization;
+using CubeHack.State;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CubeHack.Game
 {
@@ -16,16 +19,42 @@ namespace CubeHack.Game
         private static readonly Noise2D _mountainNoise = new Noise2D(_mountainSeed, 20, 100);
         private static readonly Noise2D _mountainDetailNoise = new Noise2D(_mountDetailSeed, 7, 20);
 
-        private readonly World _world;
+        private readonly object _mutex = new object();
+        private readonly HashSet<ChunkPos> _inProgress = new HashSet<ChunkPos>();
 
-        public WorldGenerator(World world)
+        public void OnChunkRequested(Chunk chunk)
         {
-            _world = world;
+            lock (_mutex)
+            {
+                var chunkPos = chunk.Pos;
+                if (chunk.IsCreated || _inProgress.Contains(chunk.Pos)) return;
+                _inProgress.Add(chunkPos);
+
+                Task.Run(
+                    () =>
+                    {
+                        try
+                        {
+                            CreateChunk(chunk);
+                        }
+                        finally
+                        {
+                            lock (_mutex)
+                            {
+                                _inProgress.Remove(chunkPos);
+                            }
+                        }
+                    });
+            }
         }
 
-        public void CreateChunk(Chunk chunk)
+        private void CreateChunk(Chunk chunk)
         {
-            var cornerPos = (BlockPos)chunk.Pos;
+            var chunkPos = chunk.Pos;
+
+            var tempChunk = new Chunk(null, chunkPos);
+
+            var cornerPos = (BlockPos)chunkPos;
 
             for (int x = 0; x < GeometryConstants.ChunkSize; ++x)
             {
@@ -43,17 +72,19 @@ namespace CubeHack.Game
 
                         if (wy < mountainHeight)
                         {
-                            chunk[x, y, z] = 2; // Rock
+                            tempChunk[x, y, z] = 2; // Rock
                         }
                         else if (wy < dirtHeight)
                         {
-                            chunk[x, y, z] = 1; // Dirt
+                            tempChunk[x, y, z] = 1; // Dirt
                         }
                     }
                 }
             }
 
-            chunk.IsCreated = true;
+            tempChunk.IsCreated = true;
+
+            chunk.PasteChunkData(tempChunk.GetChunkData());
         }
     }
 }

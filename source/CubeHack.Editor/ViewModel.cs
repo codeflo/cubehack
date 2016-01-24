@@ -4,6 +4,7 @@
 using CubeHack.EditorModel;
 using CubeHack.FrontEnd;
 using CubeHack.Game;
+using CubeHack.State;
 using CubeHack.Storage;
 using CubeHack.Util;
 using Newtonsoft.Json;
@@ -97,7 +98,7 @@ namespace CubeHack.Editor
                     {
                         try
                         {
-                            using (var universe = new Universe(NullSaveFile.Instance, DataLoader.LoadMod(_modName)))
+                            using (var universe = new GameHost(new Universe(NullSaveFile.Instance), DataLoader.LoadMod(_modName)))
                             {
                                 using (var container = new DependencyInjectionContainer())
                                 {

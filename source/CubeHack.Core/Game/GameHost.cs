@@ -3,7 +3,7 @@
 
 using CubeHack.Data;
 using CubeHack.Geometry;
-using CubeHack.Storage;
+using CubeHack.State;
 using CubeHack.Util;
 using System;
 using System.Collections.Generic;
@@ -14,36 +14,29 @@ using static CubeHack.Geometry.GeometryConstants;
 
 namespace CubeHack.Game
 {
-    public sealed class Universe : IDisposable
+    public sealed class GameHost : IDisposable
     {
         private readonly object _mutex = new object();
 
-        private readonly Mod _mod;
-        private readonly ModData _modData;
-
-        private readonly List<Entity> _entities = new List<Entity>();
         private readonly HashSet<Channel> _channels = new HashSet<Channel>();
-
-        private readonly World _startWorld;
 
         private readonly List<BlockUpdateData> _blockUpdates = new List<BlockUpdateData>();
 
+        private readonly WorldGenerator _worldGenerator = new WorldGenerator();
         private volatile bool _isDisposed;
 
-        static Universe()
+        static GameHost()
         {
             ThreadPoolConfiguration.Init();
         }
 
-        public Universe(ISaveFile saveFile, Mod mod)
+        public GameHost(Universe universe, Mod mod)
         {
-            SaveFile = saveFile;
-            _mod = mod;
+            Universe = universe;
 
-            _startWorld = new World(this);
-            _startWorld.Generator = new WorldGenerator(_startWorld);
+            Mod = mod;
 
-            _modData = new ModData
+            ModData = new ModData
             {
                 Materials = mod.Materials.Values.Select((m, i) =>
                 {
@@ -61,22 +54,16 @@ namespace CubeHack.Game
             for (int i = 0; i < 20; ++i)
             {
                 MobType type = null;
-                if (_mod.MobTypes.Count > 0)
+                if (Mod.MobTypes.Count > 0)
                 {
-                    string nextMobType = _mod.MobTypes.Keys.ElementAt(i % _mod.MobTypes.Count);
-                    type = _mod.MobTypes[nextMobType];
+                    string nextMobType = Mod.MobTypes.Keys.ElementAt(i % Mod.MobTypes.Count);
+                    type = Mod.MobTypes[nextMobType];
                 }
 
-                var e = new Entity()
-                {
-                    PositionData = new PositionData(),
-                    IsAiControlled = true,
-                    MobName = type?.Name,
-                    ModelIndex = type?.Model.Index
-                };
-
-                Movement.Respawn(e.PositionData);
-                _entities.Add(e);
+                var e = new Entity(Universe);
+                e.Set(Movement.Respawn(new PositionComponent()));
+                e.Set(new AiComponent());
+                e.Set(new MobTypeComponent(type?.Name));
             }
 
             var thread = new Thread(() => RunUniverse());
@@ -84,31 +71,15 @@ namespace CubeHack.Game
             thread.Start();
         }
 
-        public ISaveFile SaveFile { get; }
+        public Universe Universe { get; }
 
-        public Mod Mod
-        {
-            get
-            {
-                return _mod;
-            }
-        }
+        public Mod Mod { get; }
 
-        public ModData ModData
-        {
-            get
-            {
-                return _modData;
-            }
-        }
+        public ModData ModData { get; }
 
         public void Dispose()
         {
-            if (!_isDisposed)
-            {
-                _isDisposed = true;
-                SaveFile.Dispose();
-            }
+            _isDisposed = true;
         }
 
         public IChannel ConnectPlayer()
@@ -117,11 +88,8 @@ namespace CubeHack.Game
 
             lock (_mutex)
             {
-                var entity = new Entity();
-                _entities.Add(entity);
-
-                entity.PositionData = new PositionData();
-                Movement.Respawn(entity.PositionData);
+                var entity = new Entity(Universe);
+                entity.Set(Movement.Respawn(new PositionComponent()));
 
                 var channel = new Channel(this, entity);
                 _channels.Add(channel);
@@ -137,7 +105,7 @@ namespace CubeHack.Game
 
             lock (_mutex)
             {
-                _entities.Remove(channel.Player);
+                channel.Player.Destroy();
                 _channels.Remove(channel);
             }
         }
@@ -150,7 +118,7 @@ namespace CubeHack.Game
 
                 foreach (var blockUpdate in blockUpdates)
                 {
-                    _startWorld[blockUpdate.Pos] = blockUpdate.Material;
+                    Universe.StartWorld[blockUpdate.Pos] = blockUpdate.Material;
                 }
             }
         }
@@ -160,17 +128,25 @@ namespace CubeHack.Game
             var player = channel.Player;
 
             var gameEvent = new GameEvent() { EntityInfos = new List<EntityData>() };
-            foreach (var entity in _entities)
+
+            foreach (var entity in Universe.GetEntitiesWithComponent<PositionComponent>())
             {
                 if (entity != player)
                 {
-                    gameEvent.EntityInfos.Add(new EntityData { PositionData = entity.PositionData, ModelIndex = entity.ModelIndex });
+                    var position = entity.Get<PositionComponent>();
+                    gameEvent.EntityInfos.Add(
+                        new EntityData
+                        {
+                            PositionData = position,
+                            ModelIndex = Mod.MobTypes.GetOrDefault(entity.Get<MobTypeComponent>()?.MobType)?.Model?.Index,
+                        });
                 }
             }
 
-            if (player.PositionData != null)
+            PositionComponent playerPosition;
+            if (player.TryGet(out playerPosition))
             {
-                var playerChunkPos = (ChunkPos)player.PositionData.Placement.Pos;
+                var playerChunkPos = (ChunkPos)playerPosition.Placement.Pos;
 
                 int chunksInPacket = 0;
 
@@ -180,11 +156,15 @@ namespace CubeHack.Game
                     ChunkViewRadiusY,
                     chunkPos =>
                     {
-                        if (!channel.SentChunks.ContainsKey(chunkPos))
+                        if (chunksInPacket < 5 && !channel.SentChunks.ContainsKey(chunkPos))
                         {
-                            var chunk = _startWorld.GetChunk(chunkPos);
+                            var chunk = Universe.StartWorld.GetChunk(chunkPos);
 
-                            if (chunksInPacket < 5 && chunk.IsCreated)
+                            if (!chunk.IsCreated)
+                            {
+                                _worldGenerator.OnChunkRequested(chunk);
+                            }
+                            else
                             {
                                 channel.SentChunks[chunkPos] = true;
 
@@ -235,24 +215,23 @@ namespace CubeHack.Game
                         }
 
                         var elapsedDuration = GameTime.Update(ref frameTime);
-                        foreach (var entity in _entities)
+                        foreach (var entity in Universe.GetEntitiesWithComponent<PositionComponent>())
                         {
-                            if (entity.PositionData == null)
+                            if (entity.Has<AiComponent>())
                             {
-                                continue;
+                                Ai.Control(Mod.PhysicsValues, elapsedDuration, entity);
                             }
 
-                            if (entity.IsAiControlled)
-                            {
-                                Ai.Control(_mod.PhysicsValues, elapsedDuration, entity, _entities.FindAll(e => !e.Equals(entity)));
-                            }
+                            var position = entity.Get<PositionComponent>();
 
                             Movement.MoveEntity(
-                                _mod.PhysicsValues,
-                                _startWorld,
-                                entity.PositionData,
+                                Mod.PhysicsValues,
+                                Universe.StartWorld,
+                                position,
                                 elapsedDuration,
-                                entity.PositionData.Velocity);
+                                position.Velocity);
+
+                            entity.Set(position);
                         }
 
                         foreach (var channel in _channels)
@@ -263,7 +242,7 @@ namespace CubeHack.Game
                                 if (!channel.HasSentInitialValues)
                                 {
                                     channel.HasSentInitialValues = true;
-                                    gameEvent.PhysicsValues = _mod.PhysicsValues;
+                                    gameEvent.PhysicsValues = Mod.PhysicsValues;
                                 }
 
                                 channel.QueueGameEvent(gameEvent);
@@ -289,7 +268,7 @@ namespace CubeHack.Game
         {
             if (playerEvent.PositionData != null)
             {
-                channel.Player.PositionData = playerEvent.PositionData;
+                channel.Player.Set(playerEvent.PositionData);
             }
 
             if (playerEvent.BlockUpdates != null)

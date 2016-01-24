@@ -10,7 +10,7 @@ namespace CubeHack.Game
     public class PlayerEvent
     {
         [ProtoMember(1)]
-        public PositionData PositionData { get; set; }
+        public PositionComponent PositionData { get; set; }
 
         [ProtoMember(2)]
         public List<BlockUpdateData> BlockUpdates { get; set; }

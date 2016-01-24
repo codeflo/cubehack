@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
 using CubeHack.Geometry;
+using CubeHack.State;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace CubeHack.Game
 {
     internal sealed class Channel : IChannel
     {
-        private readonly Universe _universe;
+        private readonly GameHost _host;
         private readonly Entity _player;
 
         private Func<GameEvent, Task> _onGameEventAsync;
@@ -20,9 +21,9 @@ namespace CubeHack.Game
 
         private ConcurrentQueue<GameEvent> _gameEvents = new ConcurrentQueue<GameEvent>();
 
-        public Channel(Universe universe, Entity player)
+        public Channel(GameHost host, Entity player)
         {
-            _universe = universe;
+            _host = host;
             _player = player;
         }
 
@@ -52,7 +53,7 @@ namespace CubeHack.Game
         {
             get
             {
-                return _universe.ModData;
+                return _host.ModData;
             }
         }
 
@@ -109,7 +110,7 @@ namespace CubeHack.Game
 
         public void Dispose()
         {
-            _universe.DeregisterChannel(this);
+            _host.DeregisterChannel(this);
         }
     }
 }

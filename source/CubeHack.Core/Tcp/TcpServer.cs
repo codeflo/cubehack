@@ -12,11 +12,11 @@ namespace CubeHack.Tcp
 {
     public sealed class TcpServer : IDisposable
     {
-        private readonly Universe _universe;
+        private readonly GameHost _universe;
         private TcpListener _listener;
         private int _port;
 
-        public TcpServer(Universe universe, bool runPublic)
+        public TcpServer(GameHost universe, bool runPublic)
         {
             _universe = universe;
             RunHost(runPublic);

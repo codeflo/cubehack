@@ -47,6 +47,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="EditorModel\DelegateCommand.cs" />
     <Compile Include="EditorModel\DictionaryItem.cs" />
     <Compile Include="EditorModel\DoubleItem.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Data\ModMetaData.cs" />
     <Compile Include="Data\PhysicsValues.cs" />
     <Compile Include="Data\Texture.cs" />
+    <Compile Include="Game\AiComponent.cs" />
     <Compile Include="Game\Behavior.cs" />
     <Compile Include="Game\BehaviorContext.cs" />
     <Compile Include="Game\Behaviors\StopNearPlayerBehavior.cs" />
@@ -75,11 +77,16 @@
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\Ai.cs" />
     <Compile Include="Game\Channel.cs" />
-    <Compile Include="Game\Chunk.cs" />
-    <Compile Include="Game\ChunkData.cs" />
+    <Compile Include="Game\GameSystem.cs" />
+    <Compile Include="Game\MobTypeComponent.cs" />
+    <Compile Include="State\Chunk.cs" />
+    <Compile Include="State\ChunkData.cs" />
     <Compile Include="Game\BlockUpdateData.cs" />
     <Compile Include="Game\DataLoader.cs" />
-    <Compile Include="Game\Entity.cs" />
+    <Compile Include="State\ComponentAttribute.cs" />
+    <Compile Include="State\ComponentChangedMessage.cs" />
+    <Compile Include="State\Container.cs" />
+    <Compile Include="State\Entity.cs" />
     <Compile Include="Game\GameEvent.cs" />
     <Compile Include="Game\GameKey.cs" />
     <Compile Include="Game\IChannel.cs" />
@@ -92,10 +99,12 @@
     <Compile Include="Geometry\EntityOrientation.cs" />
     <Compile Include="Geometry\EntityPlacement.cs" />
     <Compile Include="Geometry\EntityPos.cs" />
-    <Compile Include="Game\PositionData.cs" />
-    <Compile Include="Game\RayCastResult.cs" />
-    <Compile Include="Game\Universe.cs" />
-    <Compile Include="Game\World.cs" />
+    <Compile Include="Game\PositionComponent.cs" />
+    <Compile Include="State\Messenger.cs" />
+    <Compile Include="State\RayCastResult.cs" />
+    <Compile Include="Game\GameHost.cs" />
+    <Compile Include="State\Universe.cs" />
+    <Compile Include="State\World.cs" />
     <Compile Include="Game\WorldGenerator.cs" />
     <Compile Include="Geometry\BlockOffset.cs" />
     <Compile Include="Geometry\BlockPos.cs" />
@@ -113,6 +122,7 @@
     <Compile Include="Storage\NullSaveFile.cs" />
     <Compile Include="Storage\SaveDirectory.cs" />
     <Compile Include="Storage\SaveFileInfo.cs" />
+    <Compile Include="Storage\Serialization.cs" />
     <Compile Include="Storage\StorageKey.cs" />
     <Compile Include="Storage\StorageValue.cs" />
     <Compile Include="Tcp\TcpChannel.cs" />

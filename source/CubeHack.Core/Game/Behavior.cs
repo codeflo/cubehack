@@ -1,6 +1,7 @@
 ﻿// Copyright (c) the CubeHack authors. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt in the project root.
 
+using CubeHack.State;
 using CubeHack.Util;
 
 namespace CubeHack.Game
@@ -79,6 +80,7 @@ namespace CubeHack.Game
         /// Controls a certain entity depending on the game's state.
         /// </summary>
         /// <param name="context">Information related to game and Behavior state</param>
-        public abstract void Behave(BehaviorContext context);
+        /// <param name="position">The entity's PositionComponent, updated in-place by the behavior.</param>
+        public abstract void Behave(BehaviorContext context, PositionComponent position);
     }
 }
